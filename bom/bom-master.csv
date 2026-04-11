@@ -1,0 +1,26 @@
+Item,Category,Description,Qty,Spec,Source,Est Cost,Status,Notes
+HTR-001,Electrical,Heater element (salvaged),1,"~1200-1500W 120V nichrome on mica frame",Thrift store hair dryer or heat gun,$2-5,Thrift hunt,Measure element resistance and dims after teardown; design heater can around it
+BLW-001,Electrical,Blower motor,1,"~10-20 CFM with speed control",Hair dryer fan OR 12V brushless (Amazon),$0-15,Thrift hunt,If hair dryer fan works use it; otherwise 12V brushless + junk drawer laptop PSU
+SSR-001,Electrical,Zero-cross solid state relay,1,"25A 120V AC load / 3-5V DC control",Amazon generic,$5-8,Needs sourcing,Add thermal fuse as independent backup
+ESP-001,Electrical,ESP32 dev board,1,"ESP32-DevKitC clone",Amazon generic,$5-7,Needs sourcing,HiLetgo or similar
+TC-AMP-001,Electrical,MAX31855 TC amplifier breakout,3,"SPI K-type",Amazon generic,$4-6 ea,Needs sourcing,HiLetgo or Songhe; total ~$12-18
+TC-001,Sensor,K-type thermocouple - process air (TC1),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Post-heater pre-plenum placement
+TC-002,Sensor,K-type thermocouple - bean bed (TC2),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Side-entry lower chamber
+TC-003,Sensor,K-type thermocouple - exhaust (TC3),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Exhaust stream above chamber
+PSU-001,Electrical,5V power supply,1,"5V 2A USB charger",Junk drawer,$0,Thrift hunt,Old phone charger; must be isolated (all modern ones are)
+PSU-002,Electrical,12V power supply (if DC blower),1,"12V 3-5A laptop brick",Junk drawer,$0,Thrift hunt,Only needed if using 12V blower instead of hair dryer fan
+FUSE-001,Electrical,Fuse or breaker,1,"15A 120V inline",Hardware store,$2-3,Needs sourcing,Do not cheap out - must be properly rated
+SW-001,Electrical,Hard disconnect switch,1,"120V 15A rated toggle or rocker",Hardware store,$3-5,Needs sourcing,Must be accessible during operation
+THFUSE-001,Electrical,Thermal fuse (SSR backup),1,"228C or similar one-shot",Amazon or hardware store,$1-2,Needs sourcing,Mounts on heater; independent last-resort cutoff if SSR fails shorted
+CHAM-001A,Mechanical,Roast chamber - primary,1,"2.5 in OD 304 SS exhaust pipe 12 in length",Auto parts store or Amazon,$8-12,Needs sourcing,Standard exhaust size; ~2.37 in ID
+CHAM-001B,Mechanical,Roast chamber - backup,1,"3.0 in OD 304 SS exhaust pipe 12 in length",Auto parts store or Amazon,$8-12,Needs sourcing,Standard exhaust size; ~2.87 in ID
+PLEN-001,Mechanical,Plenum body,1,"SS steam table pan or steel box ~4x4x3 in minimum",Thrift store or restaurant supply,$3-10,Thrift hunt,Drill side-entry hole; must tolerate ~200C+ air
+PLATE-001A,Mechanical,Distributor plate - 2.5 in,1,"Perforated SS sheet cut to ~2.37 in dia",Amazon perforated sheet + tin snips,$5-8,Needs sourcing,Buy one 6x6 sheet and cut both plates from it
+PLATE-001B,Mechanical,Distributor plate - 3.0 in,1,"Perforated SS sheet cut to ~2.87 in dia",Same sheet as PLATE-001A,$0,Needs sourcing,Cut from same sheet
+BAFFLE-001,Mechanical,Plenum baffles,1-2,"Sheet metal or SS scrap",Salvage or hardware store,$0-5,Needs design,Geometry depends on plenum container found
+EXH-001,Mechanical,Exhaust / chaff screen,1,"SS mesh or screen + duct adapter",Hardware store / Amazon,$5-10,Needs design,Must not over-restrict airflow
+WIRE-001,Electrical,Mains wiring,1 lot,"14 AWG stranded THHN or similar",Hardware store,$5-8,Needs sourcing,Do not cheap out - must be properly rated
+WIRE-002,Electrical,Low-voltage signal wiring,1 lot,"22-26 AWG hookup wire",Amazon assortment or junk drawer,$0-5,Needs sourcing,Keep physically separated from mains
+CONN-001,Electrical,Connectors and terminals,1 lot,"Ring terminals spade terminals crimp assortment",Amazon or hardware store,$5-8,Needs sourcing,
+STRAIN-001,Electrical,Strain reliefs,2-3,"Cord grip / cable gland for mains entry",Hardware store,$3-5,Needs sourcing,Do not skip - mains cord pulling loose is a real hazard
+FAST-001,Mechanical,Fasteners,1 lot,"SS bolts nuts washers M4/M5 or #8/#10",Hardware store,$5-8,Needs sourcing,Sized to final mechanical design

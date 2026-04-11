@@ -1,0 +1,30 @@
+# PlatformIO
+firmware/.pio/
+firmware/.vscode/
+
+# Build artifacts
+*.o
+*.elf
+*.bin
+*.hex
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Test results (keep structure, ignore large data files)
+test/results/*.csv
+test/results/*.log
+!test/results/.gitkeep
+
+# Build photos (keep structure, ignore large images by default)
+# Uncomment below if you want to track photos in git:
+# !build/photos/*.jpg
+# !build/photos/*.png
