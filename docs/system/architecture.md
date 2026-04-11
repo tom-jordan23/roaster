@@ -248,7 +248,84 @@ consistent with these values.
 
 ---
 
-## 5. Open Questions for DG-0 Review
+## 5. Cooling Cycle (DR-005)
+
+### Approach
+
+Blower-only cooling: SSR off (heater 0%), blower at 100%. No bypass damper
+for v1.
+
+### Thermal Mass Estimate
+
+| Component | Mass | Cp (J/g·°C) | Energy to cool 200→50°C |
+|-----------|------|-------------|-------------------------|
+| Nichrome wire | ~50-80g | 0.44 | ~3-5 kJ |
+| Heater can body | ~100-200g | 0.50 | ~8-15 kJ |
+| **Total** | | | **~13-23 kJ** |
+
+At 10 CFM forced convection through a 200°C element:
+
+    ṁ × Cp × ΔT = 0.0057 × 1005 × 180 ≈ 1030 W initially
+
+Average extraction ~500-1000W → element cools in **15-30 seconds**. After that,
+air reaching the beans is near ambient temperature.
+
+### Bean Cooling Timeline (estimated)
+
+113g beans at ~200°C, blower at 100% (10-15 CFM ambient air):
+- 0-30s: Air still warm from element thermal lag; beans cool slowly
+- 30-90s: Air is near ambient; beans cooling rapidly
+- 90-140s: Beans reach <50°C target
+
+**Total estimated cooling time: 100-140 seconds** (within industry 90-150s target)
+
+### Mechanical Provision for Future Bypass
+
+The blower-to-heater-can joint uses a hose clamp connection (not welded). If
+TP-002 data shows residual heat is problematic, options include:
+1. Physically disconnect heater can during cooling (simplest)
+2. Add a two-position diverter valve at the blower outlet
+3. Add a second ambient air inlet on the plenum
+
+### Firmware: COOL Command
+
+A `COOL` command sets heater to 0%, blower to 100%, and logs cooldown curves.
+Operator notification when TC2 < 50°C.
+
+---
+
+## 6. Chaff Collection (DR-006)
+
+### Chaff Characteristics
+
+| Parameter | Value |
+|-----------|-------|
+| Chaff mass per 113g batch | ~0.5-0.9g |
+| Particle size | ~30-60 microns |
+| Release timing | Mostly at first crack |
+
+### Design: Expansion Chamber + Mesh Screen
+
+A removable exhaust unit mounted atop the roast chamber:
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| Body | ~4" OD × 5" tall SS cylinder | Step-up from chamber diameter |
+| Air velocity in chamber | 2-4 ft/sec | Velocity drop causes chaff to settle |
+| Screen | 30×30 SS mesh | Secondary capture at top of expansion chamber |
+| Cleaning | Tap-and-empty between roasts | Removable unit |
+| Backpressure impact | Negligible | Expansion reduces velocity; screen is coarse enough |
+
+### Why Not a Cyclone
+
+A cyclone separator provides 96-99% capture but adds significant backpressure,
+which directly impairs fluidization in the roast chamber. At the 113g scale
+with <1g of chaff per roast, a simple expansion chamber is sufficient and adds
+near-zero flow restriction.
+
+---
+
+## 7. Open Questions for DG-0 Review
 
 1. ~~**Chamber diameter:** 3" is the working assumption. Should we consider 2.5"?~~
    **RESOLVED:** Sourcing both 2.5" OD and 3.0" OD standard SS tubes. Will test both.

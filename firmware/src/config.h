@@ -20,7 +20,7 @@
 #define PIN_SSR       22    // Zero-cross SSR gate (active high)
 
 // Blower control
-#define PIN_BLOWER    23    // TRIAC gate or PWM output (depends on motor type)
+#define PIN_BLOWER    23    // PWM output → MOSFET gate → 12V blower (DR-003)
 
 // =============================================================
 // Safety Thresholds
@@ -38,6 +38,13 @@
 #define SENSOR_POLL_INTERVAL_MS 250     // 4 Hz sensor polling (report at 2 Hz)
 #define LOG_INTERVAL_MS         500     // 2 Hz data output to serial
 #define SERIAL_BAUD             115200
+
+// =============================================================
+// Cooling Cycle (DR-005)
+// =============================================================
+
+#define COOL_TARGET_TEMP_C      50.0f   // TC2 threshold to signal "beans cool"
+#define COOL_BLOWER_PERCENT     100     // Blower duty during cooling
 
 // =============================================================
 // Thermocouple Count

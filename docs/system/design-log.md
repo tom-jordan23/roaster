@@ -4,6 +4,48 @@ Running record of design decisions, findings, and rationale. Newest entries firs
 
 ---
 
+## 2026-04-11 — Cooling, chaff collection, and air system design decisions
+
+### Decisions made
+
+1. **DR-005: Blower-only cooling cycle, no bypass damper for v1.** After SSR
+   cutoff the heater can retains ~13-23 kJ of thermal energy. At 10-15 CFM
+   forced convection, this dissipates in ~15-30 seconds — short enough that
+   blower-only cooling (heater off, blower 100%) will bring 113g of beans from
+   ~200°C to <50°C within 100-140 seconds. This is within the industry target
+   of 90-150 seconds for small batches. A bypass damper or separate air paths
+   are deferred until TP-002 cooldown data proves they're needed.
+
+   **Mechanical hedge:** The blower-to-heater-can joint should use a hose clamp
+   connection (not welded) so the heater can be physically disconnected for
+   bypass cooling if thermal lag is worse than estimated.
+
+   **Firmware addition:** A `COOL` command — sets heater to 0%, blower to 100%,
+   logs cooldown curves, and notifies operator when TC2 < 50°C.
+
+2. **DR-006: Expansion chamber + mesh screen for chaff collection.** 113g of
+   green coffee produces ~0.5-0.9g of chaff, mostly at first crack. A removable
+   expansion chamber at the exhaust captures chaff by velocity reduction:
+   - ~4" OD × 5" tall stainless cylinder (step-up from roast chamber diameter
+     drops air velocity to 2-4 ft/sec, chaff settles out)
+   - 30×30 stainless mesh screen inside the top as a secondary capture plate
+   - Removable for tap-and-empty cleaning between roasts
+   - Negligible backpressure impact on fluidization
+
+   This matches the proven approach used in Fresh Roast SR series and popcorn
+   pumper conversions. A cyclone separator is overkill at 113g scale and adds
+   significant backpressure.
+
+### What changed from previous session
+
+- Exhaust path is now explicitly a two-stage system: expansion chamber (chaff
+  drops out) then mesh screen (secondary capture), both in a removable unit.
+- Cooling is a defined operating mode, not just "turn the heater off."
+- Heater can joint specified as hose clamp (not permanent) to preserve bypass
+  option for future.
+
+---
+
 ## 2026-04-11 — Heating and blower design decisions
 
 ### Decisions made

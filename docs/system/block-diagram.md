@@ -21,24 +21,39 @@ flowchart LR
     D --> E[Baffles / Flow Conditioning]
     E --> F[Distributor Plate]
     F --> G[Roast Chamber]
-    G --> H[Exhaust / Chaff Separator]
-    H --> I[Exhaust Out]
+    G --> H[Expansion Chamber\n~4in OD x 5in tall SS]
+    H --> J[30x30 SS Mesh Screen]
+    J --> I[Exhaust Out]
 
     style F fill:#f96,stroke:#333
     style D fill:#69f,stroke:#333
+    style H fill:#f9f,stroke:#333
 ```
 
 ### Air Path Notes
 
 | Segment | Key Parameter | Design Concern |
 |---------|--------------|----------------|
-| Blower → Heater Can | Airflow rate (CFM), static pressure | Blower must produce enough pressure to fluidize beans through the full system |
+| Blower → Heater Can | Airflow rate (CFM), static pressure | Hose clamp joint (not welded) to preserve future bypass option (DR-005) |
 | Heater Can | Air temperature rise | Element must fit the can; air must contact element long enough for heat transfer |
 | Heater Can → Plenum | Side-entry velocity | High inlet velocity must be tamed by plenum + baffles |
 | Plenum + Baffles | Pressure equalization | Convert directional jet to uniform pressure field |
 | Distributor Plate | Velocity uniformity | Critical tuning component — must be swappable for iteration |
 | Roast Chamber | Fluidization quality | Even bed motion, no dead zones, no geysering |
-| Exhaust | Chaff removal, backpressure | Must not restrict flow enough to impede fluidization |
+| Expansion Chamber | Chaff separation by velocity drop | Step-up from chamber dia to ~4" OD drops velocity to 2-4 ft/sec; chaff settles (DR-006) |
+| Mesh Screen | Secondary chaff capture | 30×30 SS mesh; removable for cleaning between roasts |
+| Exhaust | Backpressure budget | Expansion chamber + mesh must not restrict flow enough to impede fluidization |
+
+### Cooling Mode (DR-005)
+
+During cooling: SSR off (heater 0%), blower 100%. Air path remains serial
+(Blower → Heater Can → Plenum → Chamber). Residual heater thermal mass
+(~13-23 kJ) dissipates in ~15-30 seconds at 10-15 CFM forced convection.
+Target: beans from ~200°C to <50°C within 140 seconds.
+
+The blower-to-heater-can joint is a hose clamp connection, not welded. If
+TP-002 data shows thermal lag is unacceptable, the heater can can be physically
+disconnected for bypass cooling, or a diverter added later.
 
 ---
 
@@ -190,7 +205,8 @@ flowchart LR
 | Heater Can | Airflow, AC power via SSR | Heated airflow | Electrical → Mechanical |
 | Plenum + Plate | Heated airflow (side entry) | Uniform upward velocity | Mechanical |
 | Roast Chamber | Uniform hot air, green beans | Roasted beans, hot exhaust + chaff | Mechanical |
-| Exhaust | Hot air + chaff | Separated chaff, clean exhaust | Mechanical |
+| Expansion Chamber | Hot air + chaff | Separated chaff, slower air | Mechanical |
+| Mesh Screen + Exhaust | Slow air with residual chaff | Clean exhaust out | Mechanical |
 | TC Sensors (x3) | Physical temperature | SPI digital readings | Electrical → Firmware |
 | ESP32 Control | Sensor data, operator commands | SSR duty, blower command, data stream | Firmware |
 | Safety System | Sensor data, fault signals | Override commands, fault latch | Firmware (authoritative) |

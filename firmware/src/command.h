@@ -12,6 +12,7 @@ void command_update();
 // Command format (text-based, newline-terminated):
 //   HEAT <0-100>     Set heater duty %
 //   BLOW <0-100>     Set blower speed %
+//   COOL             Enter cooling mode: heater 0%, blower 100% (DR-005)
 //   STATUS           Request current state (one-shot)
 //   RESET            Reset safety fault (if conditions clear)
 //   STOP             Emergency stop: heater off, blower off

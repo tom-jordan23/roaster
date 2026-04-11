@@ -18,7 +18,9 @@ PLEN-001,Mechanical,Plenum body,1,"SS steam table pan or steel box ~4x4x3 in min
 PLATE-001A,Mechanical,Distributor plate - 2.5 in,1,"Perforated SS sheet cut to ~2.37 in dia",Amazon perforated sheet + tin snips,$5-8,Needs sourcing,Buy one 6x6 sheet and cut both plates from it
 PLATE-001B,Mechanical,Distributor plate - 3.0 in,1,"Perforated SS sheet cut to ~2.87 in dia",Same sheet as PLATE-001A,$0,Needs sourcing,Cut from same sheet
 BAFFLE-001,Mechanical,Plenum baffles,1-2,"Sheet metal or SS scrap",Salvage or hardware store,$0-5,Needs design,Geometry depends on plenum container found
-EXH-001,Mechanical,Exhaust / chaff screen,1,"SS mesh or screen + duct adapter",Hardware store / Amazon,$5-10,Needs design,Must not over-restrict airflow
+EXH-001,Mechanical,Chaff expansion chamber,1,"~4in OD x 5in tall SS cylinder or can",Thrift store / restaurant supply / Amazon,$3-10,Needs sourcing,Step-up from chamber OD; chaff settles by velocity drop (DR-006)
+EXH-002,Mechanical,Chaff mesh screen,1,"30x30 SS woven mesh ~4in dia disc",Amazon perforated/mesh sheet,$3-5,Needs sourcing,Cut from sheet; fits inside top of expansion chamber (DR-006)
+EXH-003,Mechanical,Hose clamp - blower to heater can,1,"Worm-drive clamp sized to heater can OD",Hardware store,$1-2,Needs sourcing,Non-permanent joint; preserves future bypass option (DR-005)
 WIRE-001,Electrical,Mains wiring,1 lot,"14 AWG stranded THHN or similar",Hardware store,$5-8,Needs sourcing,Do not cheap out - must be properly rated
 WIRE-002,Electrical,Low-voltage signal wiring,1 lot,"22-26 AWG hookup wire",Amazon assortment or junk drawer,$0-5,Needs sourcing,Keep physically separated from mains
 CONN-001,Electrical,Connectors and terminals,1 lot,"Ring terminals spade terminals crimp assortment",Amazon or hardware store,$5-8,Needs sourcing,
