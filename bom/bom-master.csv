@@ -14,10 +14,13 @@ SW-001,Electrical,Hard disconnect switch,1,"120V 15A rated toggle or rocker",Har
 THFUSE-001,Electrical,Thermal fuse (SSR backup),1,"228C or similar one-shot",Amazon or hardware store,$1-2,Needs sourcing,Mounts on heater; independent last-resort cutoff if SSR fails shorted
 CHAM-001A,Mechanical,Roast chamber - primary,1,"2.5 in OD 304 SS exhaust pipe 12 in length",Auto parts store or Amazon,$8-12,Needs sourcing,Standard exhaust size; ~2.37 in ID
 CHAM-001B,Mechanical,Roast chamber - backup,1,"3.0 in OD 304 SS exhaust pipe 12 in length",Auto parts store or Amazon,$8-12,Needs sourcing,Standard exhaust size; ~2.87 in ID
-PLEN-001,Mechanical,Plenum body,1,"SS steam table pan or steel box ~4x4x3 in minimum",Thrift store or restaurant supply,$3-10,Thrift hunt,Drill side-entry hole; must tolerate ~200C+ air
+PLEN-001,Mechanical,Plenum body,1,"1/6 size SS steam table pan 4in deep (~6.4x6.3x4in 18/8 SS)",Restaurant supply or thrift store,$4-8,Needs sourcing,Right-side-up orientation; drill side-entry hole for heater can (DR-007)
+PLEN-002,Mechanical,Clamping ring - 2.5in chamber,1,"Flat SS sheet ~1in wide annular ring with 2.37in ID hole",Cut from SS flat plate or sheet,$0-3,Needs fabrication,Bolted to pan rim with 3-4 bolts; seats plate + chamber (DR-008)
+PLEN-003,Mechanical,Clamping ring - 3.0in chamber,1,"Flat SS sheet ~1in wide annular ring with 2.87in ID hole",Cut from same SS sheet as PLEN-002,$0,Needs fabrication,Swap pair with PLATE-001B for 3.0in chamber (DR-008)
+PLEN-004,Mechanical,Plenum gasket,1,"Fiberglass or ceramic fiber strip ~1in wide",Amazon or hardware store,$3-5,Needs sourcing,High-temp seal between clamping ring and pan rim (DR-008)
 PLATE-001A,Mechanical,Distributor plate - 2.5 in,1,"Perforated SS sheet cut to ~2.37 in dia",Amazon perforated sheet + tin snips,$5-8,Needs sourcing,Buy one 6x6 sheet and cut both plates from it
 PLATE-001B,Mechanical,Distributor plate - 3.0 in,1,"Perforated SS sheet cut to ~2.87 in dia",Same sheet as PLATE-001A,$0,Needs sourcing,Cut from same sheet
-BAFFLE-001,Mechanical,Plenum baffles,1-2,"Sheet metal or SS scrap",Salvage or hardware store,$0-5,Needs design,Geometry depends on plenum container found
+BAFFLE-001,Mechanical,Deflector ramp baffle,1,"SS sheet ~3x4in bent to 45deg",Salvage or hardware store,$0-3,Needs fabrication,Bolted/riveted inside plenum opposite side-entry; redirects jet to pan floor (DR-009)
 EXH-001,Mechanical,Chaff expansion chamber,1,"~4in OD x 5in tall SS cylinder or can",Thrift store / restaurant supply / Amazon,$3-10,Needs sourcing,Step-up from chamber OD; chaff settles by velocity drop (DR-006)
 EXH-002,Mechanical,Chaff mesh screen,1,"30x30 SS woven mesh ~4in dia disc",Amazon perforated/mesh sheet,$3-5,Needs sourcing,Cut from sheet; fits inside top of expansion chamber (DR-006)
 EXH-003,Mechanical,Hose clamp - blower to heater can,1,"Worm-drive clamp sized to heater can OD",Hardware store,$1-2,Needs sourcing,Non-permanent joint; preserves future bypass option (DR-005)

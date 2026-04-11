@@ -17,9 +17,9 @@ control, and measure this flow.
 flowchart LR
     A[Ambient Air] --> B[Blower]
     B --> C[Heater Can]
-    C -->|Side Entry| D[Box Plenum]
-    D --> E[Baffles / Flow Conditioning]
-    E --> F[Distributor Plate]
+    C -->|Side Entry| D["Plenum\n(1/6 SS steam table pan)"]
+    D --> E["Deflector Ramp\n(45° SS baffle)"]
+    E --> F["Distributor Plate\n(bolted clamping ring)"]
     F --> G[Roast Chamber]
     G --> H[Expansion Chamber\n~4in OD x 5in tall SS]
     H --> J[30x30 SS Mesh Screen]

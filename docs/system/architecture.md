@@ -325,7 +325,48 @@ near-zero flow restriction.
 
 ---
 
-## 7. Open Questions for DG-0 Review
+## 8. Plenum Assembly (DR-007, DR-008, DR-009)
+
+### Plenum Body
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| Body | 1/6 size SS steam table pan, 4" deep | ~6.4" x 6.3" x 4", 18/8 SS |
+| Orientation | Right-side-up (open top faces up) | |
+| Side-entry hole | ~2-3" dia, drilled through wall | Connects to heater can via hose clamp |
+| Source | Restaurant supply or thrift store | $4-8 new |
+
+### Top Assembly (no welding)
+
+The open top of the pan is sealed by a bolted clamping ring that holds the
+distributor plate and seats the roast chamber:
+
+| Component | Material | Attachment | Notes |
+|-----------|----------|------------|-------|
+| Clamping ring | Flat SS sheet, ~1" wide annular ring | 3-4 bolts through pan flange | Inner hole sized per chamber (2.5" or 3.0") |
+| Gasket | Fiberglass or ceramic fiber strip | Sandwiched between ring and rim | Seals against hot air leakage |
+| Distributor plate | Perforated SS disc | Rests on ring ledge, gravity-held | Swappable for iteration |
+| Chamber tube | 2.5" or 3.0" OD SS tube | Sits on/in plate, held by ring | Gravity + clamp if needed |
+
+Swapping chamber sizes requires swapping the ring + plate pair. Each pair is
+sized to its chamber OD.
+
+### Deflector Ramp Baffle
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| Material | SS sheet scrap, ~3" × 4" | Bent to ~45° in vise |
+| Position | Inside plenum, opposite side-entry hole | Redirects jet downward to pan floor |
+| Attachment | 2 bolts or pop rivets through pan wall | Must be removable for cleaning |
+| Function | Jet → floor spread → uniform rise to plate | Uses full plenum volume for equalization |
+
+**Future option:** If TP-001 shows uneven fluidization, add a horizontal
+perforated baffle ~1" below the distributor plate as a second equalization
+stage. The plenum depth (4") allows room for this without redesign.
+
+---
+
+## 9. Open Questions for DG-0 Review
 
 1. ~~**Chamber diameter:** 3" is the working assumption. Should we consider 2.5"?~~
    **RESOLVED:** Sourcing both 2.5" OD and 3.0" OD standard SS tubes. Will test both.
@@ -342,5 +383,7 @@ near-zero flow restriction.
    and plenum? Worth calculating before finalizing heater spec.
 5. **Roast time expectation:** Are 10-15 minute roast times acceptable for v1?
    (Likely yes, given the learning-platform philosophy.)
-6. **Plenum adapter design:** How to mount both chamber sizes on the same plenum —
-   adapter ring, two plate sizes, or stepped seat?
+6. ~~**Plenum adapter design:** How to mount both chamber sizes on the same plenum —
+   adapter ring, two plate sizes, or stepped seat?~~
+   **RESOLVED (DR-008):** Bolted clamping ring across pan rim. Swap ring + plate
+   pair to change chamber sizes. No welding.

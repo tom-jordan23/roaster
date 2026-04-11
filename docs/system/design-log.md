@@ -4,6 +4,64 @@ Running record of design decisions, findings, and rationale. Newest entries firs
 
 ---
 
+## 2026-04-11 — Plenum, baffle, and mechanical assembly decisions
+
+### Decisions made
+
+1. **DR-007: 1/6 size SS steam table pan as plenum body.** A standard 1/6 size,
+   4" deep stainless steel steam table pan (~6.4" x 6.3" x 4") from restaurant
+   supply, $4-8. 18/8 stainless, food-safe, rated for sustained heat. Provides
+   generous volume for pressure equalization. Pan oriented right-side-up (open
+   top faces up).
+
+2. **DR-008: Bolted clamping ring assembly, no welding.** The distributor plate
+   and roast chamber are held by a flat SS ring bolted across the pan rim with
+   3-4 bolts through the flange. The ring's inner hole is sized to seat the
+   distributor plate and the chamber tube. Swapping between 2.5" and 3.0"
+   chambers means swapping the ring + plate pair. High-temp gasket material
+   (fiberglass or ceramic fiber) between ring and pan rim for sealing.
+
+   This resolves open question #6 (plenum adapter design): mechanical clamping
+   ring, not welded adapter or stepped seat.
+
+3. **DR-009: Deflector ramp baffle.** A single piece of SS sheet metal, bent to
+   ~45°, mounted opposite the side-entry hole inside the plenum. Redirects the
+   inlet jet downward toward the pan floor; air spreads across the full floor
+   area then rises uniformly toward the distributor plate. Bolted or riveted
+   in place.
+
+   If TP-001 shows uneven fluidization, a horizontal perforated baffle can be
+   added as a second equalization stage ~1" below the distributor plate. This
+   is a future option, not built into v1 initially.
+
+### Assembly concept (no welding required)
+
+```
+    ┌──── Roast Chamber Tube ────┐
+    │    (sits inside ring)       │
+    ├─────────────────────────────┤
+    │    Distributor Plate        │  ← Perforated disc, rests on clamping ring
+    ├─────────────────────────────┤
+    │    Clamping Ring + Gasket   │  ← Bolted to pan rim (3-4 bolts)
+    ╞═════════════════════════════╡  ← Pan rim/flange
+    │         ╲                   │
+    │          ╲ Deflector ramp   │  ← 45° bent SS, bolted opposite inlet
+    │           ╲                 │
+    ○ ← Side-entry from heater   │
+    │                             │
+    └─────────────────────────────┘
+```
+
+Tools required: drill, step bit or hole saw, tin snips, vise, wrench.
+No welding, no brazing, no special fabrication.
+
+### Open questions resolved
+
+- Plenum adapter design (architecture.md Q6): **Resolved.** Bolted clamping
+  ring with swappable ring + plate pairs for each chamber size.
+
+---
+
 ## 2026-04-11 — Cooling, chaff collection, and air system design decisions
 
 ### Decisions made

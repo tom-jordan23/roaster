@@ -27,8 +27,10 @@ Source parts in this order because downstream geometry depends on upstream finds
    fluidization. See DR-002.
 2. **Chamber tubes** (auto parts store or online) — 2.5" and 3.0" OD SS exhaust
    pipe. Standard sizes, easy to find.
-3. **Plenum container** (thrift store or restaurant supply) — SS steam table pan,
-   steel junction box, or similar. Measure it, then design baffles to fit.
+3. **Plenum pan** (restaurant supply or thrift store) — 1/6 size SS steam table
+   pan, 4" deep. ~$4-8 new from WebstaurantStore, Chef's Deal, or local
+   restaurant supply. At thrift stores look for any small rectangular SS pan
+   with straight walls and at least 3" depth. See DR-007.
 4. **12V blower** (Amazon) — 12V brushless DC centrifugal, 120mm x 32mm form factor
    (e.g. WDERAIR or Wathai). Also source a 12V/3A+ switching PSU if not in the
    junk drawer. See DR-003.
@@ -74,8 +76,9 @@ meet rated specifications. Do not substitute with lower-rated parts to save mone
 - Thermal cutout specs (temperature rating, one-shot vs resettable)
 - Note: the heat gun's built-in axial fan is not being used (DR-003)
 
-### Plenum container
-- Internal dimensions (L × W × H or diameter × H)
-- Wall material and thickness
-- Whether it can tolerate process air temperatures (~200°C+ on entry side)
-- Where to cut the side-entry hole
+### Plenum pan (1/6 size steam table pan)
+- Internal dimensions (L × W × H) — confirm ~6" × 6" × 4" minimum
+- Wall material and thickness — should be 18/8 or 304 SS
+- Rim/flange width — needed to size clamping ring bolts
+- Where to drill the side-entry hole (centered on one wall, as low as practical)
+- Whether rim is flat enough for gasket sealing
