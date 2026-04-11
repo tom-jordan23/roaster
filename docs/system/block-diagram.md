@@ -48,28 +48,44 @@ flowchart LR
 flowchart TD
     MAINS["120V AC Mains"] --> DISC["Hard Disconnect\n(switch or plug)"]
     DISC --> FUSE["Fuse / Breaker\n(15A)"]
-    FUSE --> BUS["Power Bus"]
+    FUSE --> BUS["AC Power Bus"]
 
-    BUS --> SSR["Zero-Cross SSR"]
-    SSR --> HTR["Heater Element\n(~1200-1500W)"]
+    subgraph DOMAIN1["Domain 1: 120V AC (Mains)"]
+        BUS --> SSR["Zero-Cross SSR"]
+        SSR --> HTR["Heater Element\n(Warrior 1500W nichrome)"]
+    end
 
-    BUS --> BLWR_DRV["Blower Driver\n(TRIAC or DC)"]
-    BLWR_DRV --> BLWR["Blower Motor"]
+    subgraph DOMAIN2["Domain 2: 12V DC"]
+        BUS --> PSU12["12V AC-DC PSU\n(switching, 3A+)"]
+        PSU12 --> MOSFET["Logic-Level MOSFET\n(e.g. IRLZ44N)"]
+        MOSFET --> BLWR["12V Brushless\nCentrifugal Blower"]
+    end
 
-    BUS --> PSU["5V/3.3V PSU\n(low-voltage supply)"]
-    PSU --> ESP["ESP32 + Control Board"]
+    subgraph DOMAIN3["Domain 3: 3.3V DC"]
+        BUS --> PSU3["3.3V PSU\n(USB or regulator)"]
+        PSU3 --> ESP["ESP32 + Control Board"]
+    end
+
+    ESP -->|"GPIO (PWM)"| MOSFET
+    ESP -->|"GPIO"| SSR
 
     style SSR fill:#f66,stroke:#333
     style DISC fill:#ff9,stroke:#333
+    style DOMAIN1 fill:#fee,stroke:#c33
+    style DOMAIN2 fill:#eef,stroke:#33c
+    style DOMAIN3 fill:#efe,stroke:#3c3
 ```
 
 ### Power Path Notes
 
+- **Three power domains:** 120V AC (heater), 12V DC (blower), 3.3V DC (controls)
 - Hard disconnect is **mandatory** — must be reachable during operation
-- Fuse sized for total load: heater + blower + controls (~13A max at 120V)
+- Fuse sized for total load: heater + 12V PSU + 3.3V PSU (~13A max at 120V)
 - SSR is controlled by ESP32 via zero-cross switching for burst-fire duty control
-- Blower driver type depends on motor selection (AC universal → TRIAC; DC → appropriate driver)
-- Low-voltage PSU must be isolated from mains; ESP32 side is entirely low-voltage
+- Blower driven by MOSFET with PWM from ESP32 — no AC motor control needed
+- 12V PSU: switching wall wart or enclosed supply, 3A minimum
+- Both low-voltage PSUs must be isolated from mains; ESP32 side is entirely low-voltage
+- Flyback diode required across blower motor leads
 - **All metal chassis components must be grounded to mains earth**
 
 ---
@@ -127,7 +143,7 @@ flowchart TD
 
 - Three MAX31855 breakout boards share a single SPI bus with individual chip-select lines
 - SSR control is a single GPIO (logic-level, active high assumed until schematic finalized)
-- Blower control GPIO depends on driver type (TRIAC gate trigger or PWM for DC)
+- Blower control GPIO drives a logic-level MOSFET gate via PWM
 - **Safety layer has hardware-priority override on SSR GPIO** — it can force heater off regardless of control layer state
 - All signal wiring must be physically separated from mains wiring
 
@@ -170,7 +186,7 @@ flowchart LR
 
 | Subsystem | Inputs | Outputs | Interface Owner |
 |-----------|--------|---------|-----------------|
-| Blower | AC/DC power, speed command | Airflow + pressure | Electrical → Mechanical |
+| Blower | 12V DC via MOSFET, PWM speed command | Airflow + pressure | Electrical → Mechanical |
 | Heater Can | Airflow, AC power via SSR | Heated airflow | Electrical → Mechanical |
 | Plenum + Plate | Heated airflow (side entry) | Uniform upward velocity | Mechanical |
 | Roast Chamber | Uniform hot air, green beans | Roasted beans, hot exhaust + chaff | Mechanical |

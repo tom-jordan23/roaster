@@ -1,6 +1,6 @@
 Item,Category,Description,Qty,Spec,Source,Est Cost,Status,Notes
-HTR-001,Electrical,Heater element (salvaged),1,"~1200-1500W 120V nichrome on mica frame",Thrift store hair dryer or heat gun,$2-5,Thrift hunt,Measure element resistance and dims after teardown; design heater can around it
-BLW-001,Electrical,Blower motor,1,"~10-20 CFM with speed control",Hair dryer fan OR 12V brushless (Amazon),$0-15,Thrift hunt,If hair dryer fan works use it; otherwise 12V brushless + junk drawer laptop PSU
+HTR-001,Electrical,Heater element (salvaged),1,"~1500W 120V nichrome on mica former",Harbor Freight Warrior heat gun SKU 56434,$10,Needs sourcing,Tear down heat gun and measure element resistance and dims; design heater can around it (DR-002)
+BLW-001,Electrical,12V brushless centrifugal blower,1,"120mm x 32mm 12V DC ~10-15 CFM",Amazon (WDERAIR or Wathai),$15-20,Needs sourcing,MOSFET + PWM control from ESP32; flyback diode across leads (DR-003)
 SSR-001,Electrical,Zero-cross solid state relay,1,"25A 120V AC load / 3-5V DC control",Amazon generic,$5-8,Needs sourcing,Add thermal fuse as independent backup
 ESP-001,Electrical,ESP32 dev board,1,"ESP32-DevKitC clone",Amazon generic,$5-7,Needs sourcing,HiLetgo or similar
 TC-AMP-001,Electrical,MAX31855 TC amplifier breakout,3,"SPI K-type",Amazon generic,$4-6 ea,Needs sourcing,HiLetgo or Songhe; total ~$12-18
@@ -8,7 +8,7 @@ TC-001,Sensor,K-type thermocouple - process air (TC1),1,"SS sheath probe K-type"
 TC-002,Sensor,K-type thermocouple - bean bed (TC2),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Side-entry lower chamber
 TC-003,Sensor,K-type thermocouple - exhaust (TC3),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Exhaust stream above chamber
 PSU-001,Electrical,5V power supply,1,"5V 2A USB charger",Junk drawer,$0,Thrift hunt,Old phone charger; must be isolated (all modern ones are)
-PSU-002,Electrical,12V power supply (if DC blower),1,"12V 3-5A laptop brick",Junk drawer,$0,Thrift hunt,Only needed if using 12V blower instead of hair dryer fan
+PSU-002,Electrical,12V power supply,1,"12V 3A+ switching AC-DC supply",Junk drawer or Amazon,$0-10,Needs sourcing,Required for 12V blower (DR-004); wall wart or enclosed LED-style PSU
 FUSE-001,Electrical,Fuse or breaker,1,"15A 120V inline",Hardware store,$2-3,Needs sourcing,Do not cheap out - must be properly rated
 SW-001,Electrical,Hard disconnect switch,1,"120V 15A rated toggle or rocker",Hardware store,$3-5,Needs sourcing,Must be accessible during operation
 THFUSE-001,Electrical,Thermal fuse (SSR backup),1,"228C or similar one-shot",Amazon or hardware store,$1-2,Needs sourcing,Mounts on heater; independent last-resort cutoff if SSR fails shorted

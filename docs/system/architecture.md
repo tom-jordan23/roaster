@@ -90,7 +90,7 @@ with extended roast and recirculated heat from the bean mass):
 | Parameter | Target | Notes |
 |-----------|--------|-------|
 | Heater power | **1200–1400W** | Constrained by 120V/15A |
-| Heater element type | Coiled nichrome or tubular | Must fit in heater can |
+| Heater element type | Nichrome on mica former (Warrior heat gun) | Salvaged from HF SKU 56434 |
 | Heater voltage | 120V AC | Switched by zero-cross SSR |
 | Expected process air ΔT | 100–150°C at working airflow | Actual achievable temp depends on airflow, losses |
 
@@ -209,19 +209,22 @@ Blower-side CFM needed (at ambient):
 |-----------|--------|-------|
 | Static pressure | **1.5–2.5" WC** at operating CFM | Must handle full system backpressure |
 | Flow rate | **6–15 CFM** at operating pressure | Must cover both chamber sizes |
-| Control | Speed-adjustable | TRIAC (AC) or PWM (DC) |
+| Control | PWM via MOSFET from ESP32 | 12V DC brushless, no AC control needed |
 | Noise | Tolerable for indoor use | Not a hard requirement for v1 |
 
-### Blower Candidates (to evaluate)
+### Blower Selection (DR-003)
 
-- Small centrifugal blowers (HVAC/furnace inducer type)
-- DC brushless blowers (12V or 24V with dedicated PSU)
-- Inflatable blower / bounce house blower (often overpowered but cheap)
-- Repurposed vacuum motor (high pressure, may need flow restriction)
+**Selected:** 12V brushless DC centrifugal blower (~120mm x 32mm form factor,
+e.g. WDERAIR or Wathai). Controlled via logic-level MOSFET (e.g. IRLZ44N) and
+PWM from ESP32 GPIO. Flyback diode across fan leads. Powered by a 12V/3A
+AC-DC switching supply (see Power Domains below).
 
 **Selection criteria:** Must produce ~13-15 CFM at ~2" WC static pressure (to cover
 the 3.0" chamber) with controllable speed down to ~6 CFM (for the 2.5" chamber).
-DC brushless preferred for ease of control, but AC with TRIAC is acceptable.
+
+**Rationale:** 12V DC keeps the blower entirely on the low-voltage side, avoiding
+AC triac control complexity. Cost delta vs. scavenged AC motor is ~$15-20 —
+worth it for simpler electronics and direct ESP32 PWM control.
 
 ---
 
@@ -250,10 +253,14 @@ consistent with these values.
 1. ~~**Chamber diameter:** 3" is the working assumption. Should we consider 2.5"?~~
    **RESOLVED:** Sourcing both 2.5" OD and 3.0" OD standard SS tubes. Will test both.
    Plenum interface must accommodate both diameters.
-2. **Heater element sourcing:** What specific elements are available in the 1200-1400W
-   / 120V range that fit a reasonable heater-can geometry?
-3. **Blower sourcing:** DC brushless vs AC centrifugal — availability and cost at
-   the required operating point? Must cover 6-15 CFM range with speed control.
+2. ~~**Heater element sourcing:** What specific elements are available in the 1200-1400W
+   / 120V range that fit a reasonable heater-can geometry?~~
+   **RESOLVED (DR-002):** Harbor Freight Warrior 1500W heat gun (SKU 56434, ~$10).
+   Nichrome on mica former. Measure element after teardown.
+3. ~~**Blower sourcing:** DC brushless vs AC centrifugal — availability and cost at
+   the required operating point? Must cover 6-15 CFM range with speed control.~~
+   **RESOLVED (DR-003):** 12V brushless DC centrifugal (~120mm x 32mm), MOSFET + PWM.
+   Requires 12V/3A AC-DC supply as additional BOM item.
 4. **Insulation strategy:** How much can we recover by insulating the heater can
    and plenum? Worth calculating before finalizing heater spec.
 5. **Roast time expectation:** Are 10-15 minute roast times acceptable for v1?

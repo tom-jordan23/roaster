@@ -20,16 +20,22 @@ rather than specifying ideal parts and paying catalog prices. See
 
 Source parts in this order because downstream geometry depends on upstream finds:
 
-1. **Hair dryer or heat gun** (thrift store) — determines heater element geometry,
-   heater power, and possibly blower. Get this first, measure everything, then
-   design around it.
+1. **Warrior heat gun** (Harbor Freight, SKU 56434, ~$10) — heater element donor.
+   Nichrome on mica former, 1500W, dual-temp. Get this first, tear down, measure
+   element resistance and geometry, then design heater can around it. The heat
+   gun's built-in axial fan is **not** used — it lacks the static pressure for
+   fluidization. See DR-002.
 2. **Chamber tubes** (auto parts store or online) — 2.5" and 3.0" OD SS exhaust
    pipe. Standard sizes, easy to find.
 3. **Plenum container** (thrift store or restaurant supply) — SS steam table pan,
    steel junction box, or similar. Measure it, then design baffles to fit.
-4. **Electronics** (Amazon) — ESP32, MAX31855 x3, SSR, TCs, wiring. These are
-   spec-driven and can be ordered in parallel with steps 1-3.
-5. **Hardware store run** — fuse, disconnect switch, strain reliefs, wire, connectors,
+4. **12V blower** (Amazon) — 12V brushless DC centrifugal, 120mm x 32mm form factor
+   (e.g. WDERAIR or Wathai). Also source a 12V/3A+ switching PSU if not in the
+   junk drawer. See DR-003.
+5. **Electronics** (Amazon) — ESP32, MAX31855 x3, SSR, MOSFET (IRLZ44N), TCs,
+   flyback diode, wiring. These are spec-driven and can be ordered in parallel
+   with steps 1-4.
+6. **Hardware store run** — fuse, disconnect switch, strain reliefs, wire, connectors,
    fasteners.
 
 ## Vendor Shortlist
@@ -62,12 +68,11 @@ meet rated specifications. Do not substitute with lower-rated parts to save mone
 
 ## What to measure when you find parts
 
-### Hair dryer / heat gun teardown
-- Element resistance (calculate wattage: P = V²/R at 120V)
-- Element physical dimensions (length, diameter, frame shape)
-- Fan/blower type (DC motor? Universal AC? What voltage?)
-- Fan airflow (qualitative: hold tissue at outlet)
-- Whether the blower is usable independently of the element
+### Warrior heat gun teardown (SKU 56434)
+- Element resistance (calculate wattage: P = V²/R at 120V; expect ~9.6Ω for 1500W)
+- Element physical dimensions (length, diameter, mica former shape)
+- Thermal cutout specs (temperature rating, one-shot vs resettable)
+- Note: the heat gun's built-in axial fan is not being used (DR-003)
 
 ### Plenum container
 - Internal dimensions (L × W × H or diameter × H)
