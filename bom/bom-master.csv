@@ -24,6 +24,10 @@ BAFFLE-001,Mechanical,Deflector ramp baffle,1,"SS sheet ~3x4in bent to 45deg",Sa
 EXH-001,Mechanical,Chaff expansion chamber,1,"~4in OD x 5in tall SS cylinder or can",Thrift store / restaurant supply / Amazon,$3-10,Needs sourcing,Step-up from chamber OD; chaff settles by velocity drop (DR-006)
 EXH-002,Mechanical,Chaff mesh screen,1,"30x30 SS woven mesh ~4in dia disc",Amazon perforated/mesh sheet,$3-5,Needs sourcing,Cut from sheet; fits inside top of expansion chamber (DR-006)
 EXH-003,Mechanical,Hose clamp - blower to heater can,1,"Worm-drive clamp sized to heater can OD",Hardware store,$1-2,Needs sourcing,Non-permanent joint; preserves future bypass option (DR-005)
+Q1-001,Electrical,N-CH MOSFET (blower driver),1,"IRLZ44N TO-220 logic-level",Amazon,$1-2,Needs sourcing,Vgs(th) ~1-2V fully on at 3.3V; RDS(on) 0.022 ohm
+R1-001,Electrical,Gate resistor,1,"100 ohm 1/4W axial",Amazon or junk drawer,$0-1,Needs sourcing,Limits inrush to MOSFET gate capacitance
+R2-001,Electrical,Gate pulldown resistor,1,"10k ohm 1/4W axial",Amazon or junk drawer,$0-1,Needs sourcing,Ensures MOSFET off during ESP32 boot/reset
+D1-001,Electrical,Flyback diode,1,"1N5819 Schottky 40V 1A DO-41",Amazon,$0-1,Needs sourcing,Across blower leads; cathode to +12V anode to drain
 WIRE-001,Electrical,Mains wiring,1 lot,"14 AWG stranded THHN or similar",Hardware store,$5-8,Needs sourcing,Do not cheap out - must be properly rated
 WIRE-002,Electrical,Low-voltage signal wiring,1 lot,"22-26 AWG hookup wire",Amazon assortment or junk drawer,$0-5,Needs sourcing,Keep physically separated from mains
 CONN-001,Electrical,Connectors and terminals,1 lot,"Ring terminals spade terminals crimp assortment",Amazon or hardware store,$5-8,Needs sourcing,
