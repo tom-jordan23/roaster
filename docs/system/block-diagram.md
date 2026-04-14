@@ -19,7 +19,8 @@ flowchart LR
     B --> C[Heater Can]
     C -->|Side Entry| D["Plenum\n(1/6 SS steam table pan)"]
     D --> E["Deflector Ramp\n(45° SS baffle)"]
-    E --> F["Distributor Plate\n(bolted clamping ring)"]
+    E --> E2["Second Baffle\n(perforated, if needed)\n(T2)"]
+    E2 --> F["Distributor Plate\n(bolted clamping ring)"]
     F --> G[Roast Chamber]
     G --> H[Expansion Chamber\n~4in OD x 5in tall SS]
     H --> J[30x30 SS Mesh Screen]
@@ -37,9 +38,9 @@ flowchart LR
 | Blower → Heater Can | Airflow rate (CFM), static pressure | Hose clamp joint (not welded) to preserve future bypass option (DR-005) |
 | Heater Can | Air temperature rise | Element must fit the can; air must contact element long enough for heat transfer |
 | Heater Can → Plenum | Side-entry velocity | High inlet velocity must be tamed by plenum + baffles |
-| Plenum + Baffles | Pressure equalization | Convert directional jet to uniform pressure field |
+| Plenum + Baffles | Pressure equalization | Convert directional jet to uniform pressure field. T2: plan for second baffle if single ramp insufficient |
 | Distributor Plate | Velocity uniformity | Critical tuning component — must be swappable for iteration |
-| Roast Chamber | Fluidization quality | Even bed motion, no dead zones, no geysering |
+| Roast Chamber | Fluidization quality | Even bed motion, no dead zones, no geysering. M4: chamber tube retained by set screws or clips, not gravity alone |
 | Expansion Chamber | Chaff separation by velocity drop | Step-up from chamber dia to ~4" OD drops velocity to 2-4 ft/sec; chaff settles (DR-006) |
 | Mesh Screen | Secondary chaff capture | 30×30 SS mesh; removable for cleaning between roasts |
 | Exhaust | Backpressure budget | Expansion chamber + mesh must not restrict flow enough to impede fluidization |

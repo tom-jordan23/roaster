@@ -1,7 +1,8 @@
 # DR-010: Formal Design Review — v1 Fluid-Bed Coffee Roaster
 
 **Date:** 2026-04-12
-**Status:** REVIEW COMPLETE — Action Required
+**Disposition date:** 2026-04-13
+**Status:** REVIEW DISPOSITIONED — All findings addressed. A1 and A2 rejected; all others incorporated.
 **Review type:** Multi-panel design review (electrical safety, thermal/airflow, firmware, mechanical, alternatives)
 **Scope:** Full system architecture, firmware, BOM, and build approach
 

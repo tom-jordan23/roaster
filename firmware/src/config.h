@@ -29,6 +29,12 @@
 #define SAFETY_MAX_PROCESS_TEMP_C   280.0f  // TC1 over-temp shutdown
 #define SAFETY_MAX_EXHAUST_TEMP_C   250.0f  // TC3 over-temp shutdown
 #define SAFETY_TC_FAULT_TIMEOUT_MS  2000    // Max time with bad TC reading before fault
+#define SAFETY_RESET_TEMP_C         100.0f  // All TCs must be below this to allow reset (E2)
+#define SAFETY_RESET_HYSTERESIS_C    20.0f  // Below max - hysteresis before reset allowed
+#define SAFETY_STARTUP_GOOD_READS     5     // Consecutive good TC reads before heater enable (F4)
+#define SAFETY_MAX_RATE_C_PER_S      10.0f  // Max allowed dT/dt before fault (F7)
+#define SAFETY_SENSOR_STALE_MS      500     // Reject sensor data older than this (F6)
+#define SAFETY_CONSEC_FAULTS_TRIP      3    // Consecutive bad SPI reads before TC fault (E13)
 
 // =============================================================
 // Control Parameters
@@ -38,6 +44,10 @@
 #define SENSOR_POLL_INTERVAL_MS 250     // 4 Hz sensor polling (report at 2 Hz)
 #define LOG_INTERVAL_MS         500     // 2 Hz data output to serial
 #define SERIAL_BAUD             115200
+#define BLOWER_PWM_FREQ         25000   // 25 kHz PWM frequency (E11)
+#define BLOWER_PWM_CHANNEL      0       // LEDC channel for blower
+#define BLOWER_PWM_RESOLUTION   8       // 8-bit resolution (0-255)
+#define WDT_TIMEOUT_S           5       // Hardware watchdog timeout in seconds (E1/F2)
 
 // =============================================================
 // Cooling Cycle (DR-005)

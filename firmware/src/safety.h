@@ -5,10 +5,12 @@
 
 // Safety system states
 enum class SafetyState {
+    STARTUP,        // Waiting for sensors to stabilize (F4)
     OK,             // No faults, normal operation allowed
     FAULT_OVERTEMP, // Over-temperature detected
     FAULT_TC,       // Thermocouple fault (open/short/timeout)
     FAULT_AIRFLOW,  // Airflow loss detected
+    FAULT_RATE,     // Runaway rate-of-change detected (F7)
     FAULT_GENERAL   // Catch-all fault
 };
 
@@ -32,5 +34,8 @@ bool safety_is_ok();
 
 // Returns true if heater is allowed to operate
 bool safety_heater_allowed();
+
+// Returns true if startup grace period has completed (F4)
+bool safety_startup_complete();
 
 #endif // ROASTER_SAFETY_H

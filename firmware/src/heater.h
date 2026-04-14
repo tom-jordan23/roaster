@@ -19,6 +19,9 @@ void heater_update();
 // Force heater off immediately — called by safety system
 void heater_force_off();
 
+// Clear forced_off latch — only called by safety_reset() after conditions validate (F5/E3)
+void heater_clear_forced_off();
+
 // Returns true if heater output is currently energized
 bool heater_is_on();
 

@@ -60,6 +60,12 @@ void heater_force_off() {
     output_state = false;
 }
 
+void heater_clear_forced_off() {
+    // F5/E3: Only called by safety_reset() after validating all conditions are safe.
+    // Does NOT re-enable the heater — just clears the latch so future commands work.
+    forced_off = false;
+}
+
 bool heater_is_on() {
     return output_state;
 }

@@ -94,5 +94,7 @@ void command_update() {
         } else if (cmd_pos < sizeof(cmd_buffer) - 1) {
             cmd_buffer[cmd_pos++] = c;
         }
+        // F9: Characters beyond buffer capacity are silently discarded.
+        // No overflow possible — cmd_pos is bounded by sizeof(cmd_buffer) - 1.
     }
 }

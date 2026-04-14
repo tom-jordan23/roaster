@@ -4,6 +4,181 @@ Running record of design decisions, findings, and rationale. Newest entries firs
 
 ---
 
+## 2026-04-13 — DR-010 formal design review response
+
+### Summary
+
+Formal design review (DR-010, 2026-04-12) produced 41 findings across 5 panels:
+10 critical, 16 major, 15 minor. All findings accepted and incorporated except
+two alternative-approach recommendations that were explicitly rejected.
+
+### Rejected alternatives
+
+1. **A1 REJECTED: Use intact heat gun body as heater can.** The heat gun housing
+   will not be retained. The element will be extracted and mounted in a purpose-built
+   heater can (2.5" SS exhaust pipe). Rationale: retaining the plastic housing
+   limits thermal design flexibility, complicates mounting geometry, and the factory
+   thermal cutout can be replaced by THFUSE-001 and THFUSE-002.
+
+2. **A2 REJECTED: Use PID controller (Inkbird ITC-100VH) for v1 controls.** The
+   ESP32-based control stack is retained for v1. Rationale: the ESP32 system
+   provides data logging, multi-sensor monitoring, serial command interface, and
+   future automation capability that a standalone PID controller cannot. The
+   firmware safety bugs identified in DR-010 have been fixed directly.
+
+### Accepted alternatives
+
+3. **A3 ACCEPTED: Borosilicate glass tube as v1 chamber option.** Added to BOM as
+   CHAM-001C. Will be tested alongside SS tubes in TP-001. Visual feedback on
+   fluidization quality and roast development is valuable for the learning phase.
+
+4. **A4 ACCEPTED: Roast on a popcorn popper first.** Added to BOM as POPPER-001.
+   Calibrate operator senses (first-crack sound, roast progression, fluidization
+   feel) before commissioning the custom roaster.
+
+### Critical fixes implemented (firmware)
+
+5. **F1: NAN bypass in over-temp check.** Added `isnan()` guard to every temperature
+   comparison in `safety_check()`. NAN now triggers fault (fail-safe).
+
+6. **E1/F2: Hardware watchdog.** Enabled ESP32 Task Watchdog Timer (TWDT) with
+   5-second timeout. Fed every loop iteration. If firmware hangs, ESP32 resets —
+   GPIO defaults to input/low on reset, de-energizing the SSR.
+
+7. **E4/F3: Airflow interlock.** `safety_check()` now verifies `blower_is_running()`
+   before allowing heater operation. Heater command with blower off triggers
+   FAULT_AIRFLOW.
+
+8. **F4: Startup race condition.** Safety system starts in new STARTUP state.
+   Requires SAFETY_STARTUP_GOOD_READS (5) consecutive clean TC reads before
+   transitioning to OK and allowing heater. Init order changed: safety_init()
+   runs first.
+
+9. **E3/F5: forced_off latch fix.** Added `heater_clear_forced_off()` function.
+   `safety_reset()` clears the forced_off flag only after validating all TCs are
+   reading valid and all temps are below SAFETY_RESET_TEMP_C (100°C).
+
+10. **E12: safety_init() no longer calls heater_force_off().** This was prematurely
+    latching the forced_off flag at boot. heater_init() already ensures GPIO is LOW.
+
+### Major fixes implemented (firmware)
+
+11. **E2/F8: safety_reset() now validates conditions.** Reset requires all TCs
+    reading valid, all temps below 100°C. No longer unconditionally succeeds.
+
+12. **F6: Stale sensor data rejection.** Sensors track last-update timestamp via
+    `sensors_get_age_ms()`. Safety faults if data is older than 500ms.
+
+13. **F7: Rate-of-change detection (dT/dt).** Safety tracks TC1 rate of change.
+    Faults if rate exceeds 10°C/s (SAFETY_MAX_RATE_C_PER_S). New FAULT_RATE state.
+
+14. **E13: Consecutive fault counter for SPI noise resilience.** Single bad SPI read
+    no longer triggers TC fault. Requires SAFETY_CONSEC_FAULTS_TRIP (3) consecutive
+    bad reads. Prevents false faults from EMI near 1500W burst-fire switching.
+
+### Minor fixes implemented (firmware)
+
+15. **E11: Proper LEDC PWM for blower.** Replaced `analogWrite()` (default ~1kHz)
+    with explicit `ledcSetup()`/`ledcAttachPin()`/`ledcWrite()` at 25kHz. Above
+    audible range, appropriate for brushless DC motor.
+
+16. **F9: Command buffer overflow.** Already bounded by `cmd_pos < sizeof(cmd_buffer) - 1`
+    check — characters beyond capacity silently discarded. Added clarifying comment.
+
+### Electrical schematic changes
+
+17. **E5: Fusing margin documented.** 12.5A continuous on 15A circuit is 83% (NEC
+    requires ≤80% for continuous). Options documented: use 20A circuit, limit duty,
+    or accept for bench testing.
+
+18. **E6: Second thermal fuse (THFUSE-002).** Added 192–216°C thermal fuse in the
+    heated airstream (lower rating, lower thermal lag than can-body fuse).
+
+19. **E7: SSR drive buffer.** Added NPN transistor (2N2222) to buffer 3.3V GPIO to
+    5V for reliable SSR triggering. Added Q2, R3 to schematic and BOM.
+
+20. **E8: Double-pole disconnect.** SW-001 changed from SPST to DPST — switches
+    both L and N to protect against reversed cord polarity.
+
+21. **E9: Flyback diode upgrade.** D1 changed from 1N5819 (1A) to SS34 (3A) — blower
+    draws 1-2A, 1A rating had insufficient margin.
+
+22. **E10: RC snubber.** Added 47Ω + 0.01µF/400V X2-rated across SSR output.
+    Suppresses inductive voltage spikes.
+
+### Thermal/airflow documentation updates
+
+23. **T1: Blower P-Q verification.** Documented as critical blocker in architecture.md.
+    Must measure actual P-Q curve before committing to sizing.
+
+24. **T2: Second plenum baffle.** Documented plan for second equalization stage if
+    TP-001 shows single ramp insufficient. Added to block diagram air path.
+
+25. **T3: L/D ratio slugging risk.** Documented in architecture.md — 2.5" chamber
+    L/D ~1.0 exceeds Geldart D slugging threshold. 3.0" chamber (L/D ~0.57) is
+    safer.
+
+26. **T4: Insulation requirements.** 3.0" chamber cannot reach target temps without
+    insulating heater can and plenum. Documented in architecture.md.
+
+27. **T5: Umf operating margin.** Revised from 1.5× to 1.8–2.5× Umf. All airflow
+    calculations updated for hot-air density. CFM requirements increased.
+
+28. **T6-T8: Known thermal losses.** New section in architecture.md documenting
+    moisture release (~30-40W), bean mass change (12-18%), and mesh clogging risk.
+
+### Mechanical updates
+
+29. **M1: Base stability.** Baseplate widened to 20"×12" in OpenSCAD model. Added
+    BASE-001 to BOM with ballast and L-bracket requirements.
+
+30. **M2: Plenum side-entry stub tube.** Added PLEN-005 to BOM — short SS tube stub
+    through pan wall to prevent deformation under hose clamp.
+
+31. **M3: Clamping ring load spreading.** Fender washers and backing strips specified
+    in BOM notes for PLEN-002, PLEN-003, and FAST-001.
+
+32. **M4: Chamber tube retention.** Added CHAM-RET-001 to BOM — set screws or spring
+    clips through clamping ring. Never gravity alone.
+
+33. **M5: Heater can build plan.** Added HTR-CAN-001 to BOM — build from 2.5" SS
+    exhaust pipe, mount element via mica former tabs, insulate exterior.
+
+34. **M6: Expansion chamber cone reducer.** Added EXH-004 to BOM — sheet metal cone
+    from chamber OD to 4" expansion chamber, hose clamp at each end.
+
+35. **M7: Pan burn-off.** Added note to PLEN-001 — burn off outdoors at full temp
+    for 10 minutes before first use with beans.
+
+36. **M8: Fiberglass gasket.** PLEN-004 changed from ceramic fiber to fiberglass
+    stove rope/tape. Ceramic fiber sheds respirable particles.
+
+37. **M9: TC compression fittings.** Added TC-FIT-001 to BOM — 1/8" Swagelok-style
+    compression fittings for positive TC sealing and strain relief.
+
+38. **M11: All-stainless hose clamps.** EXH-003 quantity increased, spec changed to
+    all-stainless worm-drive (not zinc-plated) for temperature tolerance.
+
+### BOM impact
+
+BOM grew from 36 to 47 line items. New items added:
+- THFUSE-002, Q2-001, R3-001, R-SNB-001, C-SNB-001 (electrical)
+- CHAM-001C, PLEN-005, CHAM-RET-001, BASE-001, HTR-CAN-001, EXH-004, TC-FIT-001 (mechanical)
+- POPPER-001 (reference/calibration)
+
+Estimated cost impact: +$25-45, bringing target BOM to ~$75-125.
+
+### Next actions
+
+1. Source popcorn popper and do calibration roasts (A4)
+2. Buy Warrior heat gun, tear down, measure element (unchanged)
+3. Order 12V blower and **verify P-Q curve** (T1 — critical gate)
+4. Order electronics including new buffer and snubber components
+5. Build stable baseplate before any powered testing (M1)
+6. Run TP-001 with both SS tubes and glass tube option
+
+---
+
 ## 2026-04-11 — Plenum, baffle, and mechanical assembly decisions
 
 ### Decisions made

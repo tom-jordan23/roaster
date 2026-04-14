@@ -1,35 +1,48 @@
 Item,Category,Description,Qty,Spec,Source,Est Cost,Status,Notes
-HTR-001,Electrical,Heater element (salvaged),1,"~1500W 120V nichrome on mica former",Harbor Freight Warrior heat gun SKU 56434,$10,Needs sourcing,Tear down heat gun and measure element resistance and dims; design heater can around it (DR-002)
-BLW-001,Electrical,12V brushless centrifugal blower,1,"120mm x 32mm 12V DC ~10-15 CFM",Amazon (WDERAIR or Wathai),$15-20,Needs sourcing,MOSFET + PWM control from ESP32; flyback diode across leads (DR-003)
-SSR-001,Electrical,Zero-cross solid state relay,1,"25A 120V AC load / 3-5V DC control",Amazon generic,$5-8,Needs sourcing,Add thermal fuse as independent backup
-ESP-001,Electrical,ESP32 dev board,1,"ESP32-DevKitC clone",Amazon generic,$5-7,Needs sourcing,HiLetgo or similar
-TC-AMP-001,Electrical,MAX31855 TC amplifier breakout,3,"SPI K-type",Amazon generic,$4-6 ea,Needs sourcing,HiLetgo or Songhe; total ~$12-18
-TC-001,Sensor,K-type thermocouple - process air (TC1),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Post-heater pre-plenum placement
-TC-002,Sensor,K-type thermocouple - bean bed (TC2),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Side-entry lower chamber
-TC-003,Sensor,K-type thermocouple - exhaust (TC3),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Exhaust stream above chamber
+HTR-001,Electrical,Heater element (salvaged),1,"~1500W 120V nichrome on mica former",Harbor Freight Warrior heat gun SKU 56434,$10,Needs sourcing,Tear down heat gun and measure element resistance and dims; design heater can around it (DR-002). A1 rejected — element will be extracted and mounted in custom heater can
+BLW-001,Electrical,12V brushless centrifugal blower,1,"120mm x 32mm 12V DC ~10-15 CFM",Amazon (WDERAIR or Wathai),$15-20,Needs sourcing,MOSFET + PWM control from ESP32; flyback diode across leads (DR-003). CRITICAL: verify P-Q curve before committing to sizing (T1)
+SSR-001,Electrical,Zero-cross solid state relay,1,"25A 120V AC load / 3-5V DC control",Amazon generic,$5-8,Needs sourcing,Drive via NPN buffer from 5V rail (E7); add RC snubber across output (E10); add thermal fuse as independent backup
+ESP-001,Electrical,ESP32 dev board,1,"ESP32-DevKitC clone",Amazon generic,$5-7,Needs sourcing,HiLetgo or similar; hardware WDT enabled in firmware (E1/F2)
+TC-AMP-001,Electrical,MAX31855 TC amplifier breakout,3,"SPI K-type",Amazon generic,$4-6 ea,Needs sourcing,HiLetgo or Songhe; total ~$12-18; use shielded cable to reduce SPI noise near SSR switching (E13)
+TC-001,Sensor,K-type thermocouple - process air (TC1),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Post-heater pre-plenum placement; compression fitting mount (M9)
+TC-002,Sensor,K-type thermocouple - bean bed (TC2),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Side-entry lower chamber; compression fitting mount (M9)
+TC-003,Sensor,K-type thermocouple - exhaust (TC3),1,"SS sheath probe K-type",Amazon,$3-5,Needs sourcing,Exhaust stream above chamber; compression fitting mount (M9)
+TC-FIT-001,Sensor,TC compression fittings,3,"1/8in Swagelok-style compression fitting",Amazon or McMaster,$3-5 ea,Needs sourcing,Positive sealing and strain relief for TC probes (M9); total ~$9-15
 PSU-001,Electrical,5V power supply,1,"5V 2A USB charger",Junk drawer,$0,Thrift hunt,Old phone charger; must be isolated (all modern ones are)
 PSU-002,Electrical,12V power supply,1,"12V 3A+ switching AC-DC supply",Junk drawer or Amazon,$0-10,Needs sourcing,Required for 12V blower (DR-004); wall wart or enclosed LED-style PSU
-FUSE-001,Electrical,Fuse or breaker,1,"15A 120V inline",Hardware store,$2-3,Needs sourcing,Do not cheap out - must be properly rated
-SW-001,Electrical,Hard disconnect switch,1,"120V 15A rated toggle or rocker",Hardware store,$3-5,Needs sourcing,Must be accessible during operation
-THFUSE-001,Electrical,Thermal fuse (SSR backup),1,"228C or similar one-shot",Amazon or hardware store,$1-2,Needs sourcing,Mounts on heater; independent last-resort cutoff if SSR fails shorted
-CHAM-001A,Mechanical,Roast chamber - primary,1,"2.5 in OD 304 SS exhaust pipe 12 in length",Auto parts store or Amazon,$8-12,Needs sourcing,Standard exhaust size; ~2.37 in ID
-CHAM-001B,Mechanical,Roast chamber - backup,1,"3.0 in OD 304 SS exhaust pipe 12 in length",Auto parts store or Amazon,$8-12,Needs sourcing,Standard exhaust size; ~2.87 in ID
-PLEN-001,Mechanical,Plenum body,1,"1/6 size SS steam table pan 4in deep (~6.4x6.3x4in 18/8 SS)",Restaurant supply or thrift store,$4-8,Needs sourcing,Right-side-up orientation; drill side-entry hole for heater can (DR-007)
-PLEN-002,Mechanical,Clamping ring - 2.5in chamber,1,"Flat SS sheet ~1in wide annular ring with 2.37in ID hole",Cut from SS flat plate or sheet,$0-3,Needs fabrication,Bolted to pan rim with 3-4 bolts; seats plate + chamber (DR-008)
-PLEN-003,Mechanical,Clamping ring - 3.0in chamber,1,"Flat SS sheet ~1in wide annular ring with 2.87in ID hole",Cut from same SS sheet as PLEN-002,$0,Needs fabrication,Swap pair with PLATE-001B for 3.0in chamber (DR-008)
-PLEN-004,Mechanical,Plenum gasket,1,"Fiberglass or ceramic fiber strip ~1in wide",Amazon or hardware store,$3-5,Needs sourcing,High-temp seal between clamping ring and pan rim (DR-008)
+FUSE-001,Electrical,Fuse or breaker,1,"15A 120V inline",Hardware store,$2-3,Needs sourcing,Do not cheap out - must be properly rated. E5: consider 20A circuit + 12 AWG cord to meet NEC 80% continuous rule
+SW-001,Electrical,Hard disconnect switch,1,"120V 15A DPST toggle or rocker",Hardware store,$3-5,Needs sourcing,E8: Must be double-pole (switches both L and N) to protect against reversed cord polarity. Must be accessible during operation
+THFUSE-001,Electrical,Thermal fuse - heater can body,1,"228C one-shot",Amazon or hardware store,$1-2,Needs sourcing,Mounts on heater can body; independent last-resort cutoff if SSR fails shorted
+THFUSE-002,Electrical,Thermal fuse - airstream,1,"192-216C one-shot",Amazon or hardware store,$1-2,Needs sourcing,E6: Mounts in heated airstream downstream of element. Lower rating than THFUSE-001 and lower thermal lag — trips faster on no-airflow overheat
+Q2-001,Electrical,NPN transistor (SSR buffer),1,"2N2222 or similar TO-92",Amazon or junk drawer,$0-1,Needs sourcing,E7: Buffers ESP32 3.3V GPIO to 5V for reliable SSR triggering
+R3-001,Electrical,SSR buffer base resistor,1,"1k ohm 1/4W axial",Amazon or junk drawer,$0-1,Needs sourcing,E7: Limits base current for Q2 NPN buffer
+R-SNB-001,Electrical,Snubber resistor,1,"47 ohm 2W",Amazon or junk drawer,$0-1,Needs sourcing,E10: RC snubber across SSR output — suppresses inductive spikes
+C-SNB-001,Electrical,Snubber capacitor,1,"0.01uF 400V X2-rated film cap",Amazon,$1-2,Needs sourcing,E10: RC snubber across SSR output — must be X2-rated for mains use
+CHAM-001A,Mechanical,Roast chamber - primary (SS),1,"2.5 in OD 304 SS exhaust pipe 12 in length",Auto parts store or Amazon,$8-12,Needs sourcing,Standard exhaust size; ~2.37 in ID. T3: L/D ~1.0 — slugging risk; 3.0in may be preferred
+CHAM-001B,Mechanical,Roast chamber - backup (SS),1,"3.0 in OD 304 SS exhaust pipe 12 in length",Auto parts store or Amazon,$8-12,Needs sourcing,Standard exhaust size; ~2.87 in ID. T3: L/D ~0.57 — better fluidization geometry
+CHAM-001C,Mechanical,Roast chamber - glass option,1,"3.0 in OD borosilicate glass tube ~10-12 in",Amazon or lab supply,$5-10,Needs sourcing,A3: Visual feedback on fluidization and roast development. Handle with care — thermal shock risk. Test alongside SS tubes
+PLEN-001,Mechanical,Plenum body,1,"1/6 size SS steam table pan 4in deep (~6.4x6.3x4in 18/8 SS)",Restaurant supply or thrift store,$4-8,Needs sourcing,Right-side-up orientation; drill side-entry hole for heater can (DR-007). M7: Burn off outdoors at full temp for 10 min before first use with beans
+PLEN-002,Mechanical,Clamping ring - 2.5in chamber,1,"Flat SS sheet ~1in wide annular ring with 2.37in ID hole",Cut from SS flat plate or sheet,$0-3,Needs fabrication,Bolted to pan rim with 3-4 bolts; seats plate + chamber (DR-008). M3: Use fender washers + backing strips at bolt holes to spread clamping load
+PLEN-003,Mechanical,Clamping ring - 3.0in chamber,1,"Flat SS sheet ~1in wide annular ring with 2.87in ID hole",Cut from same SS sheet as PLEN-002,$0,Needs fabrication,Swap pair with PLATE-001B for 3.0in chamber (DR-008). M3: Use fender washers + backing strips
+PLEN-004,Mechanical,Plenum gasket,1,"Fiberglass stove rope or tape ~1in wide",Amazon or hardware store,$3-5,Needs sourcing,M8: Changed from ceramic fiber to fiberglass — ceramic fiber sheds respirable particles. High-temp seal between clamping ring and pan rim (DR-008)
+PLEN-005,Mechanical,Plenum side-entry stub tube,1,"~2-3in OD SS tube stub ~2in long",Salvage from exhaust pipe offcuts,$0-3,Needs fabrication,M2: Welded or press-fit through pan wall hole. Prevents pan wall deformation under hose clamp load. Use hose clamps inside + outside
 PLATE-001A,Mechanical,Distributor plate - 2.5 in,1,"Perforated SS sheet cut to ~2.37 in dia",Amazon perforated sheet + tin snips,$5-8,Needs sourcing,Buy one 6x6 sheet and cut both plates from it
 PLATE-001B,Mechanical,Distributor plate - 3.0 in,1,"Perforated SS sheet cut to ~2.87 in dia",Same sheet as PLATE-001A,$0,Needs sourcing,Cut from same sheet
-BAFFLE-001,Mechanical,Deflector ramp baffle,1,"SS sheet ~3x4in bent to 45deg",Salvage or hardware store,$0-3,Needs fabrication,Bolted/riveted inside plenum opposite side-entry; redirects jet to pan floor (DR-009)
+BAFFLE-001,Mechanical,Deflector ramp baffle,1,"SS sheet ~3x4in bent to 45deg",Salvage or hardware store,$0-3,Needs fabrication,Bolted/riveted inside plenum opposite side-entry; redirects jet to pan floor (DR-009). T2: If TP-001 shows uneven fluidization add second perforated baffle
 EXH-001,Mechanical,Chaff expansion chamber,1,"~4in OD x 5in tall SS cylinder or can",Thrift store / restaurant supply / Amazon,$3-10,Needs sourcing,Step-up from chamber OD; chaff settles by velocity drop (DR-006)
-EXH-002,Mechanical,Chaff mesh screen,1,"30x30 SS woven mesh ~4in dia disc",Amazon perforated/mesh sheet,$3-5,Needs sourcing,Cut from sheet; fits inside top of expansion chamber (DR-006)
-EXH-003,Mechanical,Hose clamp - blower to heater can,1,"Worm-drive clamp sized to heater can OD",Hardware store,$1-2,Needs sourcing,Non-permanent joint; preserves future bypass option (DR-005)
+EXH-002,Mechanical,Chaff mesh screen,1,"30x30 SS woven mesh ~4in dia disc",Amazon perforated/mesh sheet,$3-5,Needs sourcing,Cut from sheet; fits inside top of expansion chamber (DR-006). T8: May clog with chaff oils — plan for mid-roast cleaning or test coarser mesh
+EXH-003,Mechanical,Hose clamps - all-stainless,4-6,"All-stainless worm-drive clamp sized to joints",Hardware store,$1-2 ea,Needs sourcing,M11: Must be all-stainless (not zinc-plated) for temperature tolerance. Covers blower-to-can heater-can-to-plenum and expansion chamber joints
+EXH-004,Mechanical,Cone reducer - expansion chamber,1,"Sheet metal cone from chamber OD to ~4in expansion chamber OD",Fabricate from SS sheet,$0-3,Needs fabrication,M6: Transition from roast chamber to expansion chamber. Hose clamp at each end
+CHAM-RET-001,Mechanical,Chamber tube retention hardware,1,"3 set screws or spring clips",Hardware store,$2-3,Needs sourcing,M4: Chamber tube must not be held by gravity alone — vibration or bump will tip it. Set screws through clamping ring or spring clips
+BASE-001,Mechanical,Baseplate,1,"~12x20in plywood or sheet metal",Hardware store or salvage,$5-10,Needs sourcing,M1: Must be wide enough for stability (20in+ in blower direction). Add ballast weight and L-brackets for lateral bracing
+HTR-CAN-001,Mechanical,Heater can body,1,"2.5in OD 304 SS exhaust pipe ~6-8in long",Auto parts store or Amazon,$5-8,Needs fabrication,M5: Build from exhaust pipe. Mount element via mica former tabs. Insulate exterior with ceramic fiber or fiberglass wrap
 Q1-001,Electrical,N-CH MOSFET (blower driver),1,"IRLZ44N TO-220 logic-level",Amazon,$1-2,Needs sourcing,Vgs(th) ~1-2V fully on at 3.3V; RDS(on) 0.022 ohm
 R1-001,Electrical,Gate resistor,1,"100 ohm 1/4W axial",Amazon or junk drawer,$0-1,Needs sourcing,Limits inrush to MOSFET gate capacitance
 R2-001,Electrical,Gate pulldown resistor,1,"10k ohm 1/4W axial",Amazon or junk drawer,$0-1,Needs sourcing,Ensures MOSFET off during ESP32 boot/reset
-D1-001,Electrical,Flyback diode,1,"1N5819 Schottky 40V 1A DO-41",Amazon,$0-1,Needs sourcing,Across blower leads; cathode to +12V anode to drain
-WIRE-001,Electrical,Mains wiring,1 lot,"14 AWG stranded THHN or similar",Hardware store,$5-8,Needs sourcing,Do not cheap out - must be properly rated
-WIRE-002,Electrical,Low-voltage signal wiring,1 lot,"22-26 AWG hookup wire",Amazon assortment or junk drawer,$0-5,Needs sourcing,Keep physically separated from mains
+D1-001,Electrical,Flyback diode,1,"SS34 Schottky 40V 3A SMA",Amazon,$0-1,Needs sourcing,E9: Upgraded from 1N5819 (1A) — blower draws 1-2A so 1A rating had insufficient margin
+WIRE-001,Electrical,Mains wiring,1 lot,"14 AWG stranded THHN or similar (12 AWG if using 20A circuit per E5)",Hardware store,$5-8,Needs sourcing,Do not cheap out - must be properly rated
+WIRE-002,Electrical,Low-voltage signal wiring,1 lot,"22-26 AWG hookup wire; shielded cable for SPI runs near heater (E13)",Amazon assortment or junk drawer,$0-5,Needs sourcing,Keep physically separated from mains; use shielded cable for TC amplifier SPI bus
 CONN-001,Electrical,Connectors and terminals,1 lot,"Ring terminals spade terminals crimp assortment",Amazon or hardware store,$5-8,Needs sourcing,
 STRAIN-001,Electrical,Strain reliefs,2-3,"Cord grip / cable gland for mains entry",Hardware store,$3-5,Needs sourcing,Do not skip - mains cord pulling loose is a real hazard
-FAST-001,Mechanical,Fasteners,1 lot,"SS bolts nuts washers M4/M5 or #8/#10",Hardware store,$5-8,Needs sourcing,Sized to final mechanical design
+FAST-001,Mechanical,Fasteners,1 lot,"SS bolts nuts fender washers backing strips M4/M5 or #8/#10",Hardware store,$5-10,Needs sourcing,Sized to final mechanical design. M3: Include fender washers and backing strips for clamping ring bolts
+POPPER-001,Reference,Popcorn popper for calibration,1,"Any hot-air popcorn popper",Thrift store,$2-5,Needs sourcing,A4: Roast on a popper first to calibrate operator senses (first-crack sound roast progression fluidization feel) before building the custom roaster

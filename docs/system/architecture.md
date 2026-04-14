@@ -114,6 +114,12 @@ For green coffee beans (~7mm equivalent diameter, ~1.1-1.3 g/cm³ density):
 **0.8–1.2 m/s** based on published fluidization studies and small-roaster
 experience.
 
+**T5 — Operating margin:** The original 1.5× Umf target is thin. Target
+**1.8–2.5× Umf** for stable fluidization with margin for bed weight changes.
+All velocity calculations must use hot-air density at process temperature
+(~0.7–0.8 kg/m³ at 150–200°C), not ambient density. Previous calculations
+applied this correction inconsistently.
+
 ### Chamber Cross-Section — Two Candidates
 
 We are sourcing **two standard stainless steel tube sizes** and will test both.
@@ -123,30 +129,39 @@ This avoids committing to a chamber diameter before we have fluidization data.
 
     Area = π × (0.030)² = 0.00283 m²
 
-    Volumetric flow at 1.5× Umf = 1.5 m/s:
-    Q = 1.5 × 0.00283 = 0.00424 m³/s ≈ 9.0 CFM
+    Volumetric flow at 2.0× Umf = 2.0 m/s (T5: revised from 1.5×):
+    Q = 2.0 × 0.00283 = 0.00566 m³/s ≈ 12.0 CFM
 
     Bed depth for 113g (bulk density ~0.65 g/cm³):
     V_bed = 113 / 0.65 = 174 cm³
     Depth = 174 / 28.3 ≈ 6.1 cm
 
-    Power for ΔT = 200°C at 9 CFM:
-    ṁ = 0.00424 × 1.2 = 0.00509 kg/s
-    P = 0.00509 × 1005 × 200 ≈ 1023 W  ✓ Well within 120V budget
+    T3: L/D ratio = 6.1 / 6.0 ≈ 1.0 — WARNING: Geldart D particles (coffee beans)
+    slug at L/D > 0.5-0.8. The 2.5" chamber has a significant slugging risk.
+
+    Power for ΔT = 200°C at 12 CFM:
+    ṁ = 0.00566 × 1.2 = 0.00679 kg/s
+    P = 0.00679 × 1005 × 200 ≈ 1364 W  ✓ Within 120V budget
 
 **3.0" OD tubing** (ID ~2.87" / 73mm) — the safe-fluidization candidate:
 
     Area = π × (0.0365)² = 0.00419 m²
 
-    Volumetric flow at 1.5× Umf = 1.5 m/s:
-    Q = 1.5 × 0.00419 = 0.00628 m³/s ≈ 13.3 CFM
+    Volumetric flow at 2.0× Umf = 2.0 m/s (T5: revised from 1.5×):
+    Q = 2.0 × 0.00419 = 0.00838 m³/s ≈ 17.7 CFM
 
     Bed depth for 113g:
     Depth = 174 / 41.9 ≈ 4.2 cm
 
-    Power for ΔT = 200°C at 13 CFM:
-    ṁ = 0.00628 × 1.2 = 0.00754 kg/s
-    P = 0.00754 × 1005 × 200 ≈ 1515 W  ⚠ Tight on 120V — may need ΔT ≤ 170°C
+    T3: L/D ratio = 4.2 / 7.3 ≈ 0.57 — within acceptable range for fluidization.
+
+    Power for ΔT = 200°C at 17.7 CFM:
+    ṁ = 0.00838 × 1.2 = 0.01006 kg/s
+    P = 0.01006 × 1005 × 200 ≈ 2022 W  ⚠ Exceeds 120V budget
+
+    T4: After 100-230W parasitic losses (heater can, plenum, duct walls), achievable
+    process air ΔT drops to ~160-175°C. Insulating heater can and plenum is mandatory
+    for the 3.0" chamber to reach usable roast temperatures.
 
 ### Comparison
 
@@ -154,10 +169,11 @@ This avoids committing to a chamber diameter before we have fluidization data.
 |-----------|-------------------|-------------------|
 | Tube stock | Standard, cheap | Standard, cheap |
 | Bed depth (113g) | ~6.1 cm | ~4.2 cm |
-| CFM at 1.5× Umf | ~9 CFM | ~13 CFM |
-| Watts for ΔT=200°C | ~1023W | ~1515W |
-| Thermal headroom on 120V | Excellent | Tight |
-| Fluidization risk | Deeper bed — harder | Shallower — easier |
+| L/D ratio | ~1.0 ⚠ slugging risk (T3) | ~0.57 ✓ safe range |
+| CFM at 2.0× Umf (T5) | ~12 CFM | ~18 CFM |
+| Watts for ΔT=200°C | ~1364W | ~2022W |
+| Thermal headroom on 120V | Good | Exceeded — needs insulation (T4) |
+| Fluidization risk | Deeper bed — harder, slugging | Shallower — easier |
 
 **Decision:** Test both. The 2.5" gives us significantly better thermal performance
 if it fluidizes well. The 3.0" is the safe fallback. TP-001 will determine the winner.
@@ -174,17 +190,17 @@ than at the blower inlet for the same mass flow.
 This actually helps: the blower pushes cool air at lower volume, and the heated
 air expands to provide higher velocity at the plate.
 
-Blower-side CFM needed (at ambient):
+Blower-side CFM needed (at ambient, corrected for hot-air density T5):
 
-    2.5" chamber: ~6-9 CFM at blower → ~9-13 CFM at plate (hot)
-    3.0" chamber: ~9-13 CFM at blower → ~13-19 CFM at plate (hot)
+    2.5" chamber: ~8-12 CFM at blower → ~12-17 CFM at plate (hot)
+    3.0" chamber: ~12-18 CFM at blower → ~18-25 CFM at plate (hot)
 
 ### Working Airflow Specification
 
 | Parameter | Target | Notes |
 |-----------|--------|-------|
-| Blower output (cold) | **6–15 CFM** | Must cover both chamber sizes at operating backpressure |
-| Velocity at plate (hot) | **1.2–2.0 m/s** | Good fluidization range |
+| Blower output (cold) | **8–18 CFM** | Must cover both chamber sizes at 2.0× Umf (T5 revised) |
+| Velocity at plate (hot) | **1.6–2.5 m/s** | T5: 1.8-2.5× Umf target for stable fluidization |
 | Chamber options | **2.5" OD (~60mm ID)** and **3.0" OD (~73mm ID)** | Test both, standard SS tube stock |
 | Adjustable range | **30–100% of max** | Need to tune fluidization quality per chamber |
 
@@ -208,7 +224,7 @@ Blower-side CFM needed (at ambient):
 | Parameter | Target | Notes |
 |-----------|--------|-------|
 | Static pressure | **1.5–2.5" WC** at operating CFM | Must handle full system backpressure |
-| Flow rate | **6–15 CFM** at operating pressure | Must cover both chamber sizes |
+| Flow rate | **8–18 CFM** at operating pressure | T5: revised to cover 2.0× Umf for both chambers |
 | Control | PWM via MOSFET from ESP32 | 12V DC brushless, no AC control needed |
 | Noise | Tolerable for indoor use | Not a hard requirement for v1 |
 
@@ -226,6 +242,54 @@ the 3.0" chamber) with controllable speed down to ~6 CFM (for the 2.5" chamber).
 AC triac control complexity. Cost delta vs. scavenged AC motor is ~$15-20 —
 worth it for simpler electronics and direct ESP32 PWM control.
 
+**T1 — CRITICAL: Blower P-Q verification.** The 120mm × 32mm 12V centrifugal
+blower P-Q curve is unverified. A typical blower of this size may not deliver
+18 CFM at 2" WC (the 3.0" chamber operating point). **Measure actual blower
+performance before committing to any other component sizing.** If the blower
+cannot reach the required operating point, options include:
+1. A larger or higher-pressure blower
+2. Reducing system backpressure (more open distributor plate, lower bed depth)
+3. Accepting the 2.5" chamber as primary (lower CFM requirement)
+
+---
+
+## 3.5. Known Thermal Losses and Mid-Roast Effects (DR-010)
+
+These factors are documented as known but not fatal to v1. They should be
+accounted for in test plan interpretation and control tuning.
+
+### T4 — Parasitic Heat Losses
+
+The heater can body, plenum walls, duct connections, and distributor plate all
+absorb and radiate heat. Estimated parasitic losses: **100–230W** depending on
+insulation and ambient conditions.
+
+**Action:** Insulate heater can exterior and plenum walls with fiberglass wrap.
+This is especially important for the 3.0" chamber, where the thermal budget
+is already tight.
+
+### T6 — Moisture Release
+
+Green coffee contains ~10-12% moisture by weight. During roasting, moisture
+release absorbs approximately **30–40W equivalent** of energy (latent heat of
+vaporization). This is unaccounted for in the basic thermal budget but is not
+fatal — it slightly reduces effective process air temperature during drying
+phase.
+
+### T7 — Bean Mass Changes During Roasting
+
+Beans lose 12–18% of their mass during roasting (moisture + CO₂ + volatiles).
+This changes the bed weight and therefore the fluidization velocity requirement.
+Beans become lighter as the roast progresses — fluidization gets easier, and
+the operator may need to reduce blower speed mid-roast to avoid blowing beans
+out of the chamber.
+
+### T8 — Chaff Mesh Clogging
+
+The 30×30 SS mesh screen may progressively clog with chaff oils during a roast,
+increasing back-pressure. Plan for mid-roast mesh cleaning if roasts stall, or
+test with coarser mesh (20×20) as a fallback.
+
 ---
 
 ## 4. Summary: Key Constraining Numbers
@@ -238,11 +302,11 @@ consistent with these values.
 | Batch size | 113g green | Design decision |
 | Mains power | 120V / 15A | Yes (US residential) |
 | Heater power | 1200–1400W | Yes (120V limited) |
-| Airflow (cold, blower side) | 6–15 CFM | Range covers both chamber sizes |
-| Airflow velocity at plate (hot) | 1.2–2.0 m/s | Estimated, verify by test |
+| Airflow (cold, blower side) | 8–18 CFM | T5: revised for 2.0× Umf, both chambers |
+| Airflow velocity at plate (hot) | 1.6–2.5 m/s | T5: 1.8-2.5× Umf, verify by test |
 | Chamber ID (primary) | 2.5" OD / ~60mm ID | Better thermal performance |
 | Chamber ID (backup) | 3.0" OD / ~73mm ID | Easier fluidization |
-| Blower static pressure | 1.5–2.5" WC | Estimated from system drops |
+| Blower static pressure | 1.5–2.5" WC | Estimated from system drops — T1: VERIFY before committing |
 | Process air temp (TC1) | 140–220°C achievable | Limited by heater power vs airflow |
 | TC sample rate | ≥2 Hz | Artisan compatibility |
 
@@ -360,9 +424,15 @@ sized to its chamber OD.
 | Attachment | 2 bolts or pop rivets through pan wall | Must be removable for cleaning |
 | Function | Jet → floor spread → uniform rise to plate | Uses full plenum volume for equalization |
 
-**Future option:** If TP-001 shows uneven fluidization, add a horizontal
-perforated baffle ~1" below the distributor plate as a second equalization
-stage. The plenum depth (4") allows room for this without redesign.
+**T2 — Second baffle / equalization stage:** A single deflector ramp is unlikely
+to fully equalize pressure — the velocity ratio at the inlet is 5–10× the
+target distributor velocity. Plan to add a second equalization feature:
+- Option A: Horizontal perforated baffle ~1" below the distributor plate
+- Option B: Perforated diffusion plate inside plenum between ramp and distributor
+
+The plenum depth (4") allows room for either option without redesign. Validate
+in TP-001 — if the single ramp produces acceptable fluidization uniformity,
+the second baffle can be deferred.
 
 ---
 

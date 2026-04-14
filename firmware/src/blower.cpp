@@ -4,8 +4,12 @@
 static uint8_t speed_percent = 0;
 
 void blower_init() {
-    pinMode(PIN_BLOWER, OUTPUT);
-    analogWrite(PIN_BLOWER, 0);
+    // E11: Use explicit LEDC configuration for 25 kHz PWM.
+    // analogWrite() on ESP32 defaults to ~1 kHz which is audible and
+    // suboptimal for brushless DC motor control.
+    ledcSetup(BLOWER_PWM_CHANNEL, BLOWER_PWM_FREQ, BLOWER_PWM_RESOLUTION);
+    ledcAttachPin(PIN_BLOWER, BLOWER_PWM_CHANNEL);
+    ledcWrite(BLOWER_PWM_CHANNEL, 0);
     speed_percent = 0;
 }
 
@@ -19,14 +23,8 @@ uint8_t blower_get_speed() {
 }
 
 void blower_update() {
-    // Map 0-100% to 0-255 PWM duty
-    // TODO: This is a placeholder — actual blower control depends on motor type:
-    //   - DC brushless: PWM to ESC or motor driver
-    //   - AC universal: TRIAC phase-angle control (needs zero-cross detection)
-    //   - AC PSC: may not be speed-controllable, use damper instead
-    // Revisit when blower is selected.
     uint8_t pwm_val = map(speed_percent, 0, 100, 0, 255);
-    analogWrite(PIN_BLOWER, pwm_val);
+    ledcWrite(BLOWER_PWM_CHANNEL, pwm_val);
 }
 
 bool blower_is_running() {

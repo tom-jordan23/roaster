@@ -35,11 +35,13 @@ chamber_id = chamber_od - 3.2;  // ~1.6mm wall thickness for SS exhaust tube
 chamber_length = 304.8;         // 12 inches
 chamber_wall = (chamber_od - chamber_id) / 2;
 
-// --- Baseplate -----------------------------------------------
-// DR-pending: material TBD (plywood or steel scrap)
+// --- Baseplate (M1: widened for stability) -------------------
+// M1: Must be wide enough to prevent tip-over of tall asymmetric assembly.
+// Widened in blower direction to 20"+ per DR-010. Add ballast weight
+// and L-brackets for lateral bracing.
 
-base_length = 406;   // 16 inches
-base_width  = 254;   // 10 inches
+base_length = 508;   // 20 inches (M1: widened from 16")
+base_width  = 305;   // 12 inches (M1: widened from 10")
 base_thick  = 19;    // 3/4 inch (plywood) — adjust for steel
 
 // --- Plenum (DR-007) ----------------------------------------

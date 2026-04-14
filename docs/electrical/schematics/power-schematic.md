@@ -10,7 +10,7 @@ graph LR
         G_IN["G (Ground)"] --- CORD
     end
 
-    CORD --- DISC["SW-001\n120V 15A\nDisconnect Switch"]
+    CORD --- DISC["SW-001\n120V 15A DPST\nDisconnect Switch\n(E8: switches L and N)"]
     DISC --- FUSE["FUSE-001\n15A Inline Fuse"]
 
     FUSE --- L_BUS["L Bus"]
@@ -30,9 +30,14 @@ graph TD
     SSR_L --> HTR_L["HTR-001\nWarrior 1500W\nNichrome Element\n~9.6 ohm"]
     HTR_L --> N_BUS["N Bus"]
 
-    THFUSE["THFUSE-001\n228°C Thermal Fuse\n(one-shot)"] -.-|"In series\nwith heater"| HTR_L
+    THFUSE1["THFUSE-001\n228°C Thermal Fuse\n(one-shot, on can body)"] -.-|"In series\nwith heater"| HTR_L
+    THFUSE2["THFUSE-002\n192-216°C Thermal Fuse\n(one-shot, in airstream)\n(E6)"] -.-|"In series\nwith heater"| HTR_L
 
-    ESP_SSR["ESP32 GPIO 22\n(PIN_SSR)"] -->|"3.3V logic\nactive high"| SSR_CTRL["SSR DC Input\n(+ and -)"]
+    SNUB_R["R-SNB\n47Ω 2W"] --- SNUB_C["C-SNB\n0.01µF 400V\nX2-rated"]
+    SNUB_R -.-|"RC snubber\nacross SSR output\n(E10)"| SSR_L
+
+    ESP_SSR["ESP32 GPIO 22\n(PIN_SSR)"] -->|"3.3V logic"| Q2_BASE["Q2 Base\nNPN Buffer\n(E7)"]
+    Q2_BASE -->|"5V drive to SSR"| SSR_CTRL["SSR DC Input\n(+ and -)"]
     SSR_CTRL --> SSR_L
 
     style SSR_L fill:#f66,stroke:#333
@@ -42,12 +47,25 @@ graph TD
 ### Heater Circuit Notes
 
 - SSR switches L (hot) side only — N is continuous to element
-- Thermal fuse (THFUSE-001) in series with heater element, mounted on heater can body
-- Thermal fuse is independent backup — if SSR fails shorted and safety firmware fails,
-  the thermal fuse is the last-resort cutoff
-- SSR control: ESP32 GPIO 22 drives SSR DC input (3.3V sufficient for most SSRs)
+- **Two thermal fuses in series (E6):**
+  - THFUSE-001 (228°C): mounted on heater can body — detects can overheat
+  - THFUSE-002 (192–216°C): mounted in the heated airstream downstream of element —
+    detects no-airflow overheat faster (lower thermal lag than can body)
+- Thermal fuses are independent backups — if SSR fails shorted and safety firmware
+  fails, the thermal fuses are the last-resort cutoff
+- **SSR drive buffer (E7):** ESP32 GPIO 22 drives an NPN transistor (2N2222 or similar)
+  that switches a 5V signal to the SSR DC input. Many commodity SSRs need >3.5V to
+  reliably trigger — 3.3V from ESP32 is marginal. The NPN buffer provides a clean
+  5V drive with negligible added cost.
+- **RC snubber (E10):** 47Ω + 0.01µF/400V X2-rated capacitor across SSR output terminals.
+  Suppresses voltage spikes from inductive heater element switching, protects SSR.
 - Zero-cross switching for burst-fire duty cycle control (1s period, HEATER_PERIOD_MS)
 - **Heater draws ~12.5A at 120V** (P = V²/R = 14400/9.6 ≈ 1500W)
+- **E5 — Fusing concern:** 12.5A continuous on a 15A fuse / 15A circuit is 83% of
+  rating. NEC requires ≤80% for continuous loads. Options:
+  1. Use a 20A circuit (12 AWG cord) — preferred if available
+  2. Limit heater duty to stay under 12A continuous average
+  3. Accept that v1 bench testing will likely not run 3+ hours continuously
 
 ## Domain 2: 12V DC Blower Circuit
 
@@ -70,7 +88,7 @@ graph TD
     R2["R2\n10k ohm\nGate Pulldown"] --- Q1_GATE
     R2 --- V12_GND
 
-    D1["D1\nFlyback Diode\n1N5819 or similar\nSchottky"] -.-|"Cathode to +12V\nAnode to drain"| BLWR_PLUS
+    D1["D1\nFlyback Diode\nSS34 3A Schottky\n(E9)"] -.-|"Cathode to +12V\nAnode to drain"| BLWR_PLUS
 
     style Q1_DRAIN fill:#69f,stroke:#333
     style D1 fill:#f9f,stroke:#333
@@ -84,7 +102,8 @@ graph TD
 - **R2 (10k ohm):** Gate-source pulldown ensures MOSFET is OFF when ESP32 pin is floating
   (during boot, reset, or fault)
 - **D1 (flyback diode):** Schottky across blower leads (cathode to +12V, anode to drain).
-  Clamps inductive kickback when MOSFET switches off. 1N5819 rated 40V/1A is sufficient.
+  Clamps inductive kickback when MOSFET switches off. SS34 rated 40V/3A (E9: upgraded
+  from 1N5819 — blower draws 1-2A, 1A diode had insufficient margin).
 - **PWM frequency:** ~25 kHz (above audible range, within MOSFET switching capability)
 - **Speed range:** 0-100% duty cycle maps to 0-100% blower speed
 
@@ -173,6 +192,11 @@ graph TD
 | Ref | Component | Value | Package | Notes |
 |-----|-----------|-------|---------|-------|
 | Q1 | N-CH MOSFET | IRLZ44N | TO-220 | Logic-level, Vgs(th) ~1-2V |
+| Q2 | NPN transistor | 2N2222 or similar | TO-92 | SSR drive buffer (E7) — 5V to SSR |
 | R1 | Gate resistor | 100 ohm | 1/4W axial | Limits gate inrush |
 | R2 | Gate pulldown | 10k ohm | 1/4W axial | Ensures off at boot |
-| D1 | Flyback diode | 1N5819 | DO-41 | 40V 1A Schottky |
+| R3 | SSR buffer base resistor | 1k ohm | 1/4W axial | Limits base current for Q2 (E7) |
+| R-SNB | Snubber resistor | 47 ohm | 2W | Across SSR output (E10) |
+| C-SNB | Snubber capacitor | 0.01 µF / 400V | X2-rated film | Across SSR output (E10) |
+| D1 | Flyback diode | SS34 | SMA/DO-214AC | 40V 3A Schottky (E9: upgraded from 1N5819) |
+| THFUSE-002 | Thermal fuse (airstream) | 192–216°C | Axial | In-airstream backup (E6) |

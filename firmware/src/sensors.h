@@ -17,6 +17,11 @@ float sensors_get_temp(uint8_t index);
 float sensors_get_cold_junction(uint8_t index);
 
 // Check if a TC has a fault condition (open, short, read error)
+// Uses consecutive fault counter (E13) — requires SAFETY_CONSEC_FAULTS_TRIP
+// consecutive bad reads before reporting fault
 bool sensors_has_fault(uint8_t index);
+
+// Returns milliseconds since last successful sensor update (F6)
+unsigned long sensors_get_age_ms();
 
 #endif // ROASTER_SENSORS_H
