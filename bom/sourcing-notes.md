@@ -63,6 +63,58 @@ Source parts in this order because downstream geometry depends on upstream finds
    sheet metal. L-brackets for lateral bracing. Ballast weight (steel plate,
    bricks, or sand bag).
 
+## Sourced Amazon Parts (validated 2026-04-28)
+
+All Amazon URLs below were validated by HTTP 200 fetch on 2026-04-28.
+Cross-referenced against search-result titles to confirm product match.
+Amazon ASINs and listings change — re-validate before placing the order.
+
+### Electronics
+
+| BOM Item | Listing | ASIN |
+|---|---|---|
+| ESP-001 | HiLetgo ESP-WROOM-32 dev board (single) | [B0718T232Z](https://www.amazon.com/dp/B0718T232Z) |
+| TC-AMP-001 (×3) | NOYITO MAX31855 K-type breakout | [B07K5MJ43M](https://www.amazon.com/dp/B07K5MJ43M) |
+| SSR-001 | SSR-25DA 25A zero-cross 3-32VDC / 24-380VAC | [B07FVR37QN](https://www.amazon.com/dp/B07FVR37QN) |
+| BLW-001 | Wathai 120×32 mm 12 V dual-ball-bearing centrifugal blower | [B08P1S5DBN](https://www.amazon.com/dp/B08P1S5DBN) |
+| Q1-001 | YEGAFE IRLZ44N N-MOSFET TO-220 (10-pack) | [B0BW8K31BF](https://www.amazon.com/dp/B0BW8K31BF) |
+| Q2-001 | OCR 2N2222/2N3904 etc. TO-92 transistor kit | [B071KK9B3H](https://www.amazon.com/dp/B071KK9B3H) |
+| R1/R2/R3-001 | ELEGOO 525-pc 1/4 W 1% resistor kit (covers 100 Ω, 1 k, 10 k) | [B072BL2VX1](https://www.amazon.com/dp/B072BL2VX1) |
+| R-SNB-001 | uxcell 47 Ω 2 W metal-oxide flame-proof (60-pack) | [B07V2NV3P9](https://www.amazon.com/dp/B07V2NV3P9) |
+| C-SNB-001 | 0.01 µF 275 VAC X2 safety film cap | [B09JWZ5MWQ](https://www.amazon.com/dp/B09JWZ5MWQ) |
+| D1-001 | SS34 SMA Schottky 40 V 3 A (10-pack) | [B09V1YS2JY](https://www.amazon.com/dp/B09V1YS2JY) |
+| THFUSE-001 | NEC SF240E SEFUSE 240 °C 10 A axial | [B015675DA8](https://www.amazon.com/dp/B015675DA8) |
+| THFUSE-002 | AUPO BF192 192 °C 10 A axial (10-pack) | [B0FJ5WJM9Z](https://www.amazon.com/dp/B0FJ5WJM9Z) |
+| PSU-002 | Facmogu 12 V 3 A wall adapter (5.5×2.5 / 5.5×2.1 mm) | [B073WSWT34](https://www.amazon.com/dp/B073WSWT34) |
+| WIRE-002 | TUOFENG 22 AWG silicone hookup wire (6 colors × 26 ft) | [B07G2JWYDW](https://www.amazon.com/dp/B07G2JWYDW) |
+| CONN-001 | Sopoby 1200-pc insulated crimp-terminal assortment | [B01GAESOWA](https://www.amazon.com/dp/B01GAESOWA) |
+
+### Sensors
+
+| BOM Item | Listing | ASIN |
+|---|---|---|
+| TC-001/002/003 (×3) | Industrial Q-K-01 K-type 6 in × 3 mm 316 SS quick-disconnect probe | [B078QS3NWP](https://www.amazon.com/dp/B078QS3NWP) |
+| TC-FIT-001 (×3) | Pysrych 1/8 in OD × 1/8 in NPT 304 SS double-ferrule (2-pack — buy 2) | [B09FF7LRL6](https://www.amazon.com/dp/B09FF7LRL6) |
+
+### Mechanical
+
+| BOM Item | Listing | ASIN |
+|---|---|---|
+| CHAM-001C | SUNWO borosilicate cylinder 3 in dia × 8 in tall (open-end chimney) | [B06XJT46QL](https://www.amazon.com/dp/B06XJT46QL) |
+| PLEN-001 (backup) | AmazonCommercial 1/6-size 4 in deep anti-jam SS hotel pan (2-pack) | [B083M4N3SJ](https://www.amazon.com/dp/B083M4N3SJ) |
+| PLEN-004 | 1 in fiberglass woodstove gasket rope (7 ft) | [B01ETURR0M](https://www.amazon.com/dp/B01ETURR0M) |
+| PLATE-001A/B | FengYoo 4 in dia round 304 SS perforated disc, 1/16 in holes (qty 2) | [B09SF15S47](https://www.amazon.com/dp/B09SF15S47) |
+| EXH-002 | 30-mesh 304 SS woven wire screen 11.8 × 23.6 in | [B09VNSQGVH](https://www.amazon.com/dp/B09VNSQGVH) |
+
+### Substitutions and decisions to flag
+
+- **THFUSE-001 (228 °C → 240 °C).** 228 °C single-pieces are not stocked by major Amazon sellers; nearest in-stock single-piece axial is the NEC SEFUSE 240 °C. Both ratings are well below nichrome failure (~1400 °C) and cool-mass thermal runaway envelopes — 240 °C is conservative for a heater-can-body cutoff. Acceptable per the safety-critical substitution gate.
+- **CHAM-001C (10–12 in target → 8 in actual).** 3 in OD × 10 in+ borosilicate at hobby price is essentially unavailable on Amazon; the SUNWO chimney glass is 8 in tall. Validate that 8 in still gives enough freeboard above the bean bed (~2 in deep when fluidized) before the chaff transition. If insufficient, alternatives are GreatGlas custom Pyrex/quartz, Wale Apparatus 5 ft tubing cut to length, or staying with the SS chamber and accepting no visual.
+- **D1-001 SS34 in SMA.** Surface-mount package — requires either an SMA-to-through-hole breakout, SMD soldering, or substituting a through-hole 1N5822 (same 3 A 40 V Schottky, DO-201AD package). Flagged for build phase.
+- **PLATE-001A/B hole size.** Pre-cut 4 in disc ships with 1/16 in (1.5 mm) holes — small. Open area is ~22 % which gives high pressure drop. Confirm fluidization at 12 CFM during T1; if dP is too high, substitute a coarser perforated sheet.
+- **PLEN-001.** Restaurant-supply or thrift is still the preferred path (per DR-001). The Amazon AmazonCommercial 2-pack is listed as a backup only.
+- **EXH-001.** No clean Amazon match for a 4 in × 5 in tall pure-SS cylinder at low cost. Plan to thrift a SS flatware caddy, utensil cylinder, or coffee tin.
+
 ## Vendor Shortlist
 
 ### Thrift / Salvage
