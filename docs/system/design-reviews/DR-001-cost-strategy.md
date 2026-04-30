@@ -31,8 +31,9 @@ rather than specifying an exact element and ordering it.
 
 | Component | Cheap source | Est. cost |
 |-----------|-------------|-----------|
-| Heater element | Thrift store hair dryer or heat gun | $2-5 |
-| Blower motor | Same hair dryer, OR 12V brushless (Amazon) | $0-15 |
+| Heater element | Harbor Freight Warrior heat gun (DR-002) | $10 |
+| Blower motor | Salvaged bypass-cooled vacuum motor (DR-011) | $0-10 |
+| Blower control kit | TRIAC dimmer + ZMCT103C CT + line filter + ferrites (DR-011) | $15-25 |
 | Chamber tube | Auto exhaust pipe (2.5"/3.0") or thrift store SS thermos | $5-15 |
 | Plenum body | SS steam table pan, steel junction box, or paint can | $3-10 |
 | Distributor plate | Perforated SS sheet (Amazon) cut to size, or drilled jar lid | $5-12 |
@@ -41,7 +42,6 @@ rather than specifying an exact element and ordering it.
 | SSR | Generic 25A (Amazon) + thermal fuse backup | $6-10 |
 | K-type TC x3 | SS-sheathed probes (Amazon) | $9-15 |
 | 5V PSU | Old USB phone charger from junk drawer | $0 |
-| 12V PSU (if needed) | Old laptop brick from junk drawer | $0 |
 | Wiring + connectors | Assortment kits (Amazon) | $10-15 |
 | Fuse, switch, strain reliefs | Hardware store | $5-10 |
 

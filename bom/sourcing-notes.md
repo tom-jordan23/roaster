@@ -30,10 +30,24 @@ Source parts in this order because downstream geometry depends on upstream finds
    gun housing is NOT retained (A1 rejected) — extract element and thermal cutout.
    See DR-002.
 
-2. **12V blower** (Amazon) — 12V brushless DC centrifugal, 120mm x 32mm form factor
-   (e.g. WDERAIR or Wathai). **T1 CRITICAL: Measure actual P-Q curve before
-   committing to any other sizing.** Also source a 12V/3A+ switching PSU if not
-   in the junk drawer. See DR-003.
+2. **Blower — bypass-cooled vacuum motor (salvage)** — DR-011 supersedes DR-003.
+   Hunt at Habitat ReStore, Goodwill, or curb pickup for a dead/cheap shop vac
+   with a **bypass / two-stage** motor (separate cooling impeller from working
+   impeller — flow-through motors shed brush carbon into the bean airstream).
+   Inspect dual-airpath separation before committing. Pair with these new
+   line items, all on the AC side:
+   - **BLW-CTRL-001** TRIAC dimmer module (RobotDyn-style 8A with on-board
+     zero-cross detector), Amazon ~$5–10
+   - **CT-001** ZMCT103C 5A split-core CT module for the airflow interlock,
+     Amazon ~$3–8
+   - **FILT-001** AC line filter (X+Y caps inline), Amazon or salvaged from
+     a dead PC PSU input stage
+   - **FERR-001** snap-on ferrite chokes (mixed-bore set), Amazon ~$5
+   - **BOND-001** earth bonding lug for motor frame, hardware store ~$1
+
+   The 12V/3A switching PSU (PSU-002), MOSFET (Q1-001), gate resistors
+   (R1/R2-001), and flyback diode (D1-001) are no longer required and have
+   been deleted from the BOM.
 
 3. **Chamber tubes** (auto parts store or online) — 2.5" and 3.0" OD SS exhaust
    pipe. Standard sizes, easy to find. Also source a 3.0" OD borosilicate glass
@@ -45,13 +59,15 @@ Source parts in this order because downstream geometry depends on upstream finds
    with straight walls and at least 3" depth. M7: Burn off outdoors at full
    temp for 10 min before first use. See DR-007.
 
-5. **Electronics** (Amazon) — ESP32, MAX31855 x3, SSR, MOSFET (IRLZ44N), TCs,
-   compression fittings (M9), plus DR-010 additions:
+5. **Electronics** (Amazon) — ESP32, MAX31855 x3, SSR, TCs, compression
+   fittings (M9), plus DR-010 + DR-011 additions:
    - NPN transistor 2N2222 + 1k base resistor (E7: SSR drive buffer)
-   - SS34 Schottky diode (E9: upgraded flyback)
    - 47Ω 2W resistor + 0.01µF/400V X2 film cap (E10: RC snubber)
    - Second thermal fuse 192-216°C (E6: airstream backup)
    - Shielded cable for SPI bus runs near heater (E13)
+   - **DR-011 blower-control kit:** TRIAC dimmer (BLW-CTRL-001), ZMCT103C
+     current sensor (CT-001), AC line filter (FILT-001), snap-on ferrite
+     chokes (FERR-001), motor frame bonding lug (BOND-001)
    These are spec-driven and can be ordered in parallel with steps 1-4.
 
 6. **Hardware store run** — fuse, DPST disconnect switch (E8: double-pole, not
@@ -69,6 +85,12 @@ All Amazon URLs below were validated by HTTP 200 fetch on 2026-04-28.
 Cross-referenced against search-result titles to confirm product match.
 Amazon ASINs and listings change — re-validate before placing the order.
 
+DR-011 (2026-04-29) removed BLW-001, Q1-001, D1-001, and PSU-002 from this
+table — they were 12V DC blower components that are no longer needed. The
+new DR-011 line items (BLW-CTRL-001, CT-001, FILT-001, FERR-001, BOND-001)
+are listed below as **Pending validation** — search terms only, no validated
+ASINs yet. Validate before ordering.
+
 ### Electronics
 
 | BOM Item | Listing | ASIN |
@@ -76,18 +98,24 @@ Amazon ASINs and listings change — re-validate before placing the order.
 | ESP-001 | HiLetgo ESP-WROOM-32 dev board (single) | [B0718T232Z](https://www.amazon.com/dp/B0718T232Z) |
 | TC-AMP-001 (×3) | NOYITO MAX31855 K-type breakout | [B07K5MJ43M](https://www.amazon.com/dp/B07K5MJ43M) |
 | SSR-001 | SSR-25DA 25A zero-cross 3-32VDC / 24-380VAC | [B07FVR37QN](https://www.amazon.com/dp/B07FVR37QN) |
-| BLW-001 | Wathai 120×32 mm 12 V dual-ball-bearing centrifugal blower | [B08P1S5DBN](https://www.amazon.com/dp/B08P1S5DBN) |
-| Q1-001 | YEGAFE IRLZ44N N-MOSFET TO-220 (10-pack) | [B0BW8K31BF](https://www.amazon.com/dp/B0BW8K31BF) |
 | Q2-001 | OCR 2N2222/2N3904 etc. TO-92 transistor kit | [B071KK9B3H](https://www.amazon.com/dp/B071KK9B3H) |
-| R1/R2/R3-001 | ELEGOO 525-pc 1/4 W 1% resistor kit (covers 100 Ω, 1 k, 10 k) | [B072BL2VX1](https://www.amazon.com/dp/B072BL2VX1) |
+| R3-001 | ELEGOO 525-pc 1/4 W 1% resistor kit (covers 1 k and many other values) | [B072BL2VX1](https://www.amazon.com/dp/B072BL2VX1) |
 | R-SNB-001 | uxcell 47 Ω 2 W metal-oxide flame-proof (60-pack) | [B07V2NV3P9](https://www.amazon.com/dp/B07V2NV3P9) |
 | C-SNB-001 | 0.01 µF 275 VAC X2 safety film cap | [B09JWZ5MWQ](https://www.amazon.com/dp/B09JWZ5MWQ) |
-| D1-001 | SS34 SMA Schottky 40 V 3 A (10-pack) | [B09V1YS2JY](https://www.amazon.com/dp/B09V1YS2JY) |
 | THFUSE-001 | NEC SF240E SEFUSE 240 °C 10 A axial | [B015675DA8](https://www.amazon.com/dp/B015675DA8) |
 | THFUSE-002 | AUPO BF192 192 °C 10 A axial (10-pack) | [B0FJ5WJM9Z](https://www.amazon.com/dp/B0FJ5WJM9Z) |
-| PSU-002 | Facmogu 12 V 3 A wall adapter (5.5×2.5 / 5.5×2.1 mm) | [B073WSWT34](https://www.amazon.com/dp/B073WSWT34) |
 | WIRE-002 | TUOFENG 22 AWG silicone hookup wire (6 colors × 26 ft) | [B07G2JWYDW](https://www.amazon.com/dp/B07G2JWYDW) |
 | CONN-001 | Sopoby 1200-pc insulated crimp-terminal assortment | [B01GAESOWA](https://www.amazon.com/dp/B01GAESOWA) |
+
+### Electronics — Pending validation (DR-011 additions)
+
+| BOM Item | What to look for | Search query |
+|---|---|---|
+| BLW-CTRL-001 | RobotDyn-style 8A AC dimmer with **both** PWM input and ZC output broken out | `RobotDyn AC dimmer module 8A zero cross Arduino` |
+| CT-001 | ZMCT103C 5A split-core CT breakout that includes burden + DC-bias network for ADC sampling | `ZMCT103C 5A current sensor module` |
+| FILT-001 | Inline AC line filter, 6–10A, X-cap line/neutral + Y-caps to earth (or salvage from a dead PC PSU input stage) | `AC line filter EMI 10A inline` |
+| FERR-001 | Mixed-bore snap-on ferrite cores, set of 5–10 (4–10mm cable diameters) | `snap on ferrite cores assortment` |
+| BOND-001 | M4 or #8 ring terminal + green/yellow 14 AWG pigtail | Hardware store — no Amazon link needed |
 
 ### Sensors
 
@@ -110,7 +138,6 @@ Amazon ASINs and listings change — re-validate before placing the order.
 
 - **THFUSE-001 (228 °C → 240 °C).** 228 °C single-pieces are not stocked by major Amazon sellers; nearest in-stock single-piece axial is the NEC SEFUSE 240 °C. Both ratings are well below nichrome failure (~1400 °C) and cool-mass thermal runaway envelopes — 240 °C is conservative for a heater-can-body cutoff. Acceptable per the safety-critical substitution gate.
 - **CHAM-001C (10–12 in target → 8 in actual).** 3 in OD × 10 in+ borosilicate at hobby price is essentially unavailable on Amazon; the SUNWO chimney glass is 8 in tall. Validate that 8 in still gives enough freeboard above the bean bed (~2 in deep when fluidized) before the chaff transition. If insufficient, alternatives are GreatGlas custom Pyrex/quartz, Wale Apparatus 5 ft tubing cut to length, or staying with the SS chamber and accepting no visual.
-- **D1-001 SS34 in SMA.** Surface-mount package — requires either an SMA-to-through-hole breakout, SMD soldering, or substituting a through-hole 1N5822 (same 3 A 40 V Schottky, DO-201AD package). Flagged for build phase.
 - **PLATE-001A/B hole size.** Pre-cut 4 in disc ships with 1/16 in (1.5 mm) holes — small. Open area is ~22 % which gives high pressure drop. Confirm fluidization at 12 CFM during T1; if dP is too high, substitute a coarser perforated sheet.
 - **PLEN-001.** Restaurant-supply or thrift is still the preferred path (per DR-001). The Amazon AmazonCommercial 2-pack is listed as a backup only.
 - **EXH-001.** No clean Amazon match for a 4 in × 5 in tall pure-SS cylinder at low cost. Plan to thrift a SS flatware caddy, utensil cylinder, or coffee tin.
@@ -119,9 +146,9 @@ Amazon ASINs and listings change — re-validate before placing the order.
 
 ### Thrift / Salvage
 - Goodwill, Salvation Army, Habitat ReStore — popcorn poppers (A4), SS containers,
-  stainless cookware
-- Junk drawer — USB phone chargers (5V PSU), laptop bricks (12V PSU), USB cables,
-  small electronics components
+  stainless cookware, dead/cheap shop vacs (BLW-001 — bypass-cooled motor donor)
+- Junk drawer — USB phone chargers (5V PSU), USB cables, small electronics components
+- Curb / free pickup — shop vacs are common discards; verify bypass-cooled motor type
 
 ### Online (cheap)
 - Amazon — generic ESP32, MAX31855 breakouts, SSR, K-type TCs, compression fittings,
@@ -159,20 +186,35 @@ substitute with lower-rated parts to save money.
 - Element physical dimensions (length, diameter, mica former shape)
 - Thermal cutout specs (temperature rating, one-shot vs resettable)
 - Mica former tab locations (M5: needed for mounting in custom heater can)
-- Note: the heat gun's built-in axial fan is not being used (DR-003)
+- Note: the heat gun's built-in axial fan is not being used (DR-003 / DR-011)
 - Note: the heat gun housing is not being retained (A1 rejected)
 
-### 12V blower P-Q verification (T1 — CRITICAL)
-- Measure actual airflow at several static pressure points:
-  - Free air (0" WC)
-  - 1.0" WC
-  - 1.5" WC
-  - 2.0" WC
-  - 2.5" WC (if achievable)
-- Method: use a manometer and a restriction plate to vary backpressure
-- Must confirm the blower can deliver at least 12 CFM at 2" WC for the
-  2.5" chamber, or 18 CFM at 2" WC for the 3.0" chamber
-- If it cannot, source a larger blower before proceeding
+### Vacuum motor characterization (DR-011 — supersedes T1)
+
+T1 changed from "verify the blower meets spec" to "find the operating duty-cycle
+range for a motor that exceeds spec." The salvaged vacuum motor will have far
+more pressure than the system needs at 100% conduction; the question is where
+to operate the TRIAC.
+
+What to measure once the salvaged motor is in hand:
+
+- **Bypass-cooling confirmation (BEFORE bench testing).** Identify the cooling
+  airpath and the working airpath. Run the motor briefly with a paper towel
+  held over the working inlet — the working impeller stalls; the motor must
+  *not* stall (cooling impeller is independent). If both stop, it's
+  flow-through — reject this motor.
+- **No-load draw at 120 V.** Clamp meter on one motor lead. Establishes the
+  baseline for the CT-001 airflow-interlock threshold.
+- **CFM vs. TRIAC conduction angle.** With the working impeller plumbed to a
+  manometer + restriction plate, sweep the dimmer from minimum smooth running
+  (often ~30%) to 100% in steps. Record CFM at the 2.5" and 3.0" chamber
+  operating-pressure points (1.5" and 2.0" WC respectively).
+- **Smooth-running floor.** Universal motors don't run cleanly at very low
+  conduction — find the lowest conduction angle that still produces stable
+  rotation. This sets the bottom of the operating duty-cycle range.
+- **Goal:** define a TRIAC duty-cycle range that maps to the 8–18 CFM
+  operating envelope across both chambers, with margin for chaff-mesh loading
+  (T8) and bed-depth variation.
 
 ### Plenum pan (1/6 size steam table pan)
 - Internal dimensions (L × W × H) — confirm ~6" × 6" × 4" minimum

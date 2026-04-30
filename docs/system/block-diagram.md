@@ -66,24 +66,27 @@ flowchart TD
     DISC --> FUSE["Fuse / Breaker\n(15A)"]
     FUSE --> BUS["AC Power Bus"]
 
-    subgraph DOMAIN1["Domain 1: 120V AC (Mains)"]
+    subgraph DOMAIN1["Domain 1: 120V AC — Heater (Mains)"]
         BUS --> SSR["Zero-Cross SSR"]
         SSR --> HTR["Heater Element\n(Warrior 1500W nichrome)"]
     end
 
-    subgraph DOMAIN2["Domain 2: 12V DC"]
-        BUS --> PSU12["12V AC-DC PSU\n(switching, 3A+)"]
-        PSU12 --> MOSFET["Logic-Level MOSFET\n(e.g. IRLZ44N)"]
-        MOSFET --> BLWR["12V Brushless\nCentrifugal Blower"]
+    subgraph DOMAIN2["Domain 2: 120V AC — Blower (DR-011)"]
+        BUS --> FILT["AC Line Filter\n(FILT-001)"]
+        FILT --> CT["Current Transformer\n(ZMCT103C — CT-001)"]
+        CT --> TRIAC["TRIAC Dimmer\n(BLW-CTRL-001)"]
+        TRIAC --> BLWR["Salvaged Bypass-Cooled\nUniversal-AC Vacuum Motor\n(BLW-001)"]
     end
 
-    subgraph DOMAIN3["Domain 3: 3.3V DC"]
-        BUS --> PSU3["3.3V PSU\n(USB or regulator)"]
+    subgraph DOMAIN3["Domain 3: 3.3V DC — Controls"]
+        BUS --> PSU3["3.3V/5V PSU\n(USB or regulator)"]
         PSU3 --> ESP["ESP32 + Control Board"]
     end
 
-    ESP -->|"GPIO (PWM)"| MOSFET
-    ESP -->|"GPIO"| SSR
+    ESP -->|"GPIO 23 (PWM in)"| TRIAC
+    TRIAC -->|"GPIO 4 (ZC out)"| ESP
+    CT -->|"GPIO 34 (ADC sense)"| ESP
+    ESP -->|"GPIO 22"| SSR
 
     style SSR fill:#f66,stroke:#333
     style DISC fill:#ff9,stroke:#333
@@ -94,15 +97,23 @@ flowchart TD
 
 ### Power Path Notes
 
-- **Three power domains:** 120V AC (heater), 12V DC (blower), 3.3V DC (controls)
+- **Two mains-side domains + one LV domain (DR-011):** 120V AC heater, 120V AC blower
+  via TRIAC, 3.3V DC controls.
 - Hard disconnect is **mandatory** — must be reachable during operation
-- Fuse sized for total load: heater + 12V PSU + 3.3V PSU (~13A max at 120V)
+- Fuse sized for total load: heater (~12.5A) + blower motor (~1–4A) + 5V PSU (<1A) at 120V.
+  Total can exceed the 15A budget if both heater and blower run at full duty — verify
+  combined draw at TP-001 and limit blower-during-heat duty if needed.
 - SSR is controlled by ESP32 via zero-cross switching for burst-fire duty control
-- Blower driven by MOSFET with PWM from ESP32 — no AC motor control needed
-- 12V PSU: switching wall wart or enclosed supply, 3A minimum
-- Both low-voltage PSUs must be isolated from mains; ESP32 side is entirely low-voltage
-- Flyback diode required across blower motor leads
-- **All metal chassis components must be grounded to mains earth**
+- **Blower (DR-011):** Salvaged universal-AC bypass-cooled vacuum motor, phase-angle
+  speed control via a TRIAC dimmer module. ESP32 fires the gate per zero-cross
+  interrupt. Airflow interlock via ZMCT103C current transformer on a motor lead.
+- **Bypass-cooled motor required** — flow-through motors put brush carbon dust into
+  the bean airstream.
+- 5V PSU must be isolated from mains; ESP32 side is entirely low-voltage
+- **All metal chassis components must be grounded to mains earth, including the
+  blower motor frame** (BOND-001) — universal motors have nontrivial leakage current
+- AC line filter (FILT-001) and snap-on ferrites (FERR-001) are mandatory to
+  contain TRIAC + brushed-motor conducted EMI from corrupting TC SPI signals
 
 ---
 
@@ -148,7 +159,7 @@ flowchart TD
     CTRL --> GPIO_BLWR
 
     GPIO_SSR --> SSR["SSR Gate"]
-    GPIO_BLWR --> BDRV["Blower Driver Gate"]
+    GPIO_BLWR --> BDRV["TRIAC Dimmer\n(phase-angle, ZC-synced)"]
 
     style SAFETY fill:#f66,stroke:#333
     style CTRL fill:#6f6,stroke:#333
@@ -159,9 +170,12 @@ flowchart TD
 
 - Three MAX31855 breakout boards share a single SPI bus with individual chip-select lines
 - SSR control is a single GPIO (logic-level, active high assumed until schematic finalized)
-- Blower control GPIO drives a logic-level MOSFET gate via PWM
+- Blower control: ESP32 GPIO 23 drives the TRIAC dimmer's PWM input; GPIO 4 reads
+  the dimmer's zero-cross output as an interrupt; GPIO 34 ADC-samples the CT-001
+  current transformer for the airflow interlock (DR-011)
 - **Safety layer has hardware-priority override on SSR GPIO** — it can force heater off regardless of control layer state
-- All signal wiring must be physically separated from mains wiring
+- All signal wiring must be physically separated from mains wiring; TC SPI cables
+  require snap-on ferrites and shielded jacket to survive brushed-motor + TRIAC EMI
 
 ---
 
@@ -202,7 +216,8 @@ flowchart LR
 
 | Subsystem | Inputs | Outputs | Interface Owner |
 |-----------|--------|---------|-----------------|
-| Blower | 12V DC via MOSFET, PWM speed command | Airflow + pressure | Electrical → Mechanical |
+| Blower | 120V AC via TRIAC, conduction-angle speed command, ZC sync | Airflow + pressure | Electrical → Mechanical |
+| Blower current sense | Motor lead AC current (ZMCT103C primary) | RMS reading for airflow interlock | Electrical → Firmware |
 | Heater Can | Airflow, AC power via SSR | Heated airflow | Electrical → Mechanical |
 | Plenum + Plate | Heated airflow (side entry) | Uniform upward velocity | Mechanical |
 | Roast Chamber | Uniform hot air, green beans | Roasted beans, hot exhaust + chaff | Mechanical |

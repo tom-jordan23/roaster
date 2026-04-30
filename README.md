@@ -20,8 +20,9 @@ using thrift store finds, salvaged parts, and Amazon generics wherever possible.
 ## Project Status
 
 **Phase 0 — Foundation.** Repository structure, system architecture, power/airflow
-budgets, and firmware scaffold are in place. Next step: thrift store run for a hair
-dryer (heater + blower donor) and stainless containers (plenum candidates), then
+budgets, and firmware scaffold are in place. Next step: Harbor Freight run for the
+Warrior heat gun (DR-002, heater element donor), salvage hunt for a bypass-cooled
+vacuum motor (DR-011, blower), and stainless containers for the plenum, then
 electronics ordering and mechanical integration design.
 
 ## Repository Structure
@@ -113,11 +114,13 @@ Tests execute in order. Each depends on the prior test passing.
 
 This is a v1 learning platform built to be cheap and iterable. Major cost savings:
 
-- **Heater + blower** — salvaged from a thrift store hair dryer ($2-5 for both)
+- **Heater element** — Harbor Freight Warrior heat gun, donor only ($10, DR-002)
+- **Blower** — bypass-cooled vacuum motor salvaged from a junk shop vac
+  ($0-10, DR-011); TRIAC dimmer + ZMCT103C current sensor for control
 - **Chamber** — standard SS exhaust pipe from auto parts store ($8-12 each)
 - **Plenum** — adapted from a stainless steam table pan or steel container ($3-10)
 - **Electronics** — Amazon generic ESP32, MAX31855, SSR, TCs ($35-50 total)
-- **Power supplies** — old phone charger and laptop brick from junk drawer ($0)
+- **5V supply** — old phone charger from junk drawer ($0)
 
 We design the mechanical assembly around whatever parts we find, not the other way
 around. See [`docs/system/design-reviews/DR-001-cost-strategy.md`](docs/system/design-reviews/DR-001-cost-strategy.md)

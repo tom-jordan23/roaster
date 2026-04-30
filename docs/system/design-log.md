@@ -4,6 +4,113 @@ Running record of design decisions, findings, and rationale. Newest entries firs
 
 ---
 
+## 2026-04-29 — DR-011 blower upgrade: vacuum motor + TRIAC
+
+### Decision
+
+**DR-011: Replace 12V DC centrifugal blower (DR-003) with bypass-cooled
+salvaged universal-AC vacuum motor + TRIAC speed control.** Architecture.md §3
+rewritten; BOM, sourcing notes, power schematic, and block diagram updated.
+
+### Rationale
+
+T1 (architecture.md §3) flagged that the Wathai 120 × 32 mm 12 V centrifugal
+blower (BLW-001, B08P1S5DBN) had an unverified P-Q curve at the system
+operating point. On closer review, blowers of this physical size shut off
+around 1.0–1.5" WC and deliver only 0.3–0.6" WC at the 12–18 CFM operating
+point — below the 1.5–2.5" WC system minimum and with no margin for chaff
+mesh loading (T8), distributor-plate variation, or the deeper bed in the 2.5"
+chamber. This was a genuine blocker, not a paper one.
+
+Three upgrade paths considered:
+1. **Bypass-cooled vacuum motor + TRIAC** ($0–10 salvage, 20–80" WC headroom).
+   Cost: AC complexity (zero-cross + TRIAC), brushed-motor EMI, larger
+   envelope. ✓ Selected.
+2. **24V high-pressure DC centrifugal** (Delta BFB1024-class + driver, $25–50,
+   2–4" WC). Keeps everything LV-side. ✗ Conflicts with DR-001 cost target.
+3. **Two 120 × 32 mm blowers in series** (~$15–20 incremental). Sums pressure
+   but stalls in two places, no real headroom. ✗ Insufficient margin.
+
+### Architecture changes
+
+- **Air system:** unchanged (serial path).
+- **Power domains:** Domain 2 changes from 12V DC to mains AC + TRIAC. PSU-002
+  (12V/3A) deleted. Mains load increases by ~1–4 A (vacuum motor draw) — still
+  within the 15A circuit budget alongside the heater (~12.5 A) only if the
+  blower is run at modest duty during heating; verify total draw at TP-001.
+- **Control:** ESP32 GPIO 23 reassigned from MOSFET PWM to TRIAC PWM input.
+  GPIO 4 added for zero-cross interrupt. GPIO 34 added for ZMCT103C current
+  sense (airflow interlock).
+- **Safety:** `blower_is_running()` switches from PWM-duty inspection to
+  CT RMS threshold. New FAULT_CT_OPEN if commanded-on with no current.
+- **EMI:** Snap-on ferrites on all TC SPI cables (E13 cable shielding becomes
+  necessary but not sufficient). Line filter on motor leads.
+- **Grounding:** Motor frame bonded to mains earth (universal motors have
+  nontrivial leakage current — bonding is safety-critical).
+
+### Bypass-cooled is non-negotiable
+
+Flow-through (single-stage) shop-vac motors cool the brushes with the working
+airstream and shed brush carbon into it. Coffee application requires a
+**bypass / two-stage** motor where a dedicated cooling impeller is isolated
+from the working impeller. Inspect candidate motors and confirm the two
+airpaths are separate before committing.
+
+### BOM impact
+
+| Action | BOM line | Notes |
+|--------|----------|-------|
+| Modified | BLW-001 | Now: salvaged bypass-cooled vacuum motor, $0–10, status Thrift hunt |
+| Deleted | PSU-002 | 12V/3A supply no longer needed |
+| Deleted | Q1-001, R1-001, R2-001, D1-001 | MOSFET drive, gate resistors, flyback diode (12V blower drive parts) |
+| Added | BLW-CTRL-001 | RobotDyn-style TRIAC dimmer module, 8A, ZC detect, ~$5–10 |
+| Added | CT-001 | ZMCT103C 5A split-core current transformer, ~$3–8 |
+| Added | FERR-001 | Snap-on ferrite chokes (set of 5–10), ~$5 |
+| Added | FILT-001 | AC line filter / X+Y cap module on motor leads, ~$3–6 |
+| Added | BOND-001 | Motor frame bonding lug + ring terminal, ~$1 |
+
+Net cost impact: roughly neutral to slightly cheaper depending on the salvage
+luck on the motor itself.
+
+### Pending follow-on work — gated on parts in hand
+
+**Hold all firmware and mechanical-fit work until the salvaged motor + the
+DR-011 control kit (TRIAC dimmer, ZMCT103C, line filter, ferrites) are
+physically on the bench.** The control-side details (PWM frequency / phase
+math, CT burden value, ADC range, EMI envelope) depend on the actual hardware
+and will be re-evaluated then. Re-open this entry as the trigger.
+
+1. **Salvage hunt FIRST:** bypass-cooled motor from Habitat ReStore / curb /
+   junk shop vac. Inspect dual-airpath separation before committing.
+2. **Order DR-011 control kit:** validate ASINs for BLW-CTRL-001 (TRIAC
+   dimmer), CT-001 (ZMCT103C), FILT-001 (line filter), FERR-001 (ferrites)
+   per `bom/sourcing-notes.md` "Pending validation" table.
+3. **Firmware (gated):** rewrite `blower.c` for phase-angle TRIAC drive off the
+   zero-cross ISR; rewrite `blower_is_running()` against the CT ADC.
+   Re-evaluate pin assignments, PWM strategy, and CT thresholding with the
+   real boards in hand.
+4. **SCAD model (gated):** the 150 mm × 200 mm best-estimate vacuum-motor
+   envelope is a placeholder. Re-measure once a real motor is in hand.
+5. **TP-001 update (gated):** P-Q characterization (formerly a critical gate)
+   becomes "find the operating duty-cycle range." The motor will exceed
+   system requirements at 100%; the question is where to operate it.
+
+### What changed from previous decisions
+
+- DR-003 (separate 12V brushless blower, MOSFET + PWM) — **superseded**.
+  The "$15 over a thrift find buys us LV-only simplicity" trade was the wrong
+  call once the P-Q gap became evident.
+- DR-004 (three power domains: 120V AC heater, 12V DC blower, 3.3V DC
+  controls) — **revised to two power domains**: 120V AC (heater + blower) and
+  3.3V/5V DC (controls). The blower moves up to mains.
+- E11 (LEDC PWM at 25 kHz for blower) — superseded; the new blower driver is
+  phase-angle TRIAC, not high-frequency PWM. The 25 kHz LEDC infrastructure
+  in firmware can be deleted.
+- E9 (SS34 flyback diode upgrade) — moot; no flyback needed without the DC
+  blower.
+
+---
+
 ## 2026-04-13 — DR-010 formal design review response
 
 ### Summary

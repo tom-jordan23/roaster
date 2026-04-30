@@ -99,10 +99,12 @@ heater_can_od     = 65;    // ~2.5 inches (heat gun barrel)
 heater_can_length = 190;   // ~7.5 inches
 heater_can_wall   = 1.5;
 
-// --- Blower (12V brushless centrifugal) ----------------------
+// --- Blower (salvaged bypass-cooled vacuum motor, DR-011) ----
+// Placeholder envelope — real dims pending salvage. Re-measure
+// once a motor is in hand. See design-log 2026-04-29.
 
-blower_dia    = 120;  // 120mm
-blower_depth  = 32;   // 32mm
+blower_dia    = 150;  // ~150mm best-estimate vacuum-motor body
+blower_depth  = 200;  // ~200mm best-estimate including outlet flange
 blower_outlet = 40;   // outlet port width (approx)
 
 // =============================================================

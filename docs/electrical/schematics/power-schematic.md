@@ -67,45 +67,60 @@ graph TD
   2. Limit heater duty to stay under 12A continuous average
   3. Accept that v1 bench testing will likely not run 3+ hours continuously
 
-## Domain 2: 12V DC Blower Circuit
+## Domain 2: 120V AC Blower Circuit (DR-011 — supersedes DR-003)
 
 ```mermaid
 graph TD
-    L_BUS["L Bus"] --> PSU12_L["PSU-002\n12V / 3A+\nSwitching PSU"]
-    N_BUS["N Bus"] --> PSU12_N["PSU-002"]
-    PSU12_L --> V12_PLUS["+12V Rail"]
-    PSU12_N --> V12_GND["12V GND"]
+    L_BUS["L Bus"] --> FILT_L["FILT-001\nAC Line Filter\n(X + Y caps)"]
+    FILT_L --> CT["CT-001\nZMCT103C\nSplit-Core CT\n(clamped on L lead)"]
+    CT --> TRIAC_L["BLW-CTRL-001\nTRIAC Dimmer Module\nRobotDyn-style 8A\nw/ Zero-Cross Detect"]
+    TRIAC_L --> BLWR_L["BLW-001\nSalvaged Universal-AC\nBypass-Cooled Vacuum Motor\n(L)"]
+    BLWR_L --> N_BUS["N Bus"]
 
-    V12_PLUS --> BLWR_PLUS["BLW-001\n12V Brushless\nCentrifugal Blower\n(+ lead)"]
+    BOND["Motor Frame\n→ Mains Earth\n(BOND-001)"] -.-|"Safety bond"| BLWR_L
 
-    BLWR_MINUS["BLW-001\n(- lead)"] --> Q1_DRAIN["Q1 Drain\nIRLZ44N\nLogic-Level\nN-CH MOSFET"]
+    ESP_PWM["ESP32 GPIO 23\n(PIN_BLOWER_PWM)"] -->|"3.3V logic\n(PWM)"| TRIAC_PWM["Dimmer PWM In"]
+    TRIAC_ZC["Dimmer ZC Out"] -->|"3.3V pulse\nat each zero-cross"| ESP_ZC["ESP32 GPIO 4\n(PIN_ZC_IRQ)"]
+    TRIAC_PWM --- TRIAC_L
+    TRIAC_ZC --- TRIAC_L
 
-    Q1_SOURCE["Q1 Source"] --> V12_GND
+    CT_OUT["CT secondary\n(burden + bias)"] -->|"AC riding mid-rail"| ESP_ADC["ESP32 GPIO 34\n(ADC: PIN_CT_SENSE)"]
+    CT --- CT_OUT
 
-    ESP_BLWR["ESP32 GPIO 23\n(PIN_BLOWER)"] -->|"PWM\n~25 kHz"| R1["R1\n100 ohm\nGate Resistor"]
-    R1 --> Q1_GATE["Q1 Gate"]
-
-    R2["R2\n10k ohm\nGate Pulldown"] --- Q1_GATE
-    R2 --- V12_GND
-
-    D1["D1\nFlyback Diode\nSS34 3A Schottky\n(E9)"] -.-|"Cathode to +12V\nAnode to drain"| BLWR_PLUS
-
-    style Q1_DRAIN fill:#69f,stroke:#333
-    style D1 fill:#f9f,stroke:#333
+    style TRIAC_L fill:#f96,stroke:#333
+    style CT fill:#69f,stroke:#333
+    style BOND fill:#0f0,stroke:#333
+    style FILT_L fill:#fc9,stroke:#333
 ```
 
 ### Blower Circuit Notes
 
-- **Q1 (IRLZ44N):** Logic-level N-channel MOSFET. Vgs(th) ~1-2V, fully on at 3.3V gate drive.
-  RDS(on) ~0.022 ohm — negligible heat at blower current (~1-2A)
-- **R1 (100 ohm):** Gate resistor limits inrush current to gate capacitance, reduces ringing
-- **R2 (10k ohm):** Gate-source pulldown ensures MOSFET is OFF when ESP32 pin is floating
-  (during boot, reset, or fault)
-- **D1 (flyback diode):** Schottky across blower leads (cathode to +12V, anode to drain).
-  Clamps inductive kickback when MOSFET switches off. SS34 rated 40V/3A (E9: upgraded
-  from 1N5819 — blower draws 1-2A, 1A diode had insufficient margin).
-- **PWM frequency:** ~25 kHz (above audible range, within MOSFET switching capability)
-- **Speed range:** 0-100% duty cycle maps to 0-100% blower speed
+- **BLW-001 (salvaged bypass-cooled vacuum motor):** Universal AC motor, ~1–4 A
+  draw at 120 V depending on size. Bypass-cooled (two-stage) is required —
+  flow-through motors shed brush carbon into the bean airstream. Frame is bonded
+  to mains earth via BOND-001 (universal motors have nontrivial leakage current).
+- **BLW-CTRL-001 (TRIAC dimmer module):** RobotDyn-class 8 A AC dimmer with
+  on-board zero-cross detector. Two logic-level pins: PWM in (gate trigger), ZC
+  out (pulse at each AC zero-cross). ESP32 phase-fires the TRIAC at a delay
+  set by the commanded duty.
+- **CT-001 (ZMCT103C 5 A split-core CT):** Clamped on one motor lead. Secondary
+  output biased to ADC mid-rail with a burden resistor + DC offset divider; ESP32
+  samples the AC waveform on GPIO 34 and computes RMS for the airflow interlock.
+  Replaces the implicit `blower_is_running() = (PWM > 0)` check from DR-003.
+- **FILT-001 (AC line filter):** X-cap line-to-neutral, Y-caps line/neutral-to-earth.
+  Suppresses TRIAC-induced conducted EMI from re-entering the mains and the rest
+  of the system. Mandatory for SPI signal integrity in this topology.
+- **Ferrite chokes (FERR-001):** Snap-on cores on the motor leads (between TRIAC
+  and motor) and on every TC SPI cable. Brushed motor + TRIAC switching is a
+  significant EMI source — E13 shielded SPI cable is necessary but not sufficient.
+- **PWM frequency:** Phase-angle control synchronized to mains zero-cross — not
+  high-frequency PWM. The "PWM" pin on the dimmer module is really a gate trigger
+  whose timing within each half-cycle determines conduction angle.
+- **Speed range:** 0%–100% conduction angle maps to 0%–100% motor speed.
+  Practical operating range will be the upper portion (e.g., 30%–80% conduction
+  angle) — universal motors don't run smoothly at very low conduction.
+- **DR-011:** Replaces DR-003 (12V DC brushless blower with MOSFET PWM).
+  Resolves T1 (P-Q gap on the previous blower).
 
 ## Domain 3: 3.3V DC Control Circuit
 
@@ -129,7 +144,9 @@ graph TD
     AMP3 --- TC3["TC-003\nK-Type TC\nSS Sheath"]
 
     ESP -->|"GPIO 22"| SSR_OUT["→ SSR Gate\n(Domain 1)"]
-    ESP -->|"GPIO 23\n(PWM)"| MOSFET_OUT["→ MOSFET Gate\n(Domain 2)"]
+    ESP -->|"GPIO 23\n(PWM in)"| TRIAC_OUT["→ TRIAC Dimmer PWM\n(Domain 2)"]
+    ESP -->|"GPIO 4\n(ZC IRQ)"| ZC_IN["← TRIAC Dimmer ZC out\n(Domain 2)"]
+    ESP -->|"GPIO 34\n(ADC)"| CT_IN["← CT-001 burden\n(Domain 2 — airflow interlock)"]
     ESP -->|"USB Serial\n115200 baud"| PC["Host PC\n(Artisan)"]
 
     style ESP fill:#6f6,stroke:#333
@@ -154,10 +171,11 @@ graph TD
     GND_BUS --> PLEN["Plenum Pan\n(ground lug)"]
     GND_BUS --> HTR_CAN["Heater Can\n(ground lug)"]
     GND_BUS --> SSR_HS["SSR Heatsink\n(if metal)"]
+    GND_BUS --> BLWR_FRAME["Blower Motor Frame\n(BOND-001 — DR-011)"]
 
-    V12_GND["12V PSU GND"] ---|"Star ground\nat PSU output"| SIG_GND["Signal Ground"]
-    V5_GND["5V PSU GND"] --- SIG_GND
+    V5_GND["5V PSU GND"] --- SIG_GND["Signal Ground"]
     SIG_GND --- ESP_GND["ESP32 GND"]
+    SIG_GND --- DIM_GND["TRIAC Dimmer\nlogic GND"]
 
     style GND_BUS fill:#0f0,stroke:#333
     style MAINS_GND fill:#0f0,stroke:#333
@@ -167,12 +185,15 @@ graph TD
 
 - **Chassis ground (earth):** All metal enclosure parts bonded to mains earth via
   dedicated ground wire. This is safety-critical — prevents shock if a mains wire
-  contacts the chassis.
-- **Signal ground:** 12V GND and 5V GND share a common return at the PSU output
-  terminals (star ground). ESP32 GND connects here.
+  contacts the chassis. **DR-011: vacuum motor frame must be earth-bonded** via
+  BOND-001 — universal motors have nontrivial leakage current.
+- **Signal ground:** 5V PSU GND, ESP32 GND, and TRIAC dimmer logic GND share a
+  common return (star ground at the 5V PSU output).
 - **Do NOT connect chassis earth to signal ground** unless through the PSU's
   internal earth-ground bond (most isolated switching PSUs bond earth to output
   GND via a high-value resistor or Y-cap internally).
+- **CT-001 secondary** is referenced to signal ground via its bias network —
+  the primary (motor lead) is mains-isolated by the magnetic coupling of the CT.
 
 ## Complete Pin Assignment Summary
 
@@ -184,19 +205,26 @@ graph TD
 | 16 | TC2 CS | MAX31855 #2 CS | 22-26 AWG |
 | 17 | TC3 CS | MAX31855 #3 CS | 22-26 AWG |
 | 22 | SSR Control | SSR-001 DC input (+) | 22-26 AWG |
-| 23 | Blower PWM | Q1 gate via R1 (100 ohm) | 22-26 AWG |
+| 23 | Blower TRIAC PWM (gate trigger) | BLW-CTRL-001 PWM in | 22-26 AWG |
+| 4 | Zero-cross interrupt input | BLW-CTRL-001 ZC out | 22-26 AWG |
+| 34 | ADC: CT current sense (airflow interlock) | CT-001 burden / bias network | 22-26 AWG shielded |
 | USB | Serial data | Host PC (Artisan) | USB cable |
 
 ## Bill of Electrical Materials (schematic-specific)
 
 | Ref | Component | Value | Package | Notes |
 |-----|-----------|-------|---------|-------|
-| Q1 | N-CH MOSFET | IRLZ44N | TO-220 | Logic-level, Vgs(th) ~1-2V |
+| BLW-CTRL-001 | TRIAC dimmer module | 8A AC, ZC detect | RobotDyn-style PCB | Phase-angle blower control (DR-011) |
+| CT-001 | Current transformer | ZMCT103C 5A | Split-core, PCB-mount | Airflow interlock — RMS sensed on GPIO 34 (DR-011) |
+| FILT-001 | AC line filter | X+Y cap module | Inline | Conducted-EMI suppression on motor leads (DR-011) |
+| FERR-001 | Snap-on ferrite cores | Mixed dia. (4–10 mm cable) | Clamp-on | Motor leads + TC SPI cables (DR-011) |
+| BOND-001 | Earth bond lug + ring terminal | M4 or #8 | Hardware | Motor frame → mains earth (DR-011) |
 | Q2 | NPN transistor | 2N2222 or similar | TO-92 | SSR drive buffer (E7) — 5V to SSR |
-| R1 | Gate resistor | 100 ohm | 1/4W axial | Limits gate inrush |
-| R2 | Gate pulldown | 10k ohm | 1/4W axial | Ensures off at boot |
 | R3 | SSR buffer base resistor | 1k ohm | 1/4W axial | Limits base current for Q2 (E7) |
 | R-SNB | Snubber resistor | 47 ohm | 2W | Across SSR output (E10) |
 | C-SNB | Snubber capacitor | 0.01 µF / 400V | X2-rated film | Across SSR output (E10) |
-| D1 | Flyback diode | SS34 | SMA/DO-214AC | 40V 3A Schottky (E9: upgraded from 1N5819) |
 | THFUSE-002 | Thermal fuse (airstream) | 192–216°C | Axial | In-airstream backup (E6) |
+
+**Removed by DR-011:** Q1 (IRLZ44N MOSFET), R1 (100 Ω gate), R2 (10 kΩ pulldown),
+D1 (SS34 flyback). All were 12 V DC blower drive parts; not needed with the
+TRIAC-controlled AC motor.

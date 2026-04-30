@@ -173,8 +173,8 @@
   <!-- ============================================= -->
   <ellipse cx="80" cy="506" rx="30" ry="35" fill="#6495ED" fill-opacity="0.5" class="component"/>
   <text x="80" y="509" text-anchor="middle" class="label" fill="#333">Blower</text>
-  <text x="80" y="555" text-anchor="middle" class="note">(12V DC</text>
-  <text x="80" y="565" text-anchor="middle" class="note">120mm)</text>
+  <text x="80" y="555" text-anchor="middle" class="note">(salvaged AC</text>
+  <text x="80" y="565" text-anchor="middle" class="note">vacuum motor)</text>
 
   <!-- ============================================= -->
   <!-- AIRFLOW ARROWS -->
@@ -215,8 +215,8 @@
   <text x="530" y="528" text-anchor="middle" class="note" fill="#c33">SSR</text>
 
   <rect x="565" y="510" width="40" height="30" fill="#B0E0E6" fill-opacity="0.5" stroke="#33c" stroke-width="1"/>
-  <text x="585" y="528" text-anchor="middle" class="note" fill="#33c">12V</text>
-  <text x="585" y="538" text-anchor="middle" class="note" fill="#33c">PSU</text>
+  <text x="585" y="528" text-anchor="middle" class="note" fill="#33c">TRIAC</text>
+  <text x="585" y="538" text-anchor="middle" class="note" fill="#33c">+ CT</text>
 
   <text x="540" y="505" text-anchor="middle" class="label">Electronics Zone</text>
   <text x="540" y="495" text-anchor="middle" class="note">(cool side of base)</text>

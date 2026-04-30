@@ -223,33 +223,76 @@ Blower-side CFM needed (at ambient, corrected for hot-air density T5):
 
 | Parameter | Target | Notes |
 |-----------|--------|-------|
-| Static pressure | **1.5–2.5" WC** at operating CFM | Must handle full system backpressure |
+| Static pressure | **1.5–2.5" WC** at operating CFM | System minimum; salvaged vacuum motor has 20–80× headroom |
 | Flow rate | **8–18 CFM** at operating pressure | T5: revised to cover 2.0× Umf for both chambers |
-| Control | PWM via MOSFET from ESP32 | 12V DC brushless, no AC control needed |
-| Noise | Tolerable for indoor use | Not a hard requirement for v1 |
+| Control | TRIAC phase/burst control from ESP32 | Universal AC motor — see §3.1 |
+| Noise | Loud (vacuum-motor class) — accepted for v1 | Mitigation deferred (foam-lined enclosure post-TP-001) |
 
-### Blower Selection (DR-003)
+### Blower Selection (DR-011 — supersedes DR-003)
 
-**Selected:** 12V brushless DC centrifugal blower (~120mm x 32mm form factor,
-e.g. WDERAIR or Wathai). Controlled via logic-level MOSFET (e.g. IRLZ44N) and
-PWM from ESP32 GPIO. Flyback diode across fan leads. Powered by a 12V/3A
-AC-DC switching supply (see Power Domains below).
+**Selected:** Salvaged universal-AC **bypass-cooled** vacuum motor (shop-vac
+"bypass" / "two-stage" type), $0–10 from a curb find, Habitat ReStore, or
+junk-drawer shop vac. Speed-controlled via a TRIAC dimmer module (RobotDyn-class
+AC light dimmer / 8A / built-in zero-cross detector) driven by ESP32 PWM and
+zero-cross interrupt. Airflow interlock via a ZMCT103C split-core current
+transformer clamped on one motor lead, sensed by ESP32 ADC.
 
-**Selection criteria:** Must produce ~13-15 CFM at ~2" WC static pressure (to cover
-the 3.0" chamber) with controllable speed down to ~6 CFM (for the 2.5" chamber).
+**Selection criteria:** Must comfortably exceed system worst-case backpressure
+(~2.1" WC) at 18 CFM with margin for chaff-mesh loading (T8) and bed-depth
+variation. Vacuum motors deliver 20–80" WC of static pressure headroom — far
+more than required, so the duty point sits in the flat part of the P-Q curve
+where TRIAC speed control is well-behaved.
 
-**Rationale:** 12V DC keeps the blower entirely on the low-voltage side, avoiding
-AC triac control complexity. Cost delta vs. scavenged AC motor is ~$15-20 —
-worth it for simpler electronics and direct ESP32 PWM control.
+**Rationale:** The 120 mm × 32 mm 12 V DC centrifugal blower previously selected
+(DR-003, BLW-001 / Wathai B08P1S5DBN) shut off around ~1.0–1.5" WC. At the
+~12–18 CFM operating point its delivered static pressure was ~0.3–0.6" WC —
+below the system minimum, with no margin for distributor-plate / chaff-mesh
+loading or bed-depth variation in the 2.5" chamber. T1 was a real blocker, not
+a paper one. A 24V high-pressure blower (Delta BFB1024-class, $25–50) would
+have worked but conflicted with the cost-conscious sourcing constraint
+(DR-001). Salvaged vacuum motors are abundant, free-to-cheap, and TRIAC speed
+control of universal motors is a well-trodden DIY pattern.
 
-**T1 — CRITICAL: Blower P-Q verification.** The 120mm × 32mm 12V centrifugal
-blower P-Q curve is unverified. A typical blower of this size may not deliver
-18 CFM at 2" WC (the 3.0" chamber operating point). **Measure actual blower
-performance before committing to any other component sizing.** If the blower
-cannot reach the required operating point, options include:
-1. A larger or higher-pressure blower
-2. Reducing system backpressure (more open distributor plate, lower bed depth)
-3. Accepting the 2.5" chamber as primary (lower CFM requirement)
+**Bypass-cooled is non-negotiable for a coffee application.** Flow-through
+motors cool the brushes with the working airstream and shed brush carbon into
+the air the beans see. Bypass / two-stage motors have a separate cooling
+impeller and isolated working impeller — only inspect a candidate motor after
+confirming the cooling path is separate from the suction path.
+
+### T1 — RESOLVED (2026-04-29)
+
+The original T1 risk ("12V DC blower P-Q curve unverified, may not reach
+operating point") is closed by the architecture change. Verification work
+shifts in nature: instead of *gating* the design on whether the existing blower
+reaches spec, we now characterize the salvaged motor at TP-001 to set the
+**operating duty-cycle range** (e.g., 30%–60% TRIAC conduction angle for
+target CFM). The motor will exceed system requirements at 100% — the question
+is where to operate it, not whether it can reach spec.
+
+### 3.1 Blower Control Subsystem (BLW-CTRL-001)
+
+| Element | Spec | Notes |
+|---------|------|-------|
+| TRIAC dimmer module | RobotDyn-style AC dimmer, 8A, on-board zero-cross detect | ESP32 inputs: PWM + ZC interrupt; outputs: gated AC to motor |
+| Current sensor | ZMCT103C 5A split-core CT | Clamped on one motor lead; biased to mid-rail; ADC-sampled |
+| EMI mitigation | Snap-on ferrite chokes on all TC SPI cables, line filter on motor leads | Brushed motor + TRIAC switching is a real EMI source — E13 shielded SPI cable is necessary but not sufficient |
+| Motor bonding | Motor frame bonded to mains earth via dedicated lug | Universal motors have nontrivial leakage current — earth bond is safety-critical |
+
+ESP32 pin assignment changes (replaces the DC-blower MOSFET drive):
+
+| GPIO | Function | Notes |
+|------|----------|-------|
+| 23 | TRIAC PWM (gate logic input to dimmer module) | Was: MOSFET gate via R1 |
+| 4 | Zero-cross interrupt input (from dimmer module ZC pin) | New |
+| 34 | ADC: CT current sense (airflow interlock) | New — replaces implicit `blower_is_running()` from DC PWM duty |
+
+Firmware impact (deferred to a separate work item — not part of this doc-update
+pass):
+- `blower.c`: replace LEDC PWM driver with phase-angle TRIAC driver triggered
+  off the zero-cross ISR
+- `safety.c`: `blower_is_running()` reads CT RMS via ADC (threshold-based)
+  rather than checking PWM duty
+- New fault: FAULT_CT_OPEN if the CT reads zero with TRIAC commanded on
 
 ---
 
@@ -306,7 +349,7 @@ consistent with these values.
 | Airflow velocity at plate (hot) | 1.6–2.5 m/s | T5: 1.8-2.5× Umf, verify by test |
 | Chamber ID (primary) | 2.5" OD / ~60mm ID | Better thermal performance |
 | Chamber ID (backup) | 3.0" OD / ~73mm ID | Easier fluidization |
-| Blower static pressure | 1.5–2.5" WC | Estimated from system drops — T1: VERIFY before committing |
+| Blower static pressure | 1.5–2.5" WC system minimum | T1 RESOLVED via DR-011 — salvaged vacuum motor has 20–80× headroom |
 | Process air temp (TC1) | 140–220°C achievable | Limited by heater power vs airflow |
 | TC sample rate | ≥2 Hz | Artisan compatibility |
 
@@ -447,8 +490,10 @@ the second baffle can be deferred.
    Nichrome on mica former. Measure element after teardown.
 3. ~~**Blower sourcing:** DC brushless vs AC centrifugal — availability and cost at
    the required operating point? Must cover 6-15 CFM range with speed control.~~
-   **RESOLVED (DR-003):** 12V brushless DC centrifugal (~120mm x 32mm), MOSFET + PWM.
-   Requires 12V/3A AC-DC supply as additional BOM item.
+   **RESOLVED (DR-003, then superseded by DR-011 2026-04-29):** Salvaged
+   bypass-cooled universal-AC vacuum motor; speed control via TRIAC dimmer
+   module + ESP32 zero-cross interrupt; airflow interlock via ZMCT103C CT.
+   See §3 / DR-011 for rationale on the supersede.
 4. **Insulation strategy:** How much can we recover by insulating the heater can
    and plenum? Worth calculating before finalizing heater spec.
 5. **Roast time expectation:** Are 10-15 minute roast times acceptable for v1?
