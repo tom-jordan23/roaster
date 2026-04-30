@@ -79,17 +79,17 @@ Source parts in this order because downstream geometry depends on upstream finds
    sheet metal. L-brackets for lateral bracing. Ballast weight (steel plate,
    bricks, or sand bag).
 
-## Sourced Amazon Parts (validated 2026-04-28)
+## Sourced Amazon Parts (validated 2026-04-28; DR-011 additions validated 2026-04-29)
 
-All Amazon URLs below were validated by HTTP 200 fetch on 2026-04-28.
+All Amazon URLs below were validated by HTTP 200 fetch on the dates noted.
 Cross-referenced against search-result titles to confirm product match.
 Amazon ASINs and listings change — re-validate before placing the order.
 
 DR-011 (2026-04-29) removed BLW-001, Q1-001, D1-001, and PSU-002 from this
 table — they were 12V DC blower components that are no longer needed. The
-new DR-011 line items (BLW-CTRL-001, CT-001, FILT-001, FERR-001, BOND-001)
-are listed below as **Pending validation** — search terms only, no validated
-ASINs yet. Validate before ordering.
+new DR-011 line items (BLW-CTRL-001, CT-001, FILT-001, FERR-001) have been
+validated and added to the Electronics table below. BOND-001 is hardware
+store only — no Amazon listing.
 
 ### Electronics
 
@@ -107,15 +107,15 @@ ASINs yet. Validate before ordering.
 | WIRE-002 | TUOFENG 22 AWG silicone hookup wire (6 colors × 26 ft) | [B07G2JWYDW](https://www.amazon.com/dp/B07G2JWYDW) |
 | CONN-001 | Sopoby 1200-pc insulated crimp-terminal assortment | [B01GAESOWA](https://www.amazon.com/dp/B01GAESOWA) |
 
-### Electronics — Pending validation (DR-011 additions)
+### Electronics — DR-011 blower control kit (validated 2026-04-29)
 
-| BOM Item | What to look for | Search query |
+| BOM Item | Listing | ASIN |
 |---|---|---|
-| BLW-CTRL-001 | RobotDyn-style 8A AC dimmer with **both** PWM input and ZC output broken out | `RobotDyn AC dimmer module 8A zero cross Arduino` |
-| CT-001 | ZMCT103C 5A split-core CT breakout that includes burden + DC-bias network for ADC sampling | `ZMCT103C 5A current sensor module` |
-| FILT-001 | Inline AC line filter, 6–10A, X-cap line/neutral + Y-caps to earth (or salvage from a dead PC PSU input stage) | `AC line filter EMI 10A inline` |
-| FERR-001 | Mixed-bore snap-on ferrite cores, set of 5–10 (4–10mm cable diameters) | `snap on ferrite cores assortment` |
-| BOND-001 | M4 or #8 ring terminal + green/yellow 14 AWG pigtail | Hardware store — no Amazon link needed |
+| BLW-CTRL-001 | Genuine RobotDYN PWM AC programmable light dimmer 110-220V w/ heatsink, 3.3V/5V logic | [B071X19VL1](https://www.amazon.com/dp/B071X19VL1) |
+| CT-001 | HiLetgo 3-pc ZMCT103C 5A AC current sensor w/ onboard op-amp + bias (single-phase, voltage output) | [B0CDWWYLMQ](https://www.amazon.com/dp/B0CDWWYLMQ) |
+| FILT-001 | uxcell CW4L2-10A-T AC EMI filter 115/250 V 10 A (chassis-mount, terminal block, X+Y caps) | [B016EISSGE](https://www.amazon.com/dp/B016EISSGE) |
+| FERR-001 | IEUYO 22-pc clip-on ferrite kit, 5 sizes (3/5/7/9/13 mm bore) | [B07DPM44BV](https://www.amazon.com/dp/B07DPM44BV) |
+| BOND-001 | Hardware store — M4 or #8 ring terminal + green/yellow 14 AWG pigtail | (no Amazon link) |
 
 ### Sensors
 
@@ -141,6 +141,8 @@ ASINs yet. Validate before ordering.
 - **PLATE-001A/B hole size.** Pre-cut 4 in disc ships with 1/16 in (1.5 mm) holes — small. Open area is ~22 % which gives high pressure drop. Confirm fluidization at 12 CFM during T1; if dP is too high, substitute a coarser perforated sheet.
 - **PLEN-001.** Restaurant-supply or thrift is still the preferred path (per DR-001). The Amazon AmazonCommercial 2-pack is listed as a backup only.
 - **EXH-001.** No clean Amazon match for a 4 in × 5 in tall pure-SS cylinder at low cost. Plan to thrift a SS flatware caddy, utensil cylinder, or coffee tin.
+- **CT-001 (active op-amp output vs passive burden).** Original spec language called for "burden + bias network" — the HiLetgo board ships with an onboard op-amp that converts the CT's 5 mA secondary to a buffered voltage signal already biased to mid-rail. This is *better* than a passive burden + divider for ADC sampling (lower output impedance, less susceptible to ADC sample-and-hold loading). Firmware reads voltage on GPIO 34 and computes RMS. No spec change required; flag only because the implementation differs from the literal wording.
+- **FILT-001 (chassis-mount terminal block, not 2-lead inline).** Original spec language called for an "inline module." The CW4L2-10A-T is a chassis-mount filter with screw terminals — it sits in the mains path between fuse bus and TRIAC dimmer, but it is mechanically a chassis part with mounting flange and earth lug, not a 2-leaded inline component. The earth lug must be bonded to the chassis-ground bus (see baseplate-layout.md §5). Functionally equivalent; affects mounting only.
 
 ## Vendor Shortlist
 
