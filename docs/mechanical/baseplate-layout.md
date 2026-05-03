@@ -18,26 +18,35 @@ References: `docs/system/architecture.md` §3, `docs/electrical/schematics/power
 
 ## 1. Constraint Audit Against the SCAD Model
 
-Numbers pulled from `roaster-assembly.scad` (commit prior to this doc):
+Numbers below reflect the as-sourced 12" × 24" steel sheet baseplate
+(BASE-001, sourced 2026-05-02), 4" longer than the prior SCAD assumption.
+The SCAD model is still on the prior dimensions and will be updated together
+with this doc once the motor and heater-can geometries are measured.
 
-| Parameter | SCAD value | Notes |
-|-----------|-----------|-------|
-| `base_length` | 508 mm (20") | M1 widening |
-| `base_width` | 305 mm (12") | M1 widening |
-| `plenum_x` | 0.55 × `base_length` ≈ 280 mm from rear edge | Centerline of plenum on long axis |
-| `heater_can_length` | 190 mm | Placeholder pending teardown |
-| `blower_dia` × `blower_depth` | 150 × 200 mm | **Placeholder** — DR-011 best-estimate |
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| `base_length` | 610 mm (24") | As-sourced sheet (was 508 mm / 20" in prior SCAD) |
+| `base_width` | 305 mm (12") | As-sourced sheet |
+| Frame | 1"-class angle iron, perimeter + cross-members | M1 stiffening — 26-ga-class sheet alone will flex; angle iron carries the bending load and serves as ballast at the long edges |
+| `plenum_x` | ~340 mm from rear edge | Centerline of plenum on long axis (revisit once motor envelope is measured) |
+| Plenum footprint | 203 mm dia × 152 mm tall (8" × 6") | DR-012 — round black stovepipe, both ends capped |
+| `heater_can_length` | 190 mm | Placeholder pending Warrior teardown (HTR-001 in hand 2026-05-02) |
+| `blower_dia` × `blower_depth` | 150 × 200 mm horizontal, OR ~150 × 150 mm vertical-axis | **Placeholder** — DR-011 best-estimate; vertical-axis is the working assumption (see §3.1) |
 
 Resulting air-train footprint along the long axis, measured from the rear
-edge of the baseplate:
+edge of the 24" baseplate, using the vertical-axis motor (~150 mm footprint)
+and the new 8" round plenum (~203 mm):
 
-    rear edge (y=0) ───── blower 200mm ───── heater can 190mm ───── plenum (y=199 to y=361) ───── front edge (y=508)
+    rear edge (y=0) ─── motor 150mm ─── heater can 190mm ─── plenum 203mm ─── front edge (y=610)
 
-The plenum -Y face sits at y ≈ 199 mm. The heater can extends from y = 199
-back to y = 9 mm. The 200 mm blower envelope then runs from y = 9 to
-y = -191 — **190 mm off the rear edge of the baseplate.** This was tolerable
-with the 32 mm-deep DC fan that DR-003 specified; it is not tolerable for
-the salvaged universal-AC vacuum motor (DR-011).
+This packs to y ≈ 543 mm with ~67 mm (2.6") of free length at the front
+edge for the electronics tray heat-barrier offset. The earlier 190 mm
+rear-edge overhang (with horizontal motor mounting against a 20" baseplate)
+is no longer in play — the 4" baseplate gain combined with vertical-axis
+motor mounting both contribute and either alone would have sufficed for the
+motor envelope. The vertical-axis decision is preserved for the secondary
+benefit of pulling the heaviest single part inboard, reducing the M1 tipping
+moment.
 
 ### Resolution: vertical motor axis (preferred)
 
@@ -151,11 +160,17 @@ Zone D enclosure on cool-running parts only.
 
 ### 3.5 Plenum and chimney (Zone C)
 
-The plenum sits centered on the +Y portion of the baseplate. The chimney
-(distributor plate → roast chamber → cone reducer → chaff expansion
-chamber → mesh screen) rises vertically from the clamping ring. No layout
-changes from the current SCAD; this zone is driven by DR-007/008/009 and
-unchanged by DR-011.
+The plenum (DR-012: 8" dia × 6" tall black-stovepipe section, both ends
+pipe-capped) sits centered on the +Y portion of the baseplate, vertical
+axis. The chimney (distributor plate → roast chamber → cone reducer →
+chaff expansion chamber → mesh screen) rises from the top cap, which is
+drilled to the chamber OD and carries the clamping ring on its underside.
+This zone is driven by DR-008, DR-009, DR-012 and is unchanged by DR-011.
+
+Round footprint vs. the prior rectangular steam-pan plan: the 8" diameter
+exceeds the 6"×7" rectangular Zone-C estimate by ~1" on the X axis but
+remains comfortably inside the 12" baseplate width once the +X wire lanes
+(§5) are accounted for.
 
 | TC | Mount point |
 |----|-------------|
@@ -266,7 +281,10 @@ ground. Reaffirms the existing rule from `power-schematic.md`.
 | Item | Why it's pending | What unblocks it |
 |------|-----------------|------------------|
 | Motor footprint and outlet geometry | DR-011: salvaged motor not yet on bench | Salvage hunt; vertical-axis mounting plan re-validated against actual envelope |
-| Heater-can length | HTR-001 not yet torn down | Warrior heat gun teardown (DR-002) |
+| ~~Heater-can length~~ | ~~HTR-001 not yet torn down~~ | **HTR-001 sourced 2026-05-02** — teardown is the next mechanical task; outputs feed `heater_can_length` |
+| ~~Plenum body sourcing~~ | ~~PLEN-001 thrift hunt pending~~ | **Resolved by DR-012** — black stovepipe scrap on hand; 8" × 6" target |
+| ~~Baseplate sheet sourcing~~ | ~~BASE-001 not yet sourced~~ | **Sourced 2026-05-02** — 12" × 24" steel sheet + 1"-class angle iron |
+| Angle-iron frame layout | Final stiffening pattern (perimeter + cross-members) depends on weight distribution | Once motor + heater can are mounted and tipping moment is measured |
 | Electronics enclosure dimensions | SSR heatsink size and PSU brick size both still nominal | Parts received |
 | SW-001 placement (rear vs front face) | Reachability vs. cable-length tradeoff | Decide once Zone-A panel orientation is fixed by motor geometry |
 | Verification of <40°C inside Zone D | Depends on heat-barrier effectiveness | TP-001 — instrument enclosure interior with a TC during a soak run |

@@ -4,6 +4,165 @@ Running record of design decisions, findings, and rationale. Newest entries firs
 
 ---
 
+## 2026-05-02 — DR-008 ring geometry correction (Option A)
+
+PLEN-002 / PLEN-003 specs had ring ID equal to plate dia (both 2.37" for the
+2.5" chamber pair; both 2.87" for the 3.0" pair). Geometrically inconsistent —
+with ring ID = plate dia, the plate has no rest surface and would fall through.
+
+**Corrected (Option A — plate sits inside chamber bottom):**
+
+- Top cap hole = chamber OD (2.5" / 3.0") — chamber slides through with slip fit.
+- Ring mounted to **underside** of the cap face. Ring ID < chamber ID:
+  **2.0" for the 2.5" pair, 2.5" for the 3.0" pair.** Ring's inner face
+  protrudes ~0.25" inward of the cap hole as an annular ledge.
+- Plate dia = chamber ID (PLATE-001A 2.37" / PLATE-001B 2.87"); drops inside
+  the chamber from above and lands on the ring face.
+- Chamber bottom rim sits on the same ring face around the plate edge —
+  for the 2.5" chamber, the rim's outer edge (R = 1.25") aligns with the cap
+  hole edge and the rim's inner edge (R = 1.185") meets the plate edge.
+
+Plate-to-chamber-wall is slip fit. Leak path around the plate edge is
+negligible compared to the deliberate distributor perforations.
+
+**Plate float watch (TP-001 add):** at the design dP across the plate
+(~1" WC ≈ 250 Pa) over the 2.37" plate area, upward force is ~0.5 kgf —
+greater than the plate's own ~50 g weight. With beans loaded, the bed pins
+the plate; **at startup or empty operation, the plate may float and bypass
+the bed.** Watch for this in TP-001; mitigation options if it happens are a
+chamber-wall pin through the plate edge, a heavier plate, or a small lip
+riveted to the ring.
+
+**Fastening:** Ring is 1/8" SS plate with 3 tapped M4 holes on a bolt circle
+outside the cap drill. Machine screws descend from above through the cap
+face into the ring threads. No nuts inside the plenum — preserves the
+DR-008 ring + plate swap without breaking the DR-012 bottom-cap RTV seal.
+
+PLEN-002, PLEN-003, architecture.md §8 Top Assembly table updated.
+
+---
+
+## 2026-05-02 — DR-012 plenum body: round stovepipe replaces SS steam pan
+
+### Decision
+
+**DR-012: Replace 1/6 SS steam table pan (DR-007) with 8" diameter × 6" tall
+black-stovepipe section, both ends pipe-capped.** The bolted-clamp-ring
+assembly (DR-008) and deflector ramp baffle (DR-009) carry over with mounting-
+substrate changes only. Architecture.md §8 and baseplate-layout.md §1, §3.5,
+§6 updated; BOM PLEN-001, PLEN-004, BAFFLE-001 updated.
+
+### Rationale
+
+Black single-wall stovepipe scrap became available at zero cost, displacing
+the steam-pan plan (PLEN-001, $4-8 + thrift hunt). The change also resolves
+a long-standing geometric awkwardness — a rectangular plenum under a round
+chamber.
+
+Diameter sized at **8"**:
+
+| Dia | Floor area | Plenum:chamber (3" chamber) | Verdict |
+|-----|-----------|------------------------------|---------|
+| 6"  | 28 in²    | 4×                           | Marginal — DR-009 ramp has only 1.5" annular margin |
+| 8"  | 50 in²    | 7×                           | ✓ Selected — past textbook 3-5× ratio, fits 6×7" Zone-C budget |
+| 10" | 79 in²    | 11×                          | Diminishing returns; +50% wall area = more parasitic loss + insulation |
+
+Height set at **6"** by stacking constraints:
+- ≥1× inlet diameter (~2.5") between inlet centerline and distributor plate
+  for jet dissipation
+- ≥2" between inlet centerline and floor for the DR-009 ramp to develop
+- +1" headroom for the optional T2 secondary perforated baffle without
+  redesign
+
+### Material — black stovepipe specifically
+
+Bare / oxide-blackened mild steel, ~26 ga, rated ~1000°F continuous
+(single-wall stove duty). Plenum operates 150-200°C — massively under-spec.
+
+**Excluded materials:** galvanized HVAC duct (zinc outgases at ~390°F /
+200°C, exactly where we operate; metal-fume risk in air that passes through
+the bean bed before the chimney). Aluminized furnace-plenum pipe would also
+be acceptable but stovepipe was on hand.
+
+**Cure burn before assembly** (M7, carried over from PLEN-001 notes): cheap
+stovepipe ships with a thin rolling-oil film that smokes off on first heat.
+Burn outdoors with a propane torch until smoke stops, before any food-path
+roasting.
+
+### Mechanical assembly
+
+The pipe caps double as the structural top and floor — the cap's crimped
+skirt seals to the pipe and the flat cap face provides the riveting / bolting
+substrate that the steam-pan rim previously gave us:
+
+```
+              Chamber tube (2.5" or 3.0" OD SS)
+                    │
+       ┌────────────┴────────────┐
+       │  Top cap: drilled to    │  ← clamp ring (PLEN-002/003) attaches to
+       │  chamber OD, ring       │     underside of cap face around the hole
+       │  attached underneath    │
+       ├─────────────────────────┤
+       │                         │
+       │     ◊  T2 perf baffle   │  ← future, ~1" below distributor
+       │                         │
+   ────┤   8" dia × 6" tall      │  ← side-entry stub (PLEN-005),
+       │   black stovepipe       │     2.5" hole-saw through wall
+       │                         │
+       │     ╲                   │
+       │      ╲ Deflector ramp   │  ← DR-009, pop-riveted opposite inlet
+       │       ╲                 │
+       └─────────────────────────┘
+              Bottom cap                ← crimped + high-temp RTV + 3 sheet-
+                                          metal screws / rivets through skirt
+              ↑ 6"
+```
+
+- **Top cap:** 2.5" or 3.0" hole drilled to chamber OD; clamp ring on
+  underside. **Use M4/M5 machine screws + nyloc nuts, not pop rivets**, so
+  the ring + plate pair remains swappable per DR-008. Pop rivets are an
+  acceptable one-and-done alternative if v1 commits to a single chamber size.
+- **Bottom cap:** slip-fit, sealed at seam with high-temp RTV, retained with
+  3 sheet-metal screws or rivets through the cap skirt.
+- **Side-entry hole:** 2.5" bi-metal hole saw through the cylindrical wall,
+  sized to PLEN-005 stub OD.
+- **Snap-lock seam:** if a section is cut from a longer length, lock the
+  seam at the cut with a sheet-metal screw so it can't spring open.
+
+### DR-008 / DR-009 carry-over
+
+- **Clamping ring (DR-008):** unchanged spec; attaches to underside of top
+  cap face instead of pan flange. Still gasket-sealed via PLEN-004.
+- **Deflector ramp (DR-009):** unchanged 3"×4" SS bent to 45°; pop-riveted
+  to the cylindrical wall opposite the inlet. Curved wall vs. flat pan wall
+  is immaterial — the ramp seats on a chord and the small standoff at the
+  edges does not affect jet redirection.
+
+### Cost impact
+
+PLEN-001: $4-8 → $0 (scrap pipe + 2 caps; ~$6 retail if not on-hand).
+
+---
+
+## 2026-05-02 — Sourcing update: baseplate stock + heat gun in hand
+
+- **BASE-001 sourced:** 12" × 24" steel sheet + 1"-class angle iron acquired.
+  Sheet is 4" longer than the 20" SCAD assumption (baseplate-layout.md §1),
+  giving real Zone-A margin for the vertical-axis vacuum motor (DR-011)
+  rather than the borderline 190 mm overhang the prior dimension implied.
+  Angle iron earmarked for perimeter stiffening — 12×24" sheet steel of this
+  gauge will flex; angle along the long edges plus cross-members at zone
+  boundaries gives bending stiffness without ballast. Final framing layout
+  deferred until motor footprint is measured.
+- **HTR-001 sourced:** Warrior 1500W heat gun (SKU 56434) in hand. Teardown
+  is the next mechanical task: measure element resistance (target ~9.6 Ω
+  cold for 1500 W / 120 V at room temp), photograph mica former dimensions
+  and mounting-tab geometry, identify intake/exhaust footprint. Outputs feed
+  HTR-CAN-001 build dimensions and the Zone-B 190 mm placeholder in
+  baseplate-layout.md §1.
+
+---
+
 ## 2026-04-29 — DR-011 blower upgrade: vacuum motor + TRIAC
 
 ### Decision

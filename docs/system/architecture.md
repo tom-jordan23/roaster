@@ -432,39 +432,46 @@ near-zero flow restriction.
 
 ---
 
-## 8. Plenum Assembly (DR-007, DR-008, DR-009)
+## 8. Plenum Assembly (DR-007 superseded by DR-012; DR-008, DR-009)
 
 ### Plenum Body
 
 | Parameter | Value | Notes |
 |-----------|-------|-------|
-| Body | 1/6 size SS steam table pan, 4" deep | ~6.4" x 6.3" x 4", 18/8 SS |
-| Orientation | Right-side-up (open top faces up) | |
-| Side-entry hole | ~2-3" dia, drilled through wall | Connects to heater can via hose clamp |
-| Source | Restaurant supply or thrift store | $4-8 new |
+| Body | 8" dia × 6" tall black stovepipe section, both ends pipe-capped | Bare/oxide-blackened mild steel, ~26 ga, rated ~1000°F continuous |
+| Orientation | Vertical, axis aligned with chamber tube above | |
+| Side-entry hole | 2.5" dia bi-metal hole saw through cylindrical wall | Centerline ~2" above floor (DR-009 ramp clearance); connects to heater can via PLEN-005 stub + hose clamp |
+| Top closure | Slip-fit pipe cap, drilled to chamber OD | Cap face is the substrate the clamping ring attaches to (replaces the pan flange of DR-007) |
+| Bottom closure | Slip-fit pipe cap | Sealed at seam with high-temp RTV; retained with 3 sheet-metal screws or rivets through cap skirt |
+| Pre-assembly | Cure burn outdoors with propane torch until smoking stops | M7 carry-over: removes rolling-oil film before any food-path roasting |
+| Source | Scrap on hand | $0 (scrap) / ~$6 retail for pipe + 2 caps |
 
 ### Top Assembly (no welding)
 
-The open top of the pan is sealed by a bolted clamping ring that holds the
-distributor plate and seats the roast chamber:
+The drilled top cap captures the chamber tube laterally; the clamping ring
+on the cap underside catches the chamber from below, supports the
+distributor plate, and seals the cap-to-plenum joint:
 
 | Component | Material | Attachment | Notes |
 |-----------|----------|------------|-------|
-| Clamping ring | Flat SS sheet, ~1" wide annular ring | 3-4 bolts through pan flange | Inner hole sized per chamber (2.5" or 3.0") |
-| Gasket | Fiberglass or ceramic fiber strip | Sandwiched between ring and rim | Seals against hot air leakage |
-| Distributor plate | Perforated SS disc | Rests on ring ledge, gravity-held | Swappable for iteration |
-| Chamber tube | 2.5" or 3.0" OD SS tube | Sits on/in plate, held by ring | Gravity + clamp if needed |
+| Clamping ring | 1/8" SS plate, ~1" wide annular ring; 3 tapped M4 holes on bolt circle outside cap drill | M4 machine screws from above through cap face, threaded into tapped ring | **Ring ID < chamber ID** (2.0" for 2.5" chamber pair; 2.5" for 3.0" pair) so the ring's inner face supports the plate from below. Tapped ring (no nuts inside plenum) preserves DR-008 swap without breaking DR-012 bottom-cap RTV seal. M3 fender washers under cap-side screw heads to spread clamping load |
+| Gasket | Fiberglass stove-rope (PLEN-004) | Sandwiched between ring and underside of cap face | Seals against hot air leakage at the chamber interface |
+| Distributor plate | Perforated SS disc, **dia = chamber ID** (2.37" or 2.87") | Rests on ring face inside the chamber bottom (Option A); gravity-held | Slip fit against chamber wall — leak path around plate edge is small vs deliberate perforations. **Plate float watch:** at startup / empty operation, ~0.5 kgf lift on a ~50 g plate may exceed gravity; verify in TP-001 |
+| Chamber tube | 2.5" or 3.0" OD SS tube | Slides through cap hole (drilled to chamber OD); bottom rim rests on ring face around the plate edge | Captured laterally by cap hole; vertical retention via CHAM-RET-001 (set screws or spring clips above the cap face) |
 
 Swapping chamber sizes requires swapping the ring + plate pair. Each pair is
-sized to its chamber OD.
+sized to its chamber OD; the cap (which is also size-specific because its
+hole = chamber OD) is part of the swap unit too — practically this means
+having a dedicated top cap drilled per chamber size, paired with its ring +
+plate.
 
 ### Deflector Ramp Baffle
 
 | Parameter | Value | Notes |
 |-----------|-------|-------|
 | Material | SS sheet scrap, ~3" × 4" | Bent to ~45° in vise |
-| Position | Inside plenum, opposite side-entry hole | Redirects jet downward to pan floor |
-| Attachment | 2 bolts or pop rivets through pan wall | Must be removable for cleaning |
+| Position | Inside plenum, opposite side-entry hole | Redirects jet downward to plenum floor |
+| Attachment | 2 bolts or pop rivets through cylindrical wall | Curved wall vs flat pan wall is immaterial — ramp seats on a chord |
 | Function | Jet → floor spread → uniform rise to plate | Uses full plenum volume for equalization |
 
 **T2 — Second baffle / equalization stage:** A single deflector ramp is unlikely
@@ -473,9 +480,10 @@ target distributor velocity. Plan to add a second equalization feature:
 - Option A: Horizontal perforated baffle ~1" below the distributor plate
 - Option B: Perforated diffusion plate inside plenum between ramp and distributor
 
-The plenum depth (4") allows room for either option without redesign. Validate
-in TP-001 — if the single ramp produces acceptable fluidization uniformity,
-the second baffle can be deferred.
+The 6" plenum height (DR-012) was sized with 1" of explicit headroom for
+either option without redesign. Validate in TP-001 — if the single ramp
+produces acceptable fluidization uniformity, the second baffle can be
+deferred.
 
 ---
 
