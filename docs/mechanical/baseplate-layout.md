@@ -28,6 +28,7 @@ with this doc once the motor and heater-can geometries are measured.
 | `base_length` | 610 mm (24") | As-sourced sheet (was 508 mm / 20" in prior SCAD) |
 | `base_width` | 305 mm (12") | As-sourced sheet |
 | Frame | 1"-class angle iron, perimeter + cross-members | M1 stiffening — 26-ga-class sheet alone will flex; angle iron carries the bending load and serves as ballast at the long edges |
+| Legs | 3× threaded rod tripod, extending above and below baseplate | DR-013 tip-resistance strategy: rods continue up past the baseplate to a clamp around the cone reducer or upper chamber. Tripod gives lateral stability without the complications of running the chamber tube down into the plenum (TC-002 mount, chamber swap). Below the baseplate, same rods are the feet — adjustable for leveling. |
 | `plenum_x` | ~340 mm from rear edge | Centerline of plenum on long axis (revisit once motor envelope is measured) |
 | Plenum footprint | 203 mm dia × 152 mm tall (8" × 6") | DR-012 — round black stovepipe, both ends capped |
 | `heater_can_length` | 190 mm | Placeholder pending Warrior teardown (HTR-001 in hand 2026-05-02) |
@@ -288,7 +289,7 @@ ground. Reaffirms the existing rule from `power-schematic.md`.
 | Electronics enclosure dimensions | SSR heatsink size and PSU brick size both still nominal | Parts received |
 | SW-001 placement (rear vs front face) | Reachability vs. cable-length tradeoff | Decide once Zone-A panel orientation is fixed by motor geometry |
 | Verification of <40°C inside Zone D | Depends on heat-barrier effectiveness | TP-001 — instrument enclosure interior with a TC during a soak run |
-| L-bracket / ballast plan for stability (M1) | Depends on final mass distribution, especially after blower placement | Once motor is mounted; weigh assembly and check tipping moment |
+| ~~L-bracket / ballast plan for stability (M1)~~ | ~~Depends on final mass distribution~~ | **Resolved by DR-013** — threaded-rod tripod legs continuing up to a chamber clamp provide lateral tip resistance. Final rod length and clamp height set once chamber stack is assembled. |
 
 ---
 

@@ -4,6 +4,178 @@ Running record of design decisions, findings, and rationale. Newest entries firs
 
 ---
 
+## 2026-05-04 — DR-013 pre-build design review
+
+Final design review before any irreversible plenum or distributor-plate fab,
+triggered by DR-011 (motor swap), DR-012 (round plenum), and the DR-008 ring
+geometry fix landing in the same period. Five decisions captured, one
+calculation correction, four new BOM lines, one test-plan rewrite. No
+architectural commitments moved — only parameter-level decisions inside
+existing commitments.
+
+### D1 — Distributor plate spec: FengYoo plate as-is, mesh staged
+
+PLATE-001A and PLATE-001B are already sourced as 4" 19-ga 304 SS pre-perforated
+discs at 22% open area (FengYoo B09SF15S47).
+
+Final spec:
+
+- **Initial config:** FengYoo perforated plate cut to 2.37" / 2.87" per
+  chamber, used as-is at 22% open area.
+- **Staged Plan B (MESH-001):** 40-mesh 304 SS woven cloth disc per chamber,
+  pre-cut and on hand. Installed *over* the perforated plate if TP-001 stage 1
+  measurements show plate dP too low (channeling) or visually uneven
+  fluidization. Mesh count steps (40 → 60 → 80) double dP at each step.
+- **Plan C (deferred):** DIY-drilled custom plates at ~4% open area, only if
+  mesh proves insufficient.
+
+The 22% open area is well above the conventional fluid-bed sweet spot and
+*may* channel. Two things make "as-is" the right starting point anyway:
+(1) the parts are paid for, (2) D5 below adds dP instrumentation so
+channeling is now measurable and characterizable rather than guessed at.
+
+### D2 — Plate float: procedural rule is the actual mitigation
+
+Re-derivation of the DR-008 plate-float force at 1" WC over a 2.37" plate:
+F = dP × A = 249 Pa × 0.00284 m² = 0.71 N ≈ **72 gf**, not 0.5 kgf as the
+DR-008 design-log entry stated. The original entry overstated by ~7×.
+DR-008 entry corrected inline below.
+
+Re-examination of "heavier plate" mitigation at the corrected number:
+
+| Stock | Mass (2.37" disc) | Margin vs. 72 gf lift |
+|-------|-------------------|------------------------|
+| 22 ga (0.76 mm) | ~17 g | 4× under |
+| 19 ga (FengYoo, 1.06 mm) | ~23 g | 3× under |
+| 18 ga (1.27 mm) | ~29 g | 2.5× under |
+| 12 ga (2.66 mm) | ~61 g | 0.85× — still under |
+| 1/8" plate (3.18 mm) | ~73 g | At threshold |
+| 3/16" plate (4.76 mm) | ~109 g | 1.5× over |
+
+Conclusion: **no reasonable sheet gauge clears the lift threshold by mass alone.**
+The "heavier plate" decision from the previous turn is **withdrawn** —
+re-examination at the corrected force number showed it doesn't work.
+
+Final mitigation strategy:
+
+- **Primary:** procedural rule — no blower runs above ~30% duty without beans
+  loaded, until plate behavior is characterized in TP-001.
+- **Geometry-assist (free):** at D1's 22% open area, actual plate dP at design
+  airflow is far below 1" WC, so actual lift force is much smaller than 72 gf
+  and the procedural rule has comfortable margin.
+- **Reactive:** if TP-001 shows actual float, rivet a small SS lip to the
+  underside of the clamping ring — captures plate edge from above, reversible
+  at the ring, no chamber-wall mods.
+- **Last resort:** chamber-wall pin remains the irreversible fallback and
+  is not built unless the ring lip proves inadequate.
+
+### D3 — Dual top caps: build both
+
+Both top caps drilled — one to 2.5" chamber OD (paired with PLEN-002 ring +
+PLATE-001A), one to 3.0" chamber OD (paired with PLEN-003 ring + PLATE-001B).
+Bottom cap is permanent (RTV sealed). Honors DR-001 dual-chamber test.
+
+Endcap allocation (3 caps in hand):
+
+- Cap #1: bottom (no center hole, RTV + 3 sheet-metal screws per DR-012)
+- Cap #2: top, 2.5" chamber variant
+- Cap #3: top, 3.0" chamber variant
+
+One plate per chamber initially; the second plate per chamber (higher dP
+variant) is a reactive build only if TP-001 calls for it.
+
+### D4 — Mains current: 20 A bench circuit, NEMA 5-20
+
+DR-011 motor swap pushed total mains load from 12.5 A (heater + 12V-PSU-driven
+blower) to 13.5–17 A (heater + universal-AC motor on same circuit). On a 15 A
+breaker this exceeds NEC 80% continuous and trips at the high end.
+
+Of the three options (20 A circuit / firmware co-modulation / heater duty cap),
+**20 A bench circuit selected** — the only option that doesn't compromise the
+control architecture (firmware co-modulation couples heater and blower loops)
+or invalidate the 3.0" chamber half of the dual-chamber test (heater duty cap
+at 85% caps effective heater at ~1275 W, below the 3.0" chamber's required
+input even insulated). v1 is an instrument on the bench, not an appliance for
+arbitrary outlets.
+
+Implementation:
+
+- NEMA 5-20 plug on the cord (replaces 5-15)
+- 12 AWG cord (already noted in BOM as E5 follow-on)
+- Build-level safety label near the cord: **"Requires 20 A circuit (NEMA 5-20).
+  Do not plug into a 15 A receptacle."**
+- Documented as a v1 operational constraint
+
+### D5 — Instrumentation: add dP sensor + anemometer (raised mid-review)
+
+The pre-build review surfaced that the entire D1/D2 reasoning rested on
+"verify plate dP at TP-001" — but the BOM had no instruments to measure
+plate dP or airflow magnitude. CT-001 measures motor current (safety
+interlock only, not flow). TC1 measures temperature, not pressure. TP-001
+in its existing form relied entirely on tissue-paper observation, with
+"anemometer or pitot tube" listed as *optional*.
+
+This is a real instrumentation gap. Without it, every plate iteration is
+qualitative go/no-go; the project's "instrument first, appliance later"
+mission isn't actually instrumented.
+
+Additions:
+
+- **PRESS-001 — Sensirion SDP810-500Pa differential pressure sensor (I2C).**
+  ±500 Pa (±2" WC) range fits plate-and-bed dP regime; 0.1% accuracy class;
+  shares ESP32 I2C bus with no pin pressure. Two pressure taps with silicone
+  tubing back to the sensor; tap pairs reconfigurable across plate, bed, or
+  mesh. ~$30.
+- **PRESS-TAP-001 — barb fittings + silicone tubing.** Small (~1/8" OD)
+  through plenum and chamber walls; reconfigurable. ~$8.
+- **ANEMO-001 — handheld vane anemometer.** One-time exhaust CFM spot-checks,
+  not logged. 3% accuracy class is fine. ~$25.
+
+Total: ~$60. Single best ROI addition to the project so far — transforms
+TP-001 from qualitative go/no-go into a real characterization test, and
+enables data-driven iteration on every subsequent plate, mesh, or chamber
+swap.
+
+Firmware: SDP810 reads on existing I2C bus; add a `dP_plate` channel to the
+Artisan stream. No GPIO-pin-budget impact.
+
+TP-001 rewritten in this same review to use quantified plate dP and measured
+exhaust CFM as primary measurands.
+
+### Cross-cutting items confirmed
+
+- **Tip resistance:** threaded-rod tripod legs from the baseplate, extending
+  past the baseplate to clamp around the cone reducer or upper chamber.
+  Replaces a briefly-considered "chamber drop-through" plenum geometry that
+  would have complicated TC-002 mounting and chamber swap. baseplate-layout.md
+  §1 updated to reflect.
+- **Heat gun teardown** is the next mechanical task and gates the plenum
+  side-entry hole position. **Do not drill** the 2.5" hole-saw through
+  PLEN-001 until HTR-CAN-001 outlet geometry is known.
+- **Pipe material verification:** PLEN-001 must be confirmed bare/oxide-
+  blackened mild steel, not galvanized HVAC duct, before any cure-burn or
+  cutting. Galvanized = stop and re-source.
+
+### Decisions explicitly NOT touched
+
+DR-008 ring geometry (Option A), DR-009 deflector ramp, DR-011 motor
+architecture, DR-012 stovepipe plenum, the 4-zone baseplate layout, and
+the safety architecture all stand as written.
+
+### Next actions
+
+1. Order PRESS-001, PRESS-TAP-001, ANEMO-001, MESH-001
+2. Heat gun teardown (gates plenum drilling)
+3. Verify PLEN-001 material (galvanized check)
+4. Cure-burn PLEN-001 outdoors
+5. Drill both top caps (2.5" and 3.0")
+6. Drill plenum side-entry only after HTR-CAN-001 geometry is known
+7. Build clamp rings (PLEN-002, PLEN-003); cut FengYoo plates to size
+8. Pre-cut MESH-001 to both plate sizes; hold on standby
+9. Stage TRIAC blower firmware while remaining parts are en route
+
+---
+
 ## 2026-05-02 — DR-008 ring geometry correction (Option A)
 
 PLEN-002 / PLEN-003 specs had ring ID equal to plate dia (both 2.37" for the
@@ -26,12 +198,16 @@ Plate-to-chamber-wall is slip fit. Leak path around the plate edge is
 negligible compared to the deliberate distributor perforations.
 
 **Plate float watch (TP-001 add):** at the design dP across the plate
-(~1" WC ≈ 250 Pa) over the 2.37" plate area, upward force is ~0.5 kgf —
-greater than the plate's own ~50 g weight. With beans loaded, the bed pins
-the plate; **at startup or empty operation, the plate may float and bypass
-the bed.** Watch for this in TP-001; mitigation options if it happens are a
-chamber-wall pin through the plate edge, a heavier plate, or a small lip
-riveted to the ring.
+(~1" WC ≈ 249 Pa) over the 2.37" plate area (4.41 in² = 0.00284 m²),
+upward force F = dP × A = 249 Pa × 0.00284 m² ≈ 0.71 N ≈ **72 gf**
+[CORRECTION 2026-05-04 per DR-013: original entry stated ~0.5 kgf, ~7×
+high]. With a 19-ga / ~23 g plate, this still exceeds the plate weight
+~3×. With beans loaded, the bed pins the plate; **at startup or empty
+operation, the plate may float and bypass the bed.** D1's selected
+22%-open-area FengYoo plate operates at much lower actual dP than 1" WC,
+which softens this risk substantially. Mitigation strategy finalized in
+DR-013 D2 (procedural rule primary; ring lip reactive; chamber-wall pin
+last resort).
 
 **Fastening:** Ring is 1/8" SS plate with 3 tapped M4 holes on a bolt circle
 outside the cap drill. Machine screws descend from above through the cap
