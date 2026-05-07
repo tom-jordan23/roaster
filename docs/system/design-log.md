@@ -4,6 +4,62 @@ Running record of design decisions, findings, and rationale. Newest entries firs
 
 ---
 
+## 2026-05-05 — DR-013 tangential-entry plenum variant for A/B test
+
+### Decision
+
+**Cut two plenum bodies from the same stovepipe scrap and A/B test inlet
+geometry:**
+
+- **Plenum A (baseline):** radial side inlet + DR-009 wall-mounted deflector
+  ramp opposite the inlet. Spec unchanged from DR-012.
+- **Plenum B (variant):** tangential side inlet, no internal ramp. Inlet jet
+  enters along the wall to induce swirl; plenum volume + swirl handle jet
+  dissipation in place of the DR-009 spoiler.
+
+Both bodies cut to identical 8" dia × 6" tall so inlet geometry is the only
+variable. Same caps, same DR-008 clamp ring, same distributor plate.
+
+### Rationale
+
+The DR-012 ramp is a known-good jet spoiler but the 7× plenum:chamber volume
+ratio gives us margin to try a more aerodynamic alternative. Swirling
+fluidized bed (SFB) literature reports better radial mixing and more uniform
+bed temperature with tangential entry; cyclone separators and the West Bend
+Poppery's accidentally-tangential blower discharge are familiar analogues.
+With abundant scrap on hand, A/B is cheaper than picking blind.
+
+Test variable: fluidization uniformity at the bean bed (visual + bed
+temperature spread if we have multiple probes by then). Decision criterion:
+visibly more uniform bed motion or measurably tighter bed-temp spread →
+tangential wins for v2; otherwise stick with the ramp.
+
+### Fabrication note — tangential is not just an offset hole
+
+A hole saw cuts perpendicular to the local wall surface, so positioning the
+hole off-center on the cylinder circumference still produces a **radial**
+stub. Three options for genuine tangential entry, in increasing fab effort:
+
+1. **Angled hole-saw cut.** Pilot perpendicular for bite, then tilt the saw
+   toward tangent as it cuts through. Hole comes out elongated; seal the
+   stub joint with high-temp RTV. Selected for plenum B — adequate for an
+   A/B and reversible-ish.
+2. **Flat-and-flange.** Cut a rectangular window on the tangent line, rivet
+   a small sheet-metal flange flat to it, mount the stub perpendicular to
+   the flange. Reserved for v2 if tangential wins.
+3. **Internal turning vane.** Drill radial, add a curved sheet-metal vane
+   inside that turns the flow tangential. Vane sees full hot jet — gauge
+   accordingly. Not selected; defeats the goal of testing pure tangential.
+
+### Status
+
+Plenum A and B to be cut from the same stock so wall thickness / oxide layer
+match. Cure burn (DR-012 M7) before assembly applies to both. Document
+which is which with a punch mark or paint dot — visual cues are easy to
+forget after the caps go on.
+
+---
+
 ## 2026-05-02 — DR-008 ring geometry correction (Option A)
 
 PLEN-002 / PLEN-003 specs had ring ID equal to plate dia (both 2.37" for the
