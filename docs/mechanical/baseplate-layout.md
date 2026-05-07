@@ -18,108 +18,137 @@ References: `docs/system/architecture.md` §3, `docs/electrical/schematics/power
 
 ## 1. Constraint Audit Against the SCAD Model
 
-Numbers below reflect the as-sourced 12" × 24" steel sheet baseplate
-(BASE-001, sourced 2026-05-02), 4" longer than the prior SCAD assumption.
-The SCAD model is still on the prior dimensions and will be updated together
-with this doc once the motor and heater-can geometries are measured.
+Numbers below reflect the as-built **12" × 18" steel deck** cut from the
+24" BASE-001 stock, mounted on a 1"-class angle-iron frame with rear and
+front extensions for the motor and electronics tray respectively (the
+remaining 6" of stock is reserved for the frame extension stock and
+gussets). The motor (BLW-001) and heater element (HTR-001) are now in hand
+and measured; previous placeholder geometries are replaced with measured
+values.
 
 | Parameter | Value | Notes |
 |-----------|-------|-------|
-| `base_length` | 610 mm (24") | As-sourced sheet (was 508 mm / 20" in prior SCAD) |
-| `base_width` | 305 mm (12") | As-sourced sheet |
-| Frame | 1"-class angle iron, perimeter + cross-members | M1 stiffening — 26-ga-class sheet alone will flex; angle iron carries the bending load and serves as ballast at the long edges |
-| Legs | 3× threaded rod tripod, extending above and below baseplate | DR-013 tip-resistance strategy: rods continue up past the baseplate to a clamp around the cone reducer or upper chamber. Tripod gives lateral stability without the complications of running the chamber tube down into the plenum (TC-002 mount, chamber swap). Below the baseplate, same rods are the feet — adjustable for leveling. |
-| `plenum_x` | ~340 mm from rear edge | Centerline of plenum on long axis (revisit once motor envelope is measured) |
-| Plenum footprint | 203 mm dia × 152 mm tall (8" × 6") | DR-012 — round black stovepipe, both ends capped |
-| `heater_can_length` | 190 mm | Placeholder pending Warrior teardown (HTR-001 in hand 2026-05-02) |
-| `blower_dia` × `blower_depth` | 150 × 200 mm horizontal, OR ~150 × 150 mm vertical-axis | **Placeholder** — DR-011 best-estimate; vertical-axis is the working assumption (see §3.1) |
+| Deck | 305 × 457 mm (12" × 18") | Steel sheet cut from the BASE-001 24" stock; the air train sits on this, and motor/electronics live on frame extensions outboard of it |
+| Frame | 1"-class angle iron: perimeter on the deck + a rear extension for the motor + a front extension for the electronics tray | M1 stiffening + structural carry for off-deck loads. Final extension lengths set by §3 below |
+| Legs | 3× threaded rod tripod, extending above and below baseplate | DR-013 tip-resistance strategy: rods continue up past the baseplate to a clamp around the cone reducer or upper chamber. Tripod gives lateral stability without the complications of running the chamber tube down into the plenum (TC-002 mount, chamber swap). Below the baseplate, same rods are the feet — adjustable for leveling |
+| Plenum footprint | 203 mm dia × 152 mm tall (8" × 6") | DR-012 — round black stovepipe, both ends capped; vertical axis |
+| `heater_can_length` | 178 mm (7") | **Measured 2026-05-07** — 1.5" × 6" Warrior element pack + ~0.5" each end for inlet/outlet fittings; 2.5" OD SS exhaust pipe (HTR-CAN-001) |
+| `blower_dia` × `blower_height` | 152 × 152 mm (6" × 6"), vertical-axis cylinder | **Measured 2026-05-07** — salvaged bypass-cooled vacuum motor (BLW-001) in hand; outlet exits radially at heater-can centerline elevation |
 
-Resulting air-train footprint along the long axis, measured from the rear
-edge of the 24" baseplate, using the vertical-axis motor (~150 mm footprint)
-and the new 8" round plenum (~203 mm):
+### Air-train pack length and frame extensions
 
-    rear edge (y=0) ─── motor 150mm ─── heater can 190mm ─── plenum 203mm ─── front edge (y=610)
+Working from the design pack length along the long (Y) axis, with the
+motor and plenum on extensions outboard of the deck:
 
-This packs to y ≈ 543 mm with ~67 mm (2.6") of free length at the front
-edge for the electronics tray heat-barrier offset. The earlier 190 mm
-rear-edge overhang (with horizontal motor mounting against a 20" baseplate)
-is no longer in play — the 4" baseplate gain combined with vertical-axis
-motor mounting both contribute and either alone would have sufficed for the
-motor envelope. The vertical-axis decision is preserved for the secondary
-benefit of pulling the heaviest single part inboard, reducing the M1 tipping
-moment.
+    rear extension ─ deck (457 mm) ─ front extension
+    ┌──── motor 152 ────┬─── heater can 178 ──┬── plenum 203 ──┐ ── electronics tray ──┐
+    │ entirely on rear  │     on deck         │   on deck      │  on front extension   │
+    └ extension (~152)  │ (Y=25 to Y=203)     │ (Y=228 to 431) │  (Y=470 to ~595)      ┘
 
-### Resolution: vertical motor axis (preferred)
+- **Motor** (Zone A, rear): mounted entirely on the rear angle-iron extension,
+  body centered ~75 mm rear of the deck rear edge. Outlet faces forward and
+  joins the heater can at the deck rear edge via a short flex elbow + hose
+  clamp. **Rear extension length: ~152 mm (6").**
+- **Heater can** (Zone B): on the deck, axis along Y, occupies Y = 25 mm to
+  Y = 203 mm (25 mm rear margin for the motor-outlet joint).
+- **Plenum** (Zone C): on the deck, vertical axis, with the side-entry stub
+  (PLEN-005) crossing Y = 203 mm to Y = 228 mm. Plenum body (8" dia) occupies
+  Y = 228 mm to Y = 431 mm — sits comfortably inside the 457 mm deck with
+  ~26 mm front-edge margin to the heat-barrier line.
+- **Electronics tray** (Zone D): on a front angle-iron extension, ~125 mm
+  (5") deep, behind the heat barrier shield. Mounting it on an extension
+  (rather than cramming it into the 26 mm of deck remaining) is the cleanest
+  way to preserve the original 5"-deep enclosure while keeping the deck
+  reserved for the air train. **Front extension length: ~125 mm (5").**
 
-Mount the salvaged vacuum motor with its shaft **vertical**, body sitting on
-the baseplate as a ~150 mm-diameter footprint instead of a 200 mm-long
-horizontal cylinder. The working-impeller outlet exits radially at the
-heater-can centerline elevation (~plenum_z + side_entry_z, ~127 mm above
-the baseplate) and connects via a short flex elbow + hose clamp to the
-heater can. Cooling-fan exhaust is directed away from the electronics tray
-and the operator (down through a clearance slot in the baseplate, or
-sideways out the -X edge).
+Total assembly footprint along Y: 152 (rear ext) + 457 (deck) + 125 (front
+ext) = **734 mm (28.9")**. This is comparable in length to the originally
+planned 24" baseplate but with the heat-bearing portion (deck + air train)
+restricted to the 18" steel sheet — the angle-iron extensions carry only
+cool-zone loads (motor body which runs at 60–80°C ambient, electronics
+tray which targets <40°C internal).
 
-Plan-view blower footprint becomes ~150 × 150 mm and the 20" baseplate
-is sufficient. This is the working assumption for the rest of this doc.
+### Why this layout
 
-**Fallback (Option B):** lengthen the baseplate to ~26". Simpler
-mechanically but worsens the M1 tipping concern — the motor is the
-heaviest single part and would sit at the longest moment arm. Defer
-unless vertical-axis mounting turns out to be impractical with the actual
-salvaged motor.
+1. **Motor off the deck.** The motor is the heaviest single part and is the
+   primary tipping moment contributor. Placing it on a rear angle-iron
+   extension, with the rear pair of tripod legs straddling it, anchors the
+   motor weight directly to the legs rather than cantilevering it over the
+   deck edge.
+2. **Plenum on deck, near front-of-deck.** The plenum carries the chamber
+   stack — the tallest, most tip-prone subassembly — so it stays inboard of
+   the deck where the front pair of tripod legs and the chamber-band clamp
+   (DR-013) provide rigid support.
+3. **Heat-barrier sheet between the plenum and the electronics tray.** The
+   barrier bolts to the deck front edge with grommeted pass-throughs for the
+   SSR drive pair and the TC leads (see §4.1). Putting the electronics tray
+   on a front extension preserves the ~1" air gap and keeps the barrier free
+   of cable congestion.
+4. **Steel deck reserved for the hot zones (B + C).** The deck takes the
+   thermal load (heater can + plenum, both >150°C surface temps even
+   insulated). Cool-zone components (motor envelope at 60–80°C, electronics
+   at <40°C) sit on angle-iron extensions outboard of the deck where the
+   thermal gradient is small.
 
 ---
 
 ## 2. Layout Zones
 
-The baseplate is divided into four functional zones along the long (Y) axis,
-front (operator) to rear:
+The full assembly footprint is divided into four functional zones along the
+long (Y) axis, front (operator) to rear. Zones B and C live on the 12" × 18"
+steel deck; Zones A and D live on angle-iron frame extensions outboard of
+the deck:
 
 ```
        +Y (operator / front edge)
-       ╔════════════════════════════════════════════╗
-       ║  ZONE D — ELECTRONICS TRAY     ~5" × 12"   ║   front edge
-       ║                                            ║
-       ║━━━━━━━━━━━━━━━ heat barrier ━━━━━━━━━━━━━━━║   sheet-metal shield
-       ║                                            ║   + ~1" air gap
-       ║  ZONE C — PLENUM + CHIMNEY     ~6" × 7"    ║
-       ║                                            ║
-       ║  ZONE B — HEATER CAN + SSR     ~7" × 4"    ║   air-train axis
-       ║                                            ║
-       ║  ZONE A — BLOWER + AC CONTROL  ~6" × 7"    ║
-       ║                                            ║
-       ║  [MAINS ENTRY: cord grip → DPST → fuse]    ║   rear edge
-       ╚════════════════════════════════════════════╝
+       ┌─ FRONT EXTENSION (~5" × 12" angle-iron tray support) ─┐
+       │  ZONE D — ELECTRONICS TRAY        ~5" × 12"           │
+       │                                                       │
+       ╠═══════════════════ heat barrier ══════════════════════╣ ← deck front edge
+       ║  ZONE C — PLENUM + CHIMNEY        ~8" dia, on deck    ║
+       ║          (8" round stovepipe per DR-012;              ║
+       ║           tripod legs straddle it — DR-013)           ║
+       ║                                                       ║
+       ║  ZONE B — HEATER CAN + SSR        ~7" × 4", on deck   ║   air-train axis
+       ║                                                       ║
+       ╠═══════════════════════════════════════════════════════╣ ← deck rear edge
+       │  ZONE A — BLOWER + AC CONTROL     6" dia motor body   │
+       │          (vertical axis) + TRIAC dimmer + line filter │
+       │  [MAINS ENTRY: cord grip → DPST → fuse]               │
+       └─ REAR EXTENSION (~6" × 12" angle-iron motor cradle) ──┘
        -Y (rear edge)
 ```
 
-| Zone | Function | Thermal class | EMI class |
-|------|----------|--------------|-----------|
-| A    | Blower, TRIAC dimmer, line filter, mains entry, CT, ferrites | Warm (motor body 60–80°C) | **Hot** (TRIAC + brushed motor) |
-| B    | Heater can, SSR + heatsink, snubber, airstream thermal fuse, TC1 | **Hot** (can surface >200°C even insulated) | Quiet |
-| C    | Plenum, chimney, distributor plate, baffle, TC2, exhaust + chaff collector + TC3 | Hot (plenum 150–200°C, chimney 100–200°C) | Quiet |
-| D    | ESP32, MAX31855 ×3, 5V PSU, SSR drive buffer, CT bias network, USB out | **Cool** (target <40°C) | **Quiet** (target) |
+| Zone | Location | Function | Thermal class | EMI class |
+|------|----------|----------|--------------|-----------|
+| A    | Rear extension (off deck) | Blower, TRIAC dimmer, line filter, mains entry, CT, ferrites | Warm (motor body 60–80°C) | **Hot** (TRIAC + brushed motor) |
+| B    | Deck (Y = 25–203 mm) | Heater can, SSR + heatsink, snubber, airstream thermal fuse, TC1 | **Hot** (can surface >200°C even insulated) | Quiet |
+| C    | Deck (Y = 228–431 mm) | Plenum, chimney, distributor plate, baffle, TC2, exhaust + chaff collector + TC3 | Hot (plenum 150–200°C, chimney 100–200°C) | Quiet |
+| D    | Front extension (off deck) | ESP32, MAX31855 ×3, 5V PSU, SSR drive buffer, CT bias network, USB out | **Cool** (target <40°C) | **Quiet** (target) |
 
-The heat barrier is a vertical sheet-metal shield bolted to the baseplate
-between Zones C and D, with grommeted pass-throughs for the SSR DC drive
-pair and the TC probe leads. The shield is bonded to chassis ground.
+The heat barrier is a vertical sheet-metal shield bolted to the deck front
+edge between Zones C and D, with grommeted pass-throughs for the SSR DC
+drive pair and the TC probe leads. The shield is bonded to chassis ground.
+Putting Zone D on the front extension (rather than on the deck itself)
+preserves the original ~1" air gap behind the barrier without crowding the
+plenum.
 
 ---
 
 ## 3. Air-Train Component Placement (Zones A–C)
 
-### 3.1 Blower (Zone A)
+### 3.1 Blower (Zone A — rear extension)
 
 | Aspect | Spec |
 |--------|------|
-| Component | BLW-001 (salvaged bypass-cooled vacuum motor) |
-| Mounting orientation | Shaft **vertical**; motor body footprint ~150 mm dia |
-| Mounting position | Rear-center of baseplate; body centerline aligned with air-train Y axis |
-| Outlet routing | Radial outlet at heater-can centerline elevation; short flex elbow + hose clamp to heater can |
-| Cooling exhaust | Directed away from operator and Zone D (down, or sideways out -X) |
-| Vibration isolation | Rubber feet or grommeted bolts; the universal motor will vibrate |
-| Frame bonding | BOND-001 — ring terminal to chassis-ground bus |
+| Component | BLW-001 (salvaged bypass-cooled vacuum motor) — **in hand 2026-05-07** |
+| Body geometry | Cylindrical, **6" dia × 6" tall** (152 × 152 mm); shaft vertical |
+| Mounting position | Centered on the rear angle-iron extension, ~75 mm rear of the deck rear edge; body centerline aligned with the air-train Y axis |
+| Mounting hardware | Bolted to a sheet-metal saddle or strap, sitting on the angle-iron extension. Tripod rear legs straddle the motor on either side |
+| Outlet routing | Radial outlet at heater-can centerline elevation; short flex elbow + hose clamp forward across the deck rear edge to the heater can |
+| Cooling exhaust | Directed away from operator and Zone D (down through a clearance gap in the rear extension, or sideways out −X) |
+| Vibration isolation | Rubber feet or grommeted bolts at the saddle/extension interface; the universal motor will vibrate |
+| Frame bonding | BOND-001 — ring terminal under a frame screw to the chassis-ground bus |
 
 ### 3.2 AC blower control (Zone A, adjacent to motor)
 
@@ -139,7 +168,10 @@ toward Zone D.
 | Aspect | Spec |
 |--------|------|
 | Component | HTR-CAN-001 (built per M5: 2.5" SS exhaust pipe, element on mica former, ceramic fiber wrap exterior) |
-| Mounting | Cradled in two formed sheet-metal saddles bolted to baseplate; saddles lined with high-temp gasket to avoid metal-to-metal heat conduction |
+| Element | HTR-001 Warrior 1500W nichrome on mica former, **measured 2026-05-07: 1.5" wide × 6" long element pack** |
+| Can length | **178 mm (7")** — 6" element + ~0.5" each end for inlet/outlet transition fittings |
+| Can OD | 2.5" (~64 mm) SS exhaust pipe |
+| Mounting | Cradled in two formed sheet-metal saddles bolted to deck; saddles lined with high-temp gasket to avoid metal-to-metal heat conduction |
 | Joints | Hose clamp at blower outlet (preserves DR-005 bypass-cooling option); hose clamp at plenum side-entry stub tube (PLEN-005, M2) |
 | THFUSE-001 | Mounted on can body exterior, in series with heater (independent of MCU) |
 | THFUSE-002 | Mounted in the heated airstream, downstream of the element, immediately upstream of the plenum side-entry (E6) |
@@ -281,15 +313,16 @@ ground. Reaffirms the existing rule from `power-schematic.md`.
 
 | Item | Why it's pending | What unblocks it |
 |------|-----------------|------------------|
-| Motor footprint and outlet geometry | DR-011: salvaged motor not yet on bench | Salvage hunt; vertical-axis mounting plan re-validated against actual envelope |
-| ~~Heater-can length~~ | ~~HTR-001 not yet torn down~~ | **HTR-001 sourced 2026-05-02** — teardown is the next mechanical task; outputs feed `heater_can_length` |
+| ~~Motor footprint and outlet geometry~~ | ~~DR-011: salvaged motor not yet on bench~~ | **In hand 2026-05-07** — 152 × 152 mm vertical-axis cylinder; outlet geometry confirmed sufficient for vertical-axis mount |
+| ~~Heater-can length~~ | ~~HTR-001 not yet torn down~~ | **Measured 2026-05-07** — element 1.5" × 6"; HTR-CAN-001 length set to 178 mm (7") |
 | ~~Plenum body sourcing~~ | ~~PLEN-001 thrift hunt pending~~ | **Resolved by DR-012** — black stovepipe scrap on hand; 8" × 6" target |
-| ~~Baseplate sheet sourcing~~ | ~~BASE-001 not yet sourced~~ | **Sourced 2026-05-02** — 12" × 24" steel sheet + 1"-class angle iron |
-| Angle-iron frame layout | Final stiffening pattern (perimeter + cross-members) depends on weight distribution | Once motor + heater can are mounted and tipping moment is measured |
-| Electronics enclosure dimensions | SSR heatsink size and PSU brick size both still nominal | Parts received |
+| ~~Baseplate sheet sourcing~~ | ~~BASE-001 not yet sourced~~ | **Sourced 2026-05-02; cut to 12" × 18" deck 2026-05-07** — angle iron from same stock for perimeter + rear (motor) and front (electronics) extensions |
+| Frame extension fabrication | Rear extension (~6") and front extension (~5") not yet built | Cut and weld/bolt angle iron onto the deck perimeter; install motor saddle on rear extension; install electronics-tray cradle on front extension |
+| Electronics enclosure dimensions | SSR heatsink size and PSU brick size both still nominal | Parts received (most are now in hand 2026-05-07; lay them out and finalize the project box dims) |
 | SW-001 placement (rear vs front face) | Reachability vs. cable-length tradeoff | Decide once Zone-A panel orientation is fixed by motor geometry |
 | Verification of <40°C inside Zone D | Depends on heat-barrier effectiveness | TP-001 — instrument enclosure interior with a TC during a soak run |
-| ~~L-bracket / ballast plan for stability (M1)~~ | ~~Depends on final mass distribution~~ | **Resolved by DR-013** — threaded-rod tripod legs continuing up to a chamber clamp provide lateral tip resistance. Final rod length and clamp height set once chamber stack is assembled. |
+| ~~L-bracket / ballast plan for stability (M1)~~ | ~~Depends on final mass distribution~~ | **Resolved by DR-013** — threaded-rod tripod legs continuing up to a chamber clamp provide lateral tip resistance. Final rod length and clamp height set once chamber stack is assembled |
+| Tripod foot positions | Depends on final extension geometry | Front pair straddle the plenum on the deck; rear pair straddle the motor on the rear extension. Final coordinates set once the angle iron is cut |
 
 ---
 

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 700" width="500" height="700">
+  <title>Roaster v1 Baseplate — Top View (operator at top)</title>
+
+  <style>
+    text { font-family: monospace; font-size: 11px; fill: #222; }
+    .title { font-size: 13px; font-weight: bold; }
+    .label { font-size: 10px; font-weight: bold; }
+    .small { font-size: 9px; fill: #555; }
+    .dim { font-size: 9px; fill: #666; }
+    .deck { fill: #d6d6d6; stroke: #555; stroke-width: 1.2; }
+    .ext { fill: #ececec; stroke: #888; stroke-width: 1; stroke-dasharray: 4,2; }
+    .plenum { fill: #c0d2e6; stroke: #335; stroke-width: 1.4; }
+    .chamber-circle { fill: none; stroke: #2c4a59; stroke-width: 0.8; stroke-dasharray: 4,3; }
+    .heater { fill: #f78a78; stroke: #6a1f17; stroke-width: 1.4; }
+    .blower { fill: #7fa6e6; stroke: #243a6a; stroke-width: 1.4; }
+    .ebox { fill: #c8eccd; stroke: #2c5d36; stroke-width: 1.2; }
+    .barrier { fill: none; stroke: #335; stroke-width: 3; }
+    .leg { fill: #444; stroke: #222; stroke-width: 1; }
+    .dimline { stroke: #999; stroke-width: 0.6; stroke-dasharray: 4,2; fill: none; }
+    .mains { stroke: #333; stroke-width: 2; }
+    .sig { stroke: #2a85ff; stroke-width: 1.4; stroke-dasharray: 6,3; }
+    .gnd { fill: #1a8c4a; stroke: #1a8c4a; }
+  </style>
+
+  <rect width="500" height="700" fill="#fafafa"/>
+
+  <text x="250" y="20" text-anchor="middle" class="title">
+    Roaster v1 Baseplate — Top View
+  </text>
+  <text x="250" y="36" text-anchor="middle" class="small">
+    operator at top (+Y); rear extension at bottom; air-train along centerline
+  </text>
+
+  <!-- Compass / orientation -->
+  <text x="40" y="60" class="label">+Y</text>
+  <text x="40" y="74" class="small">(operator)</text>
+  <line x1="50" y1="80" x2="50" y2="105" stroke="#444" stroke-width="1.2" marker-end="url(#aDir)"/>
+
+  <defs>
+    <marker id="aDir" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+
+  <!-- =================================================== -->
+  <!-- FRONT EXTENSION + ZONE D (electronics tray)          -->
+  <!-- =================================================== -->
+
+  <!-- Mapping: svg_x = 80 + X_mm * 0.75   svg_y = 80 + (582 - Y_mm) * 0.75 -->
+
+  <!-- Front extension panel (Y = 457 to 582) -->
+  <rect x="80" y="80" width="229" height="94" class="ext"/>
+  <text x="194" y="100" text-anchor="middle" class="label">ZONE D — ELECTRONICS TRAY (front extension)</text>
+  <text x="194" y="113" text-anchor="middle" class="small">on ~5" angle-iron extension; behind heat barrier</text>
+
+  <!-- Electronics box (280 × 100 mm) -->
+  <rect x="89" y="89" width="210" height="75" class="ebox"/>
+  <text x="194" y="135" text-anchor="middle" class="label" fill="#234d2c">ESP32 + MAX31855 ×3</text>
+  <text x="194" y="148" text-anchor="middle" class="small">+ Q2 SSR buffer + CT bias + 5V PSU</text>
+  <text x="194" y="160" text-anchor="middle" class="small">USB → host PC (Artisan)</text>
+
+  <!-- Heat barrier (vertical bar at Y=445) -->
+  <line x1="80" y1="183" x2="309" y2="183" class="barrier"/>
+  <text x="315" y="186" class="small">heat barrier</text>
+
+  <!-- =================================================== -->
+  <!-- DECK (12" × 18", Y = 0 to 457)                       -->
+  <!-- =================================================== -->
+
+  <rect x="80" y="174" width="229" height="343" class="deck"/>
+
+  <!-- Wire lanes on +X edge (right side) -->
+  <line x1="305" y1="178" x2="305" y2="513" class="mains"/>
+  <line x1="312" y1="178" x2="312" y2="513" class="sig"/>
+  <text x="318" y="350" class="small" transform="rotate(90,318,350)">mains lane (14 AWG raceway)</text>
+  <text x="332" y="350" class="small" transform="rotate(90,332,350)">signal lane (TC SPI, CT secondary)</text>
+
+  <!-- Chassis ground bus (rear-right corner) -->
+  <circle cx="304" cy="510" r="4" class="gnd"/>
+  <text x="270" y="525" class="small" fill="#1a8c4a">chassis-ground bus</text>
+
+  <!-- =================================================== -->
+  <!-- ZONE C — PLENUM (round 8" stovepipe at Y=329)       -->
+  <!-- =================================================== -->
+
+  <circle cx="194" cy="270" r="76" class="plenum"/>
+  <text x="194" y="245" text-anchor="middle" class="label" fill="#1a3a66">ZONE C — Plenum</text>
+  <text x="194" y="258" text-anchor="middle" class="small">8" dia × 6" tall stovepipe (DR-012)</text>
+
+  <!-- Chamber tube hole in top cap (drawn as dashed circle, chamber OD) -->
+  <circle cx="194" cy="270" r="24" class="chamber-circle"/>
+  <text x="194" y="274" text-anchor="middle" class="small">chamber</text>
+
+  <!-- Side-entry stub on rear face (-Y side of plenum, toward heater can) -->
+  <rect x="184" y="346" width="20" height="14" class="plenum"/>
+  <text x="218" y="358" class="small">side-entry stub</text>
+  <text x="218" y="368" class="small">(PLEN-005)</text>
+
+  <!-- Deflector ramp marker on +Y side (opposite side-entry, inside plenum) -->
+  <line x1="184" y1="200" x2="206" y2="210" stroke="#d2691e" stroke-width="2.5"/>
+  <text x="216" y="208" class="small" fill="#d2691e">deflector ramp</text>
+
+  <!-- =================================================== -->
+  <!-- ZONE B — HEATER CAN (Y=25 to 203)                    -->
+  <!-- =================================================== -->
+
+  <rect x="170" y="365" width="48" height="134" class="heater"/>
+  <text x="194" y="400" text-anchor="middle" class="label" fill="#7a1c10">ZONE B</text>
+  <text x="194" y="414" text-anchor="middle" class="small" fill="#7a1c10">Heater can</text>
+  <text x="194" y="427" text-anchor="middle" class="small" fill="#7a1c10">+ SSR + heatsink</text>
+  <text x="194" y="441" text-anchor="middle" class="small">2.5" SS pipe</text>
+  <text x="194" y="453" text-anchor="middle" class="small">7" long</text>
+  <text x="194" y="466" text-anchor="middle" class="small">element 1.5" × 6"</text>
+  <text x="194" y="479" text-anchor="middle" class="small">(measured 5/7)</text>
+
+  <!-- SSR location callout (next to heater can on +X side) -->
+  <rect x="222" y="395" width="40" height="32" fill="#fff" stroke="#c33" stroke-width="0.8"/>
+  <text x="242" y="408" text-anchor="middle" class="small" fill="#c33">SSR-001</text>
+  <text x="242" y="420" text-anchor="middle" class="small" fill="#c33">+ heatsink</text>
+
+  <!-- =================================================== -->
+  <!-- REAR EXTENSION + ZONE A                              -->
+  <!-- =================================================== -->
+
+  <!-- Rear extension panel (Y = -152 to 0) -->
+  <rect x="80" y="517" width="229" height="113" class="ext"/>
+
+  <text x="194" y="535" text-anchor="middle" class="label">ZONE A — BLOWER + AC CONTROL (rear extension)</text>
+
+  <!-- Blower body (cylinder seen from above = circle, 152 dia centered at Y=-75) -->
+  <circle cx="194" cy="573" r="57" class="blower"/>
+  <text x="194" y="568" text-anchor="middle" class="label" fill="#0f1f3a">Blower</text>
+  <text x="194" y="581" text-anchor="middle" class="small" fill="#0f1f3a">BLW-001</text>
+  <text x="194" y="593" text-anchor="middle" class="small" fill="#0f1f3a">152 × 152 mm</text>
+
+  <!-- Outlet stub (radial, points forward toward heater can = +Y) -->
+  <rect x="184" y="510" width="20" height="22" class="blower"/>
+  <text x="208" y="525" class="small">outlet</text>
+
+  <!-- TRIAC dimmer + line filter callouts -->
+  <rect x="86" y="538" width="58" height="24" fill="#fff" stroke="#33c" stroke-width="0.8"/>
+  <text x="115" y="551" text-anchor="middle" class="small" fill="#33c">BLW-CTRL-001</text>
+  <text x="115" y="560" text-anchor="middle" class="small" fill="#33c">TRIAC + ZC</text>
+
+  <rect x="86" y="568" width="58" height="20" fill="#fff" stroke="#33c" stroke-width="0.8"/>
+  <text x="115" y="581" text-anchor="middle" class="small" fill="#33c">FILT-001</text>
+
+  <rect x="246" y="538" width="58" height="20" fill="#fff" stroke="#33c" stroke-width="0.8"/>
+  <text x="275" y="551" text-anchor="middle" class="small" fill="#33c">CT-001</text>
+
+  <!-- Mains entry at rear of rear extension -->
+  <line x1="105" y1="630" x2="105" y2="615" class="mains"/>
+  <text x="65" y="625" class="small">mains in</text>
+  <rect x="100" y="610" width="14" height="6" fill="#444"/>
+  <text x="118" y="615" class="small">→ DPST → 20A fuse</text>
+
+  <!-- =================================================== -->
+  <!-- TRIPOD LEGS (DR-013): 3 dots                         -->
+  <!-- =================================================== -->
+
+  <!-- Front pair (Y=380, X=±110 from CL) -->
+  <circle cx="112" cy="232" r="6" class="leg"/>
+  <text x="100" y="220" class="small">leg</text>
+  <circle cx="277" cy="232" r="6" class="leg"/>
+  <text x="265" y="220" class="small">leg</text>
+
+  <!-- Rear leg on rear extension (Y=-120) -->
+  <circle cx="194" cy="607" r="6" class="leg"/>
+  <text x="200" y="612" class="small">leg (rear)</text>
+
+  <text x="80" y="660" class="small">3× threaded-rod tripod legs (DR-013) — extend below as feet, above to chamber-band clamp</text>
+
+  <!-- =================================================== -->
+  <!-- DIMENSION CALLOUTS                                   -->
+  <!-- =================================================== -->
+
+  <!-- Deck length (18") -->
+  <line x1="350" y1="174" x2="350" y2="517" class="dimline"/>
+  <line x1="345" y1="174" x2="355" y2="174" class="dimline"/>
+  <line x1="345" y1="517" x2="355" y2="517" class="dimline"/>
+  <text x="358" y="350" class="dim" transform="rotate(90,358,350)">18" deck</text>
+
+  <!-- Total length -->
+  <line x1="380" y1="80" x2="380" y2="630" class="dimline"/>
+  <line x1="375" y1="80" x2="385" y2="80" class="dimline"/>
+  <line x1="375" y1="630" x2="385" y2="630" class="dimline"/>
+  <text x="388" y="350" class="dim" transform="rotate(90,388,350)">~ 29" total frame</text>
+
+  <!-- Width 12" -->
+  <line x1="80" y1="678" x2="309" y2="678" class="dimline"/>
+  <line x1="80" y1="673" x2="80" y2="685" class="dimline"/>
+  <line x1="309" y1="673" x2="309" y2="685" class="dimline"/>
+  <text x="194" y="691" text-anchor="middle" class="dim">12" deck width</text>
+</svg>

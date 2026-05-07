@@ -9,7 +9,12 @@
 //   - Toggle components on/off with show_* variables below
 //   - Switch chamber size with chamber_od variable
 //
-// Reference: docs/system/architecture.md, design-log.md
+// Reference: docs/system/architecture.md, docs/mechanical/baseplate-layout.md,
+// docs/system/design-log.md (DR-008, DR-009, DR-011, DR-012, DR-013).
+//
+// Geometry as of 2026-05-07: motor + heater element measured and in hand;
+// 12" × 18" steel deck cut from BASE-001 stock; angle-iron frame with rear
+// (motor) and front (electronics) extensions.
 // =============================================================
 
 // --- Configuration -------------------------------------------
@@ -18,249 +23,406 @@
 chamber_od = 63.5;  // mm — change to 76.2 for backup chamber
 
 // Component visibility toggles
-show_baseplate       = true;
+show_deck            = true;
+show_frame           = true;
+show_extensions      = true;
+show_legs            = true;       // DR-013 tripod legs
 show_plenum          = true;
-show_baffle          = true;
-show_clamping_ring   = true;
+show_top_cap         = true;
+show_bottom_cap      = true;
+show_clamp_ring      = true;
 show_distributor     = true;
+show_baffle          = true;
 show_chamber         = true;
+show_cone_reducer    = true;
 show_chaff_collector = true;
 show_heater_can      = true;
 show_blower          = true;
-show_standoffs       = true;
+show_electronics_box = true;
+show_heat_barrier    = true;
 
-// --- Derived dimensions --------------------------------------
+// --- Origin convention --------------------------------------
+// (0, 0, 0) is the rear-left corner of the steel deck, at the deck top
+// surface. +X is to the operator's right (across the long edge);
+// +Y is forward (toward the operator); +Z is up.
 
-chamber_id = chamber_od - 3.2;  // ~1.6mm wall thickness for SS exhaust tube
-chamber_length = 304.8;         // 12 inches
-chamber_wall = (chamber_od - chamber_id) / 2;
+// --- Deck (BASE-001 cut) ------------------------------------
 
-// --- Baseplate (M1: widened for stability) -------------------
-// M1: Must be wide enough to prevent tip-over of tall asymmetric assembly.
-// Widened in blower direction to 20"+ per DR-010. Add ballast weight
-// and L-brackets for lateral bracing.
+deck_width   = 305;     // 12 inches (X)
+deck_length  = 457;     // 18 inches (Y)
+deck_thick   = 1.6;     // ~16 ga steel sheet (visual only)
 
-base_length = 508;   // 20 inches (M1: widened from 16")
-base_width  = 305;   // 12 inches (M1: widened from 10")
-base_thick  = 19;    // 3/4 inch (plywood) — adjust for steel
+// --- Frame and extensions (angle iron) ----------------------
 
-// --- Plenum (DR-007) ----------------------------------------
-// 1/6 size SS steam table pan, 4" deep
+frame_angle_h    = 25.4;    // 1" angle iron
+frame_angle_t    = 3.2;     // ~1/8" leg
+rear_ext_length  = 152;     // 6" rear extension for motor (Zone A)
+front_ext_length = 125;     // 5" front extension for electronics (Zone D)
 
-plenum_length = 162.6;  // 6.4 inches
-plenum_width  = 160;    // 6.3 inches
-plenum_depth  = 101.6;  // 4 inches
-plenum_wall   = 1.0;    // ~22 gauge SS
+// --- Tripod legs (DR-013) -----------------------------------
 
-// Plenum position on baseplate (centered on width, offset on length
-// to leave room for blower+heater on one side)
-plenum_x = base_length * 0.55;  // offset toward "back" of base
-plenum_y = base_width / 2;      // centered on width
-plenum_z = base_thick + 25.4;   // 1" standoff above baseplate
+leg_rod_dia      = 9.5;     // 3/8" threaded rod
+leg_below        = 100;     // exposed length below deck (adjustable feet)
+leg_above        = 380;     // length above deck up to chamber-band clamp
 
-// Side-entry hole (centered on plenum wall, low position)
-side_entry_dia = 60;  // ~2.4 inches, sized to heater can outlet
-side_entry_z   = plenum_depth * 0.35;  // center of hole, from plenum bottom
+// Leg X/Y positions: front pair straddles the plenum on the deck, rear leg
+// sits on the rear extension behind the motor (forming a triangle).
+front_leg_y      = 380;
+rear_leg_y       = -120;
+leg_x_offset     = 110;     // distance from deck centerline (X = 152.5)
+deck_cx          = deck_width / 2;
 
-// --- Standoffs (under plenum) --------------------------------
+// --- Plenum body (DR-012) -----------------------------------
 
-standoff_height = 25.4;  // 1 inch
-standoff_dia    = 10;    // M5 threaded rod or ceramic spacer
-standoff_inset  = 15;    // inset from plenum corners
+plenum_dia       = 203;     // 8" round black stovepipe
+plenum_height    = 152;     // 6" tall
+plenum_wall      = 0.5;     // ~26 ga
+cap_skirt        = 12;      // pipe-cap skirt depth
+cap_thick        = 1.0;     // cap face thickness
+plenum_y         = 329;     // CL on long axis (deck Y, see baseplate-layout.md §1)
+standoff_h       = 25.4;    // 1" standoff between deck and plenum bottom cap
+plenum_bot_z     = standoff_h;
+plenum_top_z     = plenum_bot_z + plenum_height;
 
-// --- Deflector Ramp Baffle (DR-009) --------------------------
+// Side-entry hole on the rear face (-Y side of the cylindrical wall),
+// centerline ~2" above plenum floor (DR-009 ramp clearance).
+side_entry_dia   = 64;      // 2.5" — heater-can OD
+side_entry_z     = plenum_bot_z + 50;   // 50 mm above plenum floor
+side_entry_y     = plenum_y - plenum_dia/2;
 
-baffle_width  = 76;     // ~3 inches
-baffle_height = 101.6;  // ~4 inches
-baffle_thick  = 1.2;    // ~18 gauge SS
-baffle_angle  = 45;
+// --- Heater can (HTR-CAN-001, DR-002 + 2026-05-07 measurement) ---
 
-// --- Clamping Ring (DR-008) ----------------------------------
+heater_can_od    = 64;      // 2.5" SS exhaust pipe
+heater_can_id    = 60;      // ~2.37"
+heater_can_len   = 178;     // 7" — fits 1.5" × 6" Warrior element + ~0.5" each end
 
-ring_outer = min(plenum_length, plenum_width) - 10;  // fits inside pan rim
-ring_inner = chamber_od + 1;  // clearance for chamber tube
-ring_thick = 3;               // ~11 gauge SS flat stock
+// Heater can axis sits at the same elevation as the plenum side-entry
+// centerline. Heater can extends from ~Y=25 to Y=203 (measured along deck Y).
+heater_y_rear    = 25;
+heater_y_front   = heater_y_rear + heater_can_len;   // = 203
+heater_z         = side_entry_z;
 
-// --- Distributor Plate ---------------------------------------
+// --- Blower (BLW-001 — measured 2026-05-07) -----------------
 
-plate_dia   = chamber_id;  // sits inside chamber
-plate_thick = 1.5;         // perforated SS sheet
+blower_dia       = 152;     // 6" body
+blower_height    = 152;     // 6" tall
+blower_outlet_dia = 50;     // ~2" radial outlet
+blower_y         = -75;     // CL ~75 mm rear of deck rear edge (on rear extension)
+blower_x         = deck_cx;
+blower_bot_z     = 0;       // sits on rear extension (same Z as deck top)
+blower_top_z     = blower_bot_z + blower_height;
+blower_outlet_z  = heater_z;   // outlet at heater-can axis elevation
 
-// --- Chaff Expansion Chamber (DR-006) ------------------------
+// --- Clamping ring (DR-008 Option A) ------------------------
 
-chaff_od     = 101.6;  // 4 inches
-chaff_height = 127;    // 5 inches
-chaff_wall   = 1.0;
+ring_outer       = chamber_od + 60;     // ~4" exhaust flange OD
+ring_inner       = (chamber_od == 63.5) ? 50.8 : 63.5;  // 2" / 2.5" ID
+ring_thick       = 3;
 
-// --- Heater Can (from Warrior heat gun) ----------------------
-// Approximate — actual dims pending teardown
+// --- Distributor plate (DR-013 D1: FengYoo plate as-is) -----
 
-heater_can_od     = 65;    // ~2.5 inches (heat gun barrel)
-heater_can_length = 190;   // ~7.5 inches
-heater_can_wall   = 1.5;
+plate_dia        = chamber_od - 3.2;    // chamber ID
+plate_thick      = 1.06;                // 19 ga FengYoo
 
-// --- Blower (salvaged bypass-cooled vacuum motor, DR-011) ----
-// Placeholder envelope — real dims pending salvage. Re-measure
-// once a motor is in hand. See design-log 2026-04-29.
+// --- Roast chamber ------------------------------------------
 
-blower_dia    = 150;  // ~150mm best-estimate vacuum-motor body
-blower_depth  = 200;  // ~200mm best-estimate including outlet flange
-blower_outlet = 40;   // outlet port width (approx)
+chamber_id       = chamber_od - 3.2;
+chamber_length   = 304.8;   // 12"
+
+// --- Cone reducer (EXH-004) and chaff collector (DR-006) ----
+
+cone_height      = 50;
+chaff_od         = 101.6;   // 4"
+chaff_height     = 127;     // 5"
+
+// --- Heat barrier (between Zones C and D) -------------------
+
+barrier_thick    = 1.5;
+barrier_height   = 200;
+barrier_y        = deck_length - 12;   // bolted just inside front edge
+
+// --- Electronics tray (Zone D) ------------------------------
+
+ebox_w           = 280;
+ebox_d           = 100;
+ebox_h           = 90;
+ebox_y           = deck_length + 12;   // on front extension, ~12 mm past barrier
+
+// --- Deflector ramp baffle (DR-009) -------------------------
+
+baffle_w         = 76;
+baffle_h         = 100;
+baffle_t         = 1.2;
+baffle_angle     = 45;
 
 // =============================================================
 // Modules
 // =============================================================
 
-module baseplate() {
-    color("BurlyWood", 0.6)
-    translate([-base_length/2, -base_width/2, 0])
-        cube([base_length, base_width, base_thick]);
+module deck() {
+    color("Gainsboro")
+    translate([0, 0, -deck_thick])
+        cube([deck_width, deck_length, deck_thick]);
 }
 
-module standoffs() {
-    color("Silver")
-    for (dx = [-1, 1], dy = [-1, 1]) {
-        translate([
-            plenum_x - plenum_length/2 + (dx > 0 ? plenum_length - standoff_inset : standoff_inset) - plenum_x,
-            dy * (plenum_width/2 - standoff_inset),
-            base_thick
-        ])
-        translate([plenum_x - base_length/2, 0, 0])
-            cylinder(h=standoff_height, d=standoff_dia, $fn=20);
+module angle_iron(length) {
+    // Angle iron section running along Y, leg up + leg out
+    color("DimGray")
+    union() {
+        cube([frame_angle_h, length, frame_angle_t]);
+        cube([frame_angle_t, length, frame_angle_h]);
     }
 }
 
-module plenum() {
-    // Outer shell
-    color("LightSteelBlue", 0.7)
-    translate([0, 0, plenum_z])
-    difference() {
-        // Outer box
-        translate([-plenum_length/2, -plenum_width/2, 0])
-            cube([plenum_length, plenum_width, plenum_depth]);
-        // Inner cavity
-        translate([-(plenum_length-2*plenum_wall)/2, -(plenum_width-2*plenum_wall)/2, plenum_wall])
-            cube([plenum_length-2*plenum_wall, plenum_width-2*plenum_wall, plenum_depth]);
-        // Side-entry hole (on -X face)
-        translate([-plenum_length/2 - 1, 0, side_entry_z])
-            rotate([0, 90, 0])
-                cylinder(h=plenum_wall+2, d=side_entry_dia, $fn=40);
+module frame() {
+    // Two long-edge angles running the full assembly length (deck +
+    // extensions). Cross-members at deck rear and front edges and at the
+    // outer ends of the extensions.
+    total_y_start = -rear_ext_length;
+    total_y_len   = rear_ext_length + deck_length + front_ext_length;
+
+    // Long-edge angles on -X and +X sides
+    translate([0, total_y_start, -deck_thick - frame_angle_h])
+        angle_iron(total_y_len);
+    translate([deck_width - frame_angle_h, total_y_start, -deck_thick - frame_angle_h])
+        rotate([0, 0, 90])
+            translate([0, -frame_angle_h, 0])
+                angle_iron(total_y_len);
+
+    // Cross-members (4 total: rear-of-extension, deck-rear, deck-front,
+    // front-of-extension) — drawn as simple bars
+    color("DimGray")
+    for (yy = [total_y_start, 0, deck_length, total_y_start + total_y_len - frame_angle_h]) {
+        translate([0, yy, -deck_thick - frame_angle_h])
+            cube([deck_width, frame_angle_h, frame_angle_t]);
     }
 }
 
-module baffle() {
-    color("Orange", 0.8)
-    translate([0, 0, plenum_z])
-    // Position inside plenum, opposite side-entry (on +X side of cavity)
-    translate([plenum_length/2 - plenum_wall - 15, 0, side_entry_z])
-        rotate([0, baffle_angle, 0])
-            translate([-baffle_thick/2, -baffle_width/2, -baffle_height/4])
-                cube([baffle_thick, baffle_width, baffle_height/2]);
+module extensions() {
+    // Visual rendering of the rear and front extension "decks" (could
+    // be sheet-metal infill or just open angle-iron framing — here drawn
+    // as a thin sheet panel for clarity).
+    color("Silver", 0.6) {
+        // Rear extension panel
+        translate([0, -rear_ext_length, -deck_thick])
+            cube([deck_width, rear_ext_length, deck_thick]);
+        // Front extension panel
+        translate([0, deck_length, -deck_thick])
+            cube([deck_width, front_ext_length, deck_thick]);
+    }
 }
 
-module clamping_ring() {
-    color("DarkGray", 0.8)
-    translate([0, 0, plenum_z + plenum_depth])
+module legs() {
+    color("DarkGray")
+    for (pos = [
+        [deck_cx - leg_x_offset, front_leg_y],
+        [deck_cx + leg_x_offset, front_leg_y],
+        [deck_cx,                rear_leg_y]
+    ]) {
+        translate([pos[0], pos[1], -leg_below])
+            cylinder(h = leg_below + leg_above, d = leg_rod_dia, $fn = 16);
+    }
+
+    // Chamber-band clamp at top — visualized as a flat ring above the
+    // chamber/cone-reducer transition
+    band_z = leg_above - 60;
+    color("DimGray")
+    translate([deck_cx, plenum_y, band_z])
     difference() {
-        // Outer square ring (simplified as cylinder for now)
-        cylinder(h=ring_thick, d=ring_outer, $fn=60);
-        // Inner hole for chamber
+        cylinder(h = 6, d = chaff_od + 20, $fn = 60);
+        translate([0, 0, -1]) cylinder(h = 8, d = chaff_od + 6, $fn = 60);
+    }
+}
+
+module plenum_body() {
+    // Cylindrical wall of the stovepipe plenum
+    color("LightSteelBlue", 0.5)
+    translate([deck_cx, plenum_y, plenum_bot_z])
+    difference() {
+        cylinder(h = plenum_height, d = plenum_dia, $fn = 64);
         translate([0, 0, -1])
-            cylinder(h=ring_thick+2, d=ring_inner, $fn=60);
+            cylinder(h = plenum_height + 2, d = plenum_dia - 2*plenum_wall, $fn = 64);
+        // Side-entry hole (rear face = -Y direction)
+        translate([0, -plenum_dia/2 - 1, 50])
+            rotate([-90, 0, 0])
+                cylinder(h = plenum_wall + 2, d = side_entry_dia, $fn = 32);
+    }
+}
+
+module bottom_cap() {
+    // Slip-fit pipe cap on plenum bottom
+    color("LightSteelBlue", 0.7)
+    translate([deck_cx, plenum_y, plenum_bot_z - cap_thick]) {
+        // cap face
+        cylinder(h = cap_thick, d = plenum_dia + 4, $fn = 64);
+        // skirt (drawn as a ring above the cap face, hugging plenum exterior)
+        difference() {
+            cylinder(h = cap_skirt, d = plenum_dia + 4, $fn = 64);
+            translate([0, 0, -1])
+                cylinder(h = cap_skirt + 2, d = plenum_dia, $fn = 64);
+        }
+    }
+}
+
+module top_cap() {
+    // Top pipe cap, drilled to chamber OD; clamp ring attaches underneath
+    color("LightSteelBlue", 0.7)
+    translate([deck_cx, plenum_y, plenum_top_z]) {
+        difference() {
+            // cap face
+            cylinder(h = cap_thick, d = plenum_dia + 4, $fn = 64);
+            translate([0, 0, -1])
+                cylinder(h = cap_thick + 2, d = chamber_od, $fn = 60);
+        }
+        // skirt
+        translate([0, 0, -cap_skirt])
+        difference() {
+            cylinder(h = cap_skirt, d = plenum_dia + 4, $fn = 64);
+            translate([0, 0, -1])
+                cylinder(h = cap_skirt + 2, d = plenum_dia, $fn = 64);
+        }
+    }
+}
+
+module clamp_ring() {
+    // Annular ring tapped for M4, mounted on underside of top cap face
+    color("DimGray")
+    translate([deck_cx, plenum_y, plenum_top_z - ring_thick])
+    difference() {
+        cylinder(h = ring_thick, d = ring_outer, $fn = 48);
+        translate([0, 0, -1])
+            cylinder(h = ring_thick + 2, d = ring_inner, $fn = 48);
     }
 }
 
 module distributor_plate() {
-    color("Gold", 0.6)
-    translate([0, 0, plenum_z + plenum_depth + ring_thick])
-        cylinder(h=plate_thick, d=plate_dia, $fn=60);
+    color("Goldenrod", 0.7)
+    translate([deck_cx, plenum_y, plenum_top_z])
+        cylinder(h = plate_thick, d = plate_dia, $fn = 60);
 }
 
 module chamber() {
-    color("LightBlue", 0.5)
-    translate([0, 0, plenum_z + plenum_depth + ring_thick + plate_thick])
+    color("LightBlue", 0.4)
+    translate([deck_cx, plenum_y, plenum_top_z + plate_thick])
     difference() {
-        cylinder(h=chamber_length, d=chamber_od, $fn=60);
+        cylinder(h = chamber_length, d = chamber_od, $fn = 60);
         translate([0, 0, -1])
-            cylinder(h=chamber_length+2, d=chamber_id, $fn=60);
+            cylinder(h = chamber_length + 2, d = chamber_id, $fn = 60);
     }
+}
+
+module cone_reducer() {
+    z0 = plenum_top_z + plate_thick + chamber_length;
+    color("LightSlateGray", 0.5)
+    translate([deck_cx, plenum_y, z0])
+        cylinder(h = cone_height, d1 = chamber_od, d2 = chaff_od, $fn = 60);
 }
 
 module chaff_collector() {
-    chamber_top_z = plenum_z + plenum_depth + ring_thick + plate_thick + chamber_length;
-
-    // Expansion chamber body
+    z0 = plenum_top_z + plate_thick + chamber_length + cone_height;
     color("Plum", 0.5)
-    translate([0, 0, chamber_top_z])
+    translate([deck_cx, plenum_y, z0])
     difference() {
-        cylinder(h=chaff_height, d=chaff_od, $fn=60);
-        translate([0, 0, chaff_wall])
-            cylinder(h=chaff_height, d=chaff_od - 2*chaff_wall, $fn=60);
+        cylinder(h = chaff_height, d = chaff_od, $fn = 60);
+        translate([0, 0, 1])
+            cylinder(h = chaff_height, d = chaff_od - 2*plenum_wall, $fn = 60);
     }
-
-    // Mesh screen (thin disc near top)
-    color("Gray", 0.4)
-    translate([0, 0, chamber_top_z + chaff_height - 5])
-        cylinder(h=1, d=chaff_od - 2*chaff_wall - 2, $fn=60);
+    // Mesh disc near the top
+    color("Gray", 0.5)
+    translate([deck_cx, plenum_y, z0 + chaff_height - 6])
+        cylinder(h = 1, d = chaff_od - 4, $fn = 60);
 }
 
 module heater_can() {
-    color("Tomato", 0.6)
-    // Extends from plenum side-entry toward -X
-    translate([-plenum_length/2, 0, plenum_z + side_entry_z])
-    rotate([0, -90, 0])
+    // Horizontal can along Y axis between blower outlet and plenum side-entry
+    color("Tomato", 0.7)
+    translate([deck_cx, heater_y_rear, heater_z])
+    rotate([-90, 0, 0])
     difference() {
-        cylinder(h=heater_can_length, d=heater_can_od, $fn=40);
+        cylinder(h = heater_can_len, d = heater_can_od, $fn = 40);
         translate([0, 0, -1])
-            cylinder(h=heater_can_length+2, d=heater_can_od - 2*heater_can_wall, $fn=40);
+            cylinder(h = heater_can_len + 2, d = heater_can_id, $fn = 40);
     }
+
+    // Visualize the nichrome element pack as a rectangular volume inside
+    color("OrangeRed", 0.6)
+    translate([deck_cx - 19, heater_y_rear + 13, heater_z - 5])
+        cube([38, 152, 10]);   // 1.5" × 6" element
 }
 
 module blower() {
+    // Cylindrical body, vertical axis, on rear extension
     color("CornflowerBlue", 0.7)
-    // Positioned at the end of the heater can, extending further in -X
-    blower_x = -plenum_length/2 - heater_can_length;
-    translate([blower_x, 0, plenum_z + side_entry_z])
-    rotate([0, -90, 0])
-        cylinder(h=blower_depth, d=blower_dia, $fn=60);
+    translate([blower_x, blower_y, blower_bot_z])
+        cylinder(h = blower_height, d = blower_dia, $fn = 60);
+
+    // Radial outlet — short stub pointing forward (+Y) at heater-can elevation
+    color("CornflowerBlue", 0.85)
+    translate([blower_x, blower_y, blower_outlet_z])
+    rotate([-90, 0, 0])
+        cylinder(h = blower_dia/2 + 30, d = blower_outlet_dia, $fn = 32);
+}
+
+module heat_barrier() {
+    color("Silver", 0.4)
+    translate([0, barrier_y, 0])
+        cube([deck_width, barrier_thick, barrier_height]);
+}
+
+module electronics_box() {
+    color("PaleGreen", 0.5)
+    translate([(deck_width - ebox_w)/2, ebox_y, 0])
+        cube([ebox_w, ebox_d, ebox_h]);
+}
+
+module baffle() {
+    color("Orange", 0.8)
+    translate([deck_cx, plenum_y + plenum_dia/2 - 30, plenum_bot_z + 10])
+    rotate([0, 0, 0])
+    rotate([baffle_angle, 0, 0])
+    translate([-baffle_w/2, -baffle_t/2, 0])
+        cube([baffle_w, baffle_t, baffle_h]);
 }
 
 // =============================================================
 // Assembly
 // =============================================================
 
-// Center everything on the plenum position
-translate([-(plenum_x - base_length/2), 0, 0]) {
-
-    if (show_baseplate)       baseplate();
-    if (show_standoffs)       standoffs();
-
-    // Everything above is relative to plenum center
-    translate([plenum_x - base_length/2, 0, 0]) {
-        if (show_plenum)          plenum();
-        if (show_baffle)          baffle();
-        if (show_clamping_ring)   clamping_ring();
-        if (show_distributor)     distributor_plate();
-        if (show_chamber)         chamber();
-        if (show_chaff_collector) chaff_collector();
-        if (show_heater_can)      heater_can();
-        if (show_blower)          blower();
-    }
-}
+if (show_deck)            deck();
+if (show_frame)           frame();
+if (show_extensions)      extensions();
+if (show_legs)            legs();
+if (show_blower)          blower();
+if (show_heater_can)      heater_can();
+if (show_plenum)          plenum_body();
+if (show_bottom_cap)      bottom_cap();
+if (show_baffle)          baffle();
+if (show_top_cap)         top_cap();
+if (show_clamp_ring)      clamp_ring();
+if (show_distributor)     distributor_plate();
+if (show_chamber)         chamber();
+if (show_cone_reducer)    cone_reducer();
+if (show_chaff_collector) chaff_collector();
+if (show_heat_barrier)    heat_barrier();
+if (show_electronics_box) electronics_box();
 
 // =============================================================
 // Annotations (console output)
 // =============================================================
 
-total_height = base_thick + standoff_height + plenum_depth + ring_thick +
-               plate_thick + chamber_length + chaff_height;
+total_height = plenum_top_z + plate_thick + chamber_length + cone_height + chaff_height;
+total_y_len  = rear_ext_length + deck_length + front_ext_length;
 
 echo(str("--- Assembly Summary ---"));
 echo(str("Chamber OD: ", chamber_od, " mm (", chamber_od/25.4, " in)"));
-echo(str("Base footprint: ", base_length, " x ", base_width, " mm (",
-         base_length/25.4, " x ", base_width/25.4, " in)"));
-echo(str("Total height above table: ", total_height, " mm (",
+echo(str("Deck: ", deck_width, " x ", deck_length, " mm (",
+         deck_width/25.4, " x ", deck_length/25.4, " in)"));
+echo(str("Total frame length (rear ext + deck + front ext): ",
+         total_y_len, " mm (", total_y_len/25.4, " in)"));
+echo(str("Total assembly height above deck: ", total_height, " mm (",
          total_height/25.4, " in)"));
-echo(str("Heater+blower extension from plenum: ",
-         plenum_length/2 + heater_can_length + blower_depth, " mm (",
-         (plenum_length/2 + heater_can_length + blower_depth)/25.4, " in)"));
+echo(str("Plenum CL on long axis (deck Y): ", plenum_y, " mm"));
+echo(str("Heater can: Y=", heater_y_rear, " to Y=", heater_y_front,
+         " (", heater_can_len, " mm long)"));
+echo(str("Blower: dia ", blower_dia, " x ", blower_height,
+         " mm; CL at Y=", blower_y, " (", -blower_y, " mm rear of deck rear edge)"));

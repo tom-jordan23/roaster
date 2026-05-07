@@ -17,7 +17,7 @@ control, and measure this flow.
 flowchart LR
     A[Ambient Air] --> B[Blower]
     B --> C[Heater Can]
-    C -->|Side Entry| D["Plenum\n(1/6 SS steam table pan)"]
+    C -->|Side Entry| D["Plenum\n(8in dia x 6in tall round stovepipe, DR-012)"]
     D --> E["Deflector Ramp\n(45° SS baffle)"]
     E --> E2["Second Baffle\n(perforated, if needed)\n(T2)"]
     E2 --> F["Distributor Plate\n(bolted clamping ring)"]

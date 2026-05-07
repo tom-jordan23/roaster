@@ -5,7 +5,7 @@ A purpose-built small electric fluid-bed coffee roaster designed for 1/4 lb (113
 ## What This Is
 
 A ground-up roaster design with:
-- Stainless steel roast chamber with a box plenum and side-entry heated air
+- Stainless steel roast chamber with a round stovepipe plenum and side-entry heated air (DR-012)
 - Distributor plate and internal baffles for uniform fluidization
 - Three K-type thermocouples (process air, bean bed, exhaust)
 - ESP32-based control with zero-cross SSR heater switching
@@ -19,11 +19,16 @@ using thrift store finds, salvaged parts, and Amazon generics wherever possible.
 
 ## Project Status
 
-**Phase 0 — Foundation.** Repository structure, system architecture, power/airflow
-budgets, and firmware scaffold are in place. Next step: Harbor Freight run for the
-Warrior heat gun (DR-002, heater element donor), salvage hunt for a bypass-cooled
-vacuum motor (DR-011, blower), and stainless containers for the plenum, then
-electronics ordering and mechanical integration design.
+**Phase 1 — Subsystem build (parts in hand).** Repository structure, system
+architecture, power/airflow budgets, firmware scaffold, and full-design-review
+disposition (DR-010) all complete. As of 2026-05-07, all major parts are in
+hand: Warrior heat gun (HTR-001) torn down with element measured 1.5"×6";
+salvaged bypass-cooled vacuum motor (BLW-001) measured 6"×6" cylindrical;
+DR-011 control kit (TRIAC dimmer, ZMCT103C CT, line filter, ferrites);
+8" stovepipe plenum body + caps (DR-012); 12"×24" steel sheet cut to
+12"×18" deck with the remainder feeding the angle-iron frame extensions
+(DR-013 tripod legs). Next: heater-can fabrication, plenum cure-burn,
+frame extension build, electronics tray assembly, then TP-001 commissioning.
 
 ## Repository Structure
 
@@ -118,7 +123,7 @@ This is a v1 learning platform built to be cheap and iterable. Major cost saving
 - **Blower** — bypass-cooled vacuum motor salvaged from a junk shop vac
   ($0-10, DR-011); TRIAC dimmer + ZMCT103C current sensor for control
 - **Chamber** — standard SS exhaust pipe from auto parts store ($8-12 each)
-- **Plenum** — adapted from a stainless steam table pan or steel container ($3-10)
+- **Plenum** — 8" round black stovepipe + pipe caps ($0 from scrap; ~$6 retail) (DR-012)
 - **Electronics** — Amazon generic ESP32, MAX31855, SSR, TCs ($35-50 total)
 - **5V supply** — old phone charger from junk drawer ($0)
 

@@ -75,9 +75,12 @@ Source parts in this order because downstream geometry depends on upstream finds
    E5), connectors, fasteners (including fender washers and backing strips per
    M3), all-stainless hose clamps (M11).
 
-7. **Baseplate materials** (hardware store or salvage) — M1: 20"×12" plywood or
-   sheet metal. L-brackets for lateral bracing. Ballast weight (steel plate,
-   bricks, or sand bag).
+7. **Baseplate materials** (BASE-001 — sourced/cut). 12"×18" steel deck cut
+   from 12"×24" sheet stock 2026-05-07. Remaining stock + offcuts feed the
+   1"-class angle-iron frame (perimeter + rear motor extension + front
+   electronics-tray extension) per baseplate-layout.md §1. Tripod tip
+   resistance via DR-013 threaded-rod legs (LEGS-001) supersedes the original
+   L-bracket / ballast plan.
 
 ## Sourced Amazon Parts (validated 2026-04-28; DR-011 additions validated 2026-04-29)
 
