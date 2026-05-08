@@ -28,3 +28,5 @@ test/results/*.log
 # Uncomment below if you want to track photos in git:
 # !build/photos/*.jpg
 # !build/photos/*.png
+.venv-diagrams/
+__pycache__/
