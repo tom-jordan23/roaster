@@ -223,19 +223,22 @@ Blower-side CFM needed (at ambient, corrected for hot-air density T5):
 
 | Parameter | Target | Notes |
 |-----------|--------|-------|
-| Static pressure | **1.5–2.5" WC** at operating CFM | System minimum; salvaged vacuum motor has 20–80× headroom |
+| Static pressure | **1.5–2.5" WC** at operating CFM | System minimum; vacuum motor has 20–80× headroom |
 | Flow rate | **8–18 CFM** at operating pressure | T5: revised to cover 2.0× Umf for both chambers |
 | Control | TRIAC phase/burst control from ESP32 | Universal AC motor — see §3.1 |
 | Noise | Loud (vacuum-motor class) — accepted for v1 | Mitigation deferred (foam-lined enclosure post-TP-001) |
 
 ### Blower Selection (DR-011 — supersedes DR-003)
 
-**Selected:** Salvaged universal-AC **bypass-cooled** vacuum motor (shop-vac
-"bypass" / "two-stage" type), $0–10 from a curb find, Habitat ReStore, or
-junk-drawer shop vac. Speed-controlled via a TRIAC dimmer module (RobotDyn-class
-AC light dimmer / 8A / built-in zero-cross detector) driven by ESP32 PWM and
-zero-cross interrupt. Airflow interlock via a ZMCT103C split-core current
-transformer clamped on one motor lead, sensed by ESP32 ADC.
+**Selected:** Aftermarket Lamb 116336-01-pattern universal-AC **bypass-cooled**
+two-stage vacuum motor (Amazon B0F89ZQ23G, ~$60–90; in hand 2026-05-09).
+Architecture confirmed via the Ametek Lamb Product Bulletin 116336-01 (March
+1998) the part replicates and visual verification of the unit; vent map is
+in `bom/bom-master.csv` BLW-001 notes and `build/photos/blower-motor/`.
+Speed-controlled via a TRIAC dimmer module (RobotDyn-class AC light dimmer /
+8A / built-in zero-cross detector) driven by ESP32 PWM and zero-cross
+interrupt. Airflow interlock via a ZMCT103C split-core current transformer
+clamped on one motor lead, sensed by ESP32 ADC.
 
 **Selection criteria:** Must comfortably exceed system worst-case backpressure
 (~2.1" WC) at 18 CFM with margin for chaff-mesh loading (T8) and bed-depth
@@ -250,8 +253,9 @@ below the system minimum, with no margin for distributor-plate / chaff-mesh
 loading or bed-depth variation in the 2.5" chamber. T1 was a real blocker, not
 a paper one. A 24V high-pressure blower (Delta BFB1024-class, $25–50) would
 have worked but conflicted with the cost-conscious sourcing constraint
-(DR-001). Salvaged vacuum motors are abundant, free-to-cheap, and TRIAC speed
-control of universal motors is a well-trodden DIY pattern.
+(DR-001). Aftermarket Lamb-pattern vacuum motors are widely available as
+drop-in replacements for OEM central-vac and floor-scrubber positions, and
+TRIAC speed control of universal motors is a well-trodden DIY pattern.
 
 **Bypass-cooled is non-negotiable for a coffee application.** Flow-through
 motors cool the brushes with the working airstream and shed brush carbon into
@@ -264,7 +268,7 @@ confirming the cooling path is separate from the suction path.
 The original T1 risk ("12V DC blower P-Q curve unverified, may not reach
 operating point") is closed by the architecture change. Verification work
 shifts in nature: instead of *gating* the design on whether the existing blower
-reaches spec, we now characterize the salvaged motor at TP-001 to set the
+reaches spec, we now characterize the motor at TP-001 to set the
 **operating duty-cycle range** (e.g., 30%–60% TRIAC conduction angle for
 target CFM). The motor will exceed system requirements at 100% — the question
 is where to operate it, not whether it can reach spec.
@@ -349,7 +353,7 @@ consistent with these values.
 | Airflow velocity at plate (hot) | 1.6–2.5 m/s | T5: 1.8-2.5× Umf, verify by test |
 | Chamber ID (primary) | 2.5" OD / ~60mm ID | Better thermal performance |
 | Chamber ID (backup) | 3.0" OD / ~73mm ID | Easier fluidization |
-| Blower static pressure | 1.5–2.5" WC system minimum | T1 RESOLVED via DR-011 — salvaged vacuum motor has 20–80× headroom |
+| Blower static pressure | 1.5–2.5" WC system minimum | T1 RESOLVED via DR-011 — vacuum motor has 20–80× headroom |
 | Process air temp (TC1) | 140–220°C achievable | Limited by heater power vs airflow |
 | TC sample rate | ≥2 Hz | Artisan compatibility |
 
@@ -498,9 +502,10 @@ deferred.
    Nichrome on mica former. Measure element after teardown.
 3. ~~**Blower sourcing:** DC brushless vs AC centrifugal — availability and cost at
    the required operating point? Must cover 6-15 CFM range with speed control.~~
-   **RESOLVED (DR-003, then superseded by DR-011 2026-04-29):** Salvaged
-   bypass-cooled universal-AC vacuum motor; speed control via TRIAC dimmer
-   module + ESP32 zero-cross interrupt; airflow interlock via ZMCT103C CT.
+   **RESOLVED (DR-003, then superseded by DR-011 2026-04-29):** Aftermarket
+   Lamb 116336-01-pattern bypass-cooled universal-AC vacuum motor; speed
+   control via TRIAC dimmer module + ESP32 zero-cross interrupt; airflow
+   interlock via ZMCT103C CT.
    See §3 / DR-011 for rationale on the supersede.
 4. **Insulation strategy:** How much can we recover by insulating the heater can
    and plenum? Worth calculating before finalizing heater spec.

@@ -74,7 +74,7 @@ graph TD
     L_BUS["L Bus"] --> FILT_L["FILT-001\nAC Line Filter\n(X + Y caps)"]
     FILT_L --> CT["CT-001\nZMCT103C\nSplit-Core CT\n(clamped on L lead)"]
     CT --> TRIAC_L["BLW-CTRL-001\nTRIAC Dimmer Module\nRobotDyn-style 8A\nw/ Zero-Cross Detect"]
-    TRIAC_L --> BLWR_L["BLW-001\nSalvaged Universal-AC\nBypass-Cooled Vacuum Motor\n(L)"]
+    TRIAC_L --> BLWR_L["BLW-001\nUniversal-AC\nBypass-Cooled Vacuum Motor\n(L)"]
     BLWR_L --> N_BUS["N Bus"]
 
     BOND["Motor Frame\n→ Mains Earth\n(BOND-001)"] -.-|"Safety bond"| BLWR_L
@@ -95,7 +95,7 @@ graph TD
 
 ### Blower Circuit Notes
 
-- **BLW-001 (salvaged bypass-cooled vacuum motor):** Universal AC motor, ~1–4 A
+- **BLW-001 (aftermarket Lamb 116336-01-pattern bypass-cooled vacuum motor):** Universal AC motor, ~1–4 A
   draw at 120 V depending on size. Bypass-cooled (two-stage) is required —
   flow-through motors shed brush carbon into the bean airstream. Frame is bonded
   to mains earth via BOND-001 (universal motors have nontrivial leakage current).

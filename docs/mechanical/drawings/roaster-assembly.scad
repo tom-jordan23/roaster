@@ -106,7 +106,7 @@ heater_z         = side_entry_z;
 
 blower_dia       = 152;     // 6" body
 blower_height    = 152;     // 6" tall
-blower_outlet_dia = 50;     // ~2" radial outlet
+blower_outlet_dia = 38;     // 1.5" / 38.10mm radial pipe outlet via BLW-HOUS-001 fan shell
 blower_y         = -75;     // CL ~75 mm rear of deck rear edge (on rear extension)
 blower_x         = deck_cx;
 blower_bot_z     = 0;       // sits on rear extension (same Z as deck top)

@@ -151,9 +151,12 @@ store only — no Amazon listing.
 
 ### Thrift / Salvage
 - Goodwill, Salvation Army, Habitat ReStore — popcorn poppers (A4), SS containers,
-  stainless cookware, dead/cheap shop vacs (BLW-001 — bypass-cooled motor donor)
+  stainless cookware. Dead/cheap shop vacs were the original BLW-001 sourcing path
+  (DR-011), but BLW-001 was ultimately purchased as an aftermarket Lamb 116336-01-pattern
+  motor on Amazon (B0F89ZQ23G).
 - Junk drawer — USB phone chargers (5V PSU), USB cables, small electronics components
 - Curb / free pickup — shop vacs are common discards; verify bypass-cooled motor type
+  if pursuing for any future motor sourcing
 
 ### Online (cheap)
 - Amazon — generic ESP32, MAX31855 breakouts, SSR, K-type TCs, compression fittings,
@@ -197,11 +200,11 @@ substitute with lower-rated parts to save money.
 ### Vacuum motor characterization (DR-011 — supersedes T1)
 
 T1 changed from "verify the blower meets spec" to "find the operating duty-cycle
-range for a motor that exceeds spec." The salvaged vacuum motor will have far
-more pressure than the system needs at 100% conduction; the question is where
-to operate the TRIAC.
+range for a motor that exceeds spec." The aftermarket Lamb-pattern vacuum
+motor will have far more pressure than the system needs at 100% conduction;
+the question is where to operate the TRIAC.
 
-What to measure once the salvaged motor is in hand:
+What to measure now that the motor is in hand:
 
 - **Bypass-cooling confirmation (BEFORE bench testing).** Identify the cooling
   airpath and the working airpath. Run the motor briefly with a paper towel

@@ -4,7 +4,7 @@ Power path:
     L bus -> FILT-001 (X+Y line filter)
           -> CT-001 (ZMCT103C clamped on L lead, primary mains-isolated)
           -> BLW-CTRL-001 (RobotDyn-style TRIAC dimmer with on-board ZC detect)
-          -> BLW-001 (salvaged universal-AC bypass-cooled vacuum motor)
+          -> BLW-001 (aftermarket Lamb 116336-01-pattern bypass-cooled vacuum motor)
           -> N bus
     BOND-001 bonds the motor frame to chassis earth (universal motor leakage).
 

@@ -7,7 +7,7 @@ where the electronics tray goes, and how mains and signal wiring are routed.
 
 This doc is **manual-first text + diagrams**. The OpenSCAD model
 (`roaster-assembly.scad`) does not yet reflect this layout; SCAD changes are
-gated on the salvaged vacuum motor being in hand (DR-011, design-log
+gated on the vacuum motor being in hand (DR-011, design-log
 2026-04-29). Once the motor is measured, both the SCAD model and this doc
 should be updated together.
 
@@ -33,7 +33,7 @@ values.
 | Legs | 3× threaded rod tripod, extending above and below baseplate | DR-013 tip-resistance strategy: rods continue up past the baseplate to a clamp around the cone reducer or upper chamber. Tripod gives lateral stability without the complications of running the chamber tube down into the plenum (TC-002 mount, chamber swap). Below the baseplate, same rods are the feet — adjustable for leveling |
 | Plenum footprint | 203 mm dia × 152 mm tall (8" × 6") | DR-012 — round black stovepipe, both ends capped; vertical axis |
 | `heater_can_length` | 178 mm (7") | **Measured 2026-05-07** — 1.5" × 6" Warrior element pack + ~0.5" each end for inlet/outlet fittings; 2.5" OD SS exhaust pipe (HTR-CAN-001) |
-| `blower_dia` × `blower_height` | 152 × 152 mm (6" × 6"), vertical-axis cylinder | **Measured 2026-05-07** — salvaged bypass-cooled vacuum motor (BLW-001) in hand; outlet exits radially at heater-can centerline elevation |
+| `blower_dia` × `blower_height` | 152 × 152 mm (6" × 6"), vertical-axis cylinder | **Measured 2026-05-07** — aftermarket Lamb 116336-01-pattern bypass-cooled vacuum motor (BLW-001) in hand; outlet exits radially at heater-can centerline elevation |
 
 ### Air-train pack length and frame extensions
 
@@ -141,7 +141,7 @@ plenum.
 
 | Aspect | Spec |
 |--------|------|
-| Component | BLW-001 (salvaged bypass-cooled vacuum motor) — **in hand 2026-05-07** |
+| Component | BLW-001 (aftermarket Lamb 116336-01-pattern bypass-cooled vacuum motor) — **in hand 2026-05-07** |
 | Body geometry | Cylindrical, **6" dia × 6" tall** (152 × 152 mm); shaft vertical |
 | Mounting position | Centered on the rear angle-iron extension, ~75 mm rear of the deck rear edge; body centerline aligned with the air-train Y axis |
 | Mounting hardware | Bolted to a sheet-metal saddle or strap, sitting on the angle-iron extension. Tripod rear legs straddle the motor on either side |

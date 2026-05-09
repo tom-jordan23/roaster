@@ -32,7 +32,7 @@ rather than specifying an exact element and ordering it.
 | Component | Cheap source | Est. cost |
 |-----------|-------------|-----------|
 | Heater element | Harbor Freight Warrior heat gun (DR-002) | $10 |
-| Blower motor | Salvaged bypass-cooled vacuum motor (DR-011) | $0-10 |
+| Blower motor | Aftermarket Lamb 116336-01-pattern bypass-cooled vacuum motor, Amazon (DR-011) | $60-90 |
 | Blower control kit | TRIAC dimmer + ZMCT103C CT + line filter + ferrites (DR-011) | $15-25 |
 | Chamber tube | Auto exhaust pipe (2.5"/3.0") or thrift store SS thermos | $5-15 |
 | Plenum body | SS steam table pan, steel junction box, or paint can | $3-10 |
@@ -66,8 +66,8 @@ These items are either safety-critical or affect measurement quality. Buy proper
 1. **Heater can geometry** will be designed around whatever element we harvest,
    not the other way around. Get the hair dryer first, measure the element,
    then design the can.
-2. **Blower characterization** happens on the bench with the actual salvaged or
-   purchased unit before committing to airflow numbers. The architecture doc's
+2. **Blower characterization** happens on the bench with the actual purchased
+   unit before committing to airflow numbers. The architecture doc's
    CFM estimates are targets, but real numbers come from the real part.
 3. **Chamber dimensions** are set by available tube stock (2.5" and 3.0" OD
    standard sizes), which is already aligned with cheap sourcing.

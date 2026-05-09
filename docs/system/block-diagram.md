@@ -75,7 +75,7 @@ flowchart TD
         BUS --> FILT["AC Line Filter\n(FILT-001)"]
         FILT --> CT["Current Transformer\n(ZMCT103C — CT-001)"]
         CT --> TRIAC["TRIAC Dimmer\n(BLW-CTRL-001)"]
-        TRIAC --> BLWR["Salvaged Bypass-Cooled\nUniversal-AC Vacuum Motor\n(BLW-001)"]
+        TRIAC --> BLWR["Bypass-Cooled\nUniversal-AC Vacuum Motor\n(BLW-001)"]
     end
 
     subgraph DOMAIN3["Domain 3: 3.3V DC — Controls"]
@@ -104,7 +104,7 @@ flowchart TD
   Total can exceed the 15A budget if both heater and blower run at full duty — verify
   combined draw at TP-001 and limit blower-during-heat duty if needed.
 - SSR is controlled by ESP32 via zero-cross switching for burst-fire duty control
-- **Blower (DR-011):** Salvaged universal-AC bypass-cooled vacuum motor, phase-angle
+- **Blower (DR-011):** Aftermarket Lamb 116336-01-pattern universal-AC bypass-cooled vacuum motor, phase-angle
   speed control via a TRIAC dimmer module. ESP32 fires the gate per zero-cross
   interrupt. Airflow interlock via ZMCT103C current transformer on a motor lead.
 - **Bypass-cooled motor required** — flow-through motors put brush carbon dust into

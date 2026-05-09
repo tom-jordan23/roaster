@@ -87,7 +87,7 @@ def build() -> schemdraw.Drawing:
     blw_n = term(d, (blw_x0, Y_AC_N), "N", "left")
     blw_pe = term(d, ((blw_x0 + blw_x1) / 2, blw_y0), "frame", "bottom")
     d.add(elm.Label().at(((blw_x0 + blw_x1) / 2, blw_y0 + 1.0)).label(
-        "salvaged universal AC,\nbypass-cooled,\n~1-4 A draw", fontsize=7))
+        "universal AC,\nbypass-cooled,\n~1-4 A draw", fontsize=7))
 
     # ---- L rail wires ----
     wire(d, (3, Y_AC_L), filt_l_in, C_L, "BLK 14 AWG")
