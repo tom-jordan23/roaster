@@ -145,7 +145,7 @@ plenum.
 | Body geometry | Cylindrical, **6" dia × 6" tall** (152 × 152 mm); shaft vertical |
 | Mounting position | Centered on the rear angle-iron extension, ~75 mm rear of the deck rear edge; body centerline aligned with the air-train Y axis |
 | Mounting hardware | Bolted to a sheet-metal saddle or strap, sitting on the angle-iron extension. Tripod rear legs straddle the motor on either side |
-| Outlet routing | Radial outlet at heater-can centerline elevation; short flex elbow + hose clamp forward across the deck rear edge to the heater can |
+| Outlet routing | BLW-HOUS-001 fan shell on top of motor; outlet is **axial** (vertical, parallel to motor shaft, off-center on the dome face). BLW-ELBOW-001 1.5in silicone 90° elbow turns the discharge horizontal-forward, then BLW-COUP-001 1.5→2.5in silicone reducer carries it across the deck rear edge to the heater can inlet at heater-can centerline elevation. (Axial-outlet shape was confirmed via product-photo inspection 2026-05-09 — DR-015) |
 | Cooling exhaust | Directed away from operator and Zone D (down through a clearance gap in the rear extension, or sideways out −X) |
 | Vibration isolation | Rubber feet or grommeted bolts at the saddle/extension interface; the universal motor will vibrate |
 | Frame bonding | BOND-001 — ring terminal under a frame screw to the chassis-ground bus |

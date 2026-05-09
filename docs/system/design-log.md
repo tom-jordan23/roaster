@@ -4,6 +4,76 @@ Running record of design decisions, findings, and rationale. Newest entries firs
 
 ---
 
+## 2026-05-09 — DR-015 BLW-HOUS-001 outlet is axial, not radial — add elbow
+
+### Decision
+
+The Ametek-Lamb 45899-14 fan shell (BLW-HOUS-001) has an **axial** 1.5" pipe
+outlet — it exits the dome face of the shell parallel to the motor shaft,
+off-center, not radially out the perimeter as the original DR-014 BOM line
+described. With BLW-001 mounted shaft-vertical (per baseplate-layout.md §3.1),
+the housing outlet therefore points straight up.
+
+**Resolution:** add a 1.5" silicone 90° elbow (new BOM line BLW-ELBOW-001)
+between the housing outlet and BLW-COUP-001, redirecting the discharge
+horizontal-forward to the heater can. Keep the motor shaft-vertical.
+
+Also: confirmed the housing-to-motor seal needs its own gasket separate from
+the motor-included Gasket 566 (added BLW-HOUS-GSK-001), and re-sourced
+BLW-HOUS-001 from The Vacuum Factory ($34.95) instead of Amazon ($47–50) —
+same OEM PN, ~$12 savings.
+
+### How we got here
+
+DR-014 (2026-05-09) selected 45899-14 to replace a fabricated stovepipe
+collector. The BOM line described its outlet as "exits radially at the
+discharge band" — that was an assumption not backed by primary-source
+inspection. When sweeping the docs after the BLW-001 architecture
+confirmation today, two research agents disagreed about the outlet
+orientation while looking at the same listings. Pulling the Ace Vacuums
+product photo directly settled it: pipe is on the dome face, parallel to the
+motor axis, off-center. Photo also makes clear the shell ships without a
+gasket ("mounting bolts and gasket must be purchased separately"), and the
+motor's Gasket 566 is for the motor-to-bulkhead OEM-application seal, not
+the shell-to-disc seal.
+
+### Why elbow > rotate motor
+
+Considered rotating BLW-001 to shaft-horizontal so the axial outlet would
+point forward natively. Rejected because shaft-vertical keeps the
+cooling-air **intake** (top star grille on the upper cylinder) facing
+upward, away from the air train and clear of any chaff path. Shaft-horizontal
+would aim that intake sideways — fine in principle but adds a constraint that
+the cooling intake must not face anything restrictive or that recycles
+discharge air. The elbow costs ~$8 and one minor turn-loss; preserves the
+existing baseplate-layout almost unchanged.
+
+### Open verification gates (unchanged from BLW-001 work)
+
+- Caliper-measure the bolt circle on the actual aftermarket motor before
+  ordering the housing — must be 4× ø0.150" on ø4.625" BC per the OEM
+  datasheet the aftermarket part claims to replicate.
+- Confirm the aftermarket motor's outer body diameter at the disc rim
+  (~5.78–5.85" / 146–148 mm) seats inside the 45899-14 mouth.
+
+### BOM impact
+
+| Action | Item |
+|--------|------|
+| Modified | BLW-HOUS-001 — outlet description (axial), source (Vac Factory primary, Amazon backup), notes |
+| Added | BLW-HOUS-GSK-001 — separate fan-shell-to-motor gasket, ~$5–8 |
+| Added | BLW-ELBOW-001 — 1.5" silicone 90° elbow, ~$6–10 |
+| Modified | BLW-COUP-001 — notes updated to reflect upstream elbow |
+
+### Files touched
+
+- `bom/bom-master.csv` (BLW-HOUS-001 row + 2 new rows + BLW-COUP-001 row)
+- `docs/mechanical/baseplate-layout.md` §3.1 outlet routing row
+- `docs/mechanical/drawings/roaster-assembly.scad` blower module geometry +
+  comment
+
+---
+
 ## 2026-05-05 — DR-013 tangential-entry plenum variant for A/B test
 
 ### Decision

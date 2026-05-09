@@ -106,7 +106,9 @@ heater_z         = side_entry_z;
 
 blower_dia       = 152;     // 6" body
 blower_height    = 152;     // 6" tall
-blower_outlet_dia = 38;     // 1.5" / 38.10mm radial pipe outlet via BLW-HOUS-001 fan shell
+blower_outlet_dia = 38;     // 1.5" / 38.10mm pipe — BLW-HOUS-001 fan shell outlet is AXIAL
+                            // (off-center on dome face, parallel to motor shaft); BLW-ELBOW-001
+                            // 90° silicone elbow redirects horizontal-forward to BLW-COUP-001
 blower_y         = -75;     // CL ~75 mm rear of deck rear edge (on rear extension)
 blower_x         = deck_cx;
 blower_bot_z     = 0;       // sits on rear extension (same Z as deck top)
@@ -356,9 +358,18 @@ module blower() {
     translate([blower_x, blower_y, blower_bot_z])
         cylinder(h = blower_height, d = blower_dia, $fn = 60);
 
-    // Radial outlet — short stub pointing forward (+Y) at heater-can elevation
+    // Axial outlet stub from BLW-HOUS-001 fan shell — exits vertically off-center
+    // on top of the motor (offset ~30mm forward of shaft axis).
+    blower_pipe_offset = 30;     // axial-outlet pipe is off-center on the dome
+    blower_pipe_h      = 25;     // vertical pipe length out of housing dome
     color("CornflowerBlue", 0.85)
-    translate([blower_x, blower_y, blower_outlet_z])
+    translate([blower_x, blower_y + blower_pipe_offset, blower_top_z])
+        cylinder(h = blower_pipe_h, d = blower_outlet_dia, $fn = 32);
+
+    // BLW-ELBOW-001 turn — represented as a horizontal stub forward (+Y) from
+    // the top of the vertical pipe, at heater-can centerline elevation.
+    color("CornflowerBlue", 0.85)
+    translate([blower_x, blower_y + blower_pipe_offset, blower_top_z + blower_pipe_h])
     rotate([-90, 0, 0])
         cylinder(h = blower_dia/2 + 30, d = blower_outlet_dia, $fn = 32);
 }
