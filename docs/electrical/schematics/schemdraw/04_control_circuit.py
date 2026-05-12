@@ -8,11 +8,14 @@ Layout (left -> right, top -> bottom):
     GPIO 16 CS2   ----+--------------------- CS             :
     GPIO 17 CS3   ----+--------------------------------- CS
 
-    GPIO 22 -> SSR (D1)        (cross-domain stubs to the right)
+    GPIO 22 -> SW-002 (Heater Enable) -> SSR (D1)   (DR-016 D1)
     GPIO 23 -> TRIAC PWM (D2)
     GPIO  4 <- TRIAC ZC  (D2)
     GPIO 34 <- CT ADC    (D2)
-    USB     <-> Host PC
+    GPIO 25 -> LED-001 POWER  (panel)                (DR-016 D2)
+    GPIO 26 -> LED-002 FAULT  (panel)                (DR-016 D2)
+    GPIO 35 <- SW-002 state read  (digital input)    (DR-016 D1)
+    USB     <-> Pi 5 host (Zone E, DR-017) + Artisan
 
 Each MAX31855 -> K-type TC, SS sheath (drawn out the top).
 """
@@ -30,7 +33,7 @@ def build() -> schemdraw.Drawing:
     # ESP32 (left)
     # ===================================================================
     X_ESP, Y_ESP = 0, 0
-    ESP_W, ESP_H = 5.0, 14.0
+    ESP_W, ESP_H = 5.0, 17.5    # taller to fit DR-016 GPIOs (LED-001, LED-002, SW-002)
     box(d, X_ESP, Y_ESP, X_ESP + ESP_W, Y_ESP + ESP_H)
     d += elm.Label().at((X_ESP + ESP_W / 2, Y_ESP + ESP_H - 0.7)).label(
         "ESP32-DevKitC\n(ESP-001)", fontsize=11)
@@ -43,20 +46,29 @@ def build() -> schemdraw.Drawing:
         return (x_out, y)
 
     # Top group: SPI shared bus (SCK, MISO)
-    p_clk = esp_pin("GPIO 18  SCK", Y_ESP + 12)
-    p_miso = esp_pin("GPIO 19  MISO", Y_ESP + 11)
+    p_clk = esp_pin("GPIO 18  SCK", Y_ESP + 15.5)
+    p_miso = esp_pin("GPIO 19  MISO", Y_ESP + 14.5)
 
     # Below SPI bus: CS lines (one per chip)
-    p_cs1 = esp_pin("GPIO  5  CS1  TC1", Y_ESP + 9.5)
-    p_cs2 = esp_pin("GPIO 16  CS2  TC2", Y_ESP + 8.5)
-    p_cs3 = esp_pin("GPIO 17  CS3  TC3", Y_ESP + 7.5)
+    p_cs1 = esp_pin("GPIO  5  CS1  TC1", Y_ESP + 13)
+    p_cs2 = esp_pin("GPIO 16  CS2  TC2", Y_ESP + 12)
+    p_cs3 = esp_pin("GPIO 17  CS3  TC3", Y_ESP + 11)
 
-    # Bottom group: cross-domain stubs
-    p_ssr = esp_pin("GPIO 22  -> SSR (D1)", Y_ESP + 5)
-    p_pwm = esp_pin("GPIO 23  -> TRIAC PWM (D2)", Y_ESP + 4)
-    p_zc = esp_pin("GPIO  4  <- TRIAC ZC (D2)", Y_ESP + 3)
-    p_adc = esp_pin("GPIO 34  <- CT ADC (D2)", Y_ESP + 2)
-    p_usb = esp_pin("USB  <->  Host PC", Y_ESP + 0.7)
+    # Heater authority group (DR-016)
+    p_ssr = esp_pin("GPIO 22  -> SW-002 -> SSR (D1)", Y_ESP + 8.5)
+    p_henr = esp_pin("GPIO 35  <- SW-002 state read", Y_ESP + 7.5)
+
+    # Blower group (Domain 2)
+    p_pwm = esp_pin("GPIO 23  -> TRIAC PWM (D2)", Y_ESP + 6)
+    p_zc = esp_pin("GPIO  4  <- TRIAC ZC (D2)", Y_ESP + 5)
+    p_adc = esp_pin("GPIO 34  <- CT ADC (D2)", Y_ESP + 4)
+
+    # Panel indicator LEDs (DR-016 D2)
+    p_pwr = esp_pin("GPIO 25  -> LED-001 POWER (panel)", Y_ESP + 2.5)
+    p_flt = esp_pin("GPIO 26  -> LED-002 FAULT (panel)", Y_ESP + 1.5)
+
+    # Host link (DR-017)
+    p_usb = esp_pin("USB  <->  Pi 5 host (Zone E)", Y_ESP + 0.4)
 
     # ===================================================================
     # SPI bus rails (horizontal) and three MAX31855 boxes (above the rails)
@@ -136,14 +148,34 @@ def build() -> schemdraw.Drawing:
         d.add(elm.Dot(open=True).at((x0 + 1.6, y0)))
         d.add(elm.Label().at((x0 + 1.8, y0)).label(label, "right", fontsize=8))
 
-    stub(p_ssr, "to SSR-001 DC IN -  (Domain 1)", WIRE_3V3)
+    # Heater drive: ESP GPIO 22 passes through SW-002 (Heater Enable panel
+    # toggle) before reaching the Q2 SSR-driver buffer. Show the switch
+    # inline on the stub line.
+    sw_x0 = p_ssr[0] + 0.4
+    sw_x1 = sw_x0 + 1.2
+    d.add(elm.Line().at(p_ssr).to((sw_x0, p_ssr[1])).color(WIRE_3V3))
+    # Simple SPST switch glyph: short open break with a tilted lever
+    d.add(elm.Dot().at((sw_x0, p_ssr[1])))
+    d.add(elm.Line().at((sw_x0, p_ssr[1])).to((sw_x1 - 0.15, p_ssr[1] + 0.45)))
+    d.add(elm.Dot().at((sw_x1, p_ssr[1])))
+    d.add(elm.Label().at(((sw_x0 + sw_x1) / 2, p_ssr[1] - 0.35)).label(
+        "SW-002\nHeater EN", "bottom", fontsize=7))
+    d.add(elm.Line().at((sw_x1, p_ssr[1])).to((sw_x1 + 0.4, p_ssr[1])).color(WIRE_3V3))
+    d.add(elm.Dot(open=True).at((sw_x1 + 0.4, p_ssr[1])))
+    d.add(elm.Label().at((sw_x1 + 0.6, p_ssr[1])).label(
+        "to Q2 base -> SSR-001 DC IN -  (Domain 1)", "right", fontsize=8))
+
+    stub(p_henr, "panel: SW-002 state pull-up pin (PROT input only)", WIRE_3V3)
     stub(p_pwm, "to BLW-CTRL-001 PWM in  (Domain 2)", WIRE_3V3)
     stub(p_zc, "from BLW-CTRL-001 ZC out  (Domain 2)", WIRE_3V3)
     stub(p_adc, "from CT-001 burden / bias  (Domain 2 airflow interlock)", WIRE_3V3)
-    stub(p_usb, "Host PC (Artisan)  115200 baud serial", WIRE_5V)
+    stub(p_pwr, "panel: LED-001 POWER (green)  via 330R series", WIRE_3V3)
+    stub(p_flt, "panel: LED-002 FAULT (red)    via 330R series", WIRE_3V3)
+    stub(p_usb, "Pi 5 host (Zone E, Artisan)  USB-A  115200 baud serial", WIRE_5V)
 
     d += elm.Label().at((p_usb[0] + 1.8, p_usb[1] - 0.8)).label(
-        "USB also feeds +5 V to the SSR drive (Domain 1)",
+        "USB also feeds +5 V to the SSR drive (Domain 1); Pi 5 has WiFi for the\n"
+        "iPad WebLCDs bridge (DR-017) — no extra wiring on this diagram.",
         "right", fontsize=7, color="#666666")
 
     # Title
@@ -151,6 +183,8 @@ def build() -> schemdraw.Drawing:
           .at(((X_ESP + X_BUS_END + 4) / 2, Y_ESP - 2.5))
           .label("Domain 3 - 3.3 V DC Control Circuit\n"
                  "ESP32 with shared SPI bus to 3x MAX31855 (CS lines individual).\n"
+                 "DR-016: SW-002 Heater Enable inline in SSR drive + state read on GPIO 35; LED-001/002 on GPIO 25/26.\n"
+                 "DR-017: Pi 5 host on Zone E via USB serial; same Pi serves Artisan WebLCDs to iPad over WiFi.\n"
                  "All signal wiring 22-26 AWG, routed away from mains. SPI cables shielded; FERR-001 ferrites at each end.",
                  fontsize=9))
 

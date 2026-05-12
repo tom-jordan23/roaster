@@ -19,6 +19,16 @@ if [[ ! -x "$PY" ]]; then
     "$VENV/bin/pip" install --quiet -r "$SCRIPT_DIR/requirements.txt"
 fi
 
+# cairosvg looks for libcairo.2.dylib via ctypes; on macOS Homebrew installs
+# it under $(brew --prefix)/lib, which isn't on the default dyld search path.
+# Export it so the SVG -> PNG step finds it.
+if command -v brew >/dev/null 2>&1; then
+    BREW_LIB="$(brew --prefix 2>/dev/null)/lib"
+    if [[ -d "$BREW_LIB" ]]; then
+        export DYLD_FALLBACK_LIBRARY_PATH="$BREW_LIB${DYLD_FALLBACK_LIBRARY_PATH:+:$DYLD_FALLBACK_LIBRARY_PATH}"
+    fi
+fi
+
 cd "$SCRIPT_DIR"
 mkdir -p out
 

@@ -94,13 +94,22 @@ tray which targets <40°C internal).
 
 ## 2. Layout Zones
 
-The full assembly footprint is divided into four functional zones along the
-long (Y) axis, front (operator) to rear. Zones B and C live on the 12" × 18"
-steel deck; Zones A and D live on angle-iron frame extensions outboard of
-the deck:
+The full assembly footprint is divided into five functional zones. Zones A–D
+lie along the long (Y) axis on the baseplate plane; Zone E rises vertically
+above the front extension. Zones B and C live on the 12" × 18" steel deck;
+Zones A and D live on angle-iron frame extensions outboard of the deck;
+Zone E is a vertical riser carrying the Pi 5 host + 7" display (DR-017):
 
 ```
        +Y (operator / front edge)
+                ┌───────────────────────────────┐
+                │   ZONE E — HOST UI (riser)    │ ← vertical, tilted back ~20°
+                │   Pi 5 + 5×7" HDMI touch      │   facing operator
+                │   mounted to a stalk          │
+                └──────────┬────────────────────┘
+                           │ riser attaches to front edge of
+                           │ front extension; USB-A cable
+                           ▼ drops back into Zone D
        ┌─ FRONT EXTENSION (~5" × 12" angle-iron tray support) ─┐
        │  ZONE D — ELECTRONICS TRAY        ~5" × 12"           │
        │                                                       │
@@ -125,6 +134,7 @@ the deck:
 | B    | Deck (Y = 25–203 mm) | Heater can, SSR + heatsink, snubber, airstream thermal fuse, TC1 | **Hot** (can surface >200°C even insulated) | Quiet |
 | C    | Deck (Y = 228–431 mm) | Plenum, chimney, distributor plate, baffle, TC2, exhaust + chaff collector + TC3 | Hot (plenum 150–200°C, chimney 100–200°C) | Quiet |
 | D    | Front extension (off deck) | ESP32, MAX31855 ×3, 5V PSU, SSR drive buffer, CT bias network, USB out | **Cool** (target <40°C) | **Quiet** (target) |
+| E    | Riser above front extension | Pi 5 host + 5×7" HDMI touch display, USB tether down to Zone D | **Cool** (target <40°C, Pi 5 rated 0–50°C ambient) | Quiet |
 
 The heat barrier is a vertical sheet-metal shield bolted to the deck front
 edge between Zones C and D, with grommeted pass-throughs for the SSR DC
@@ -264,7 +274,90 @@ From rear (heat-barrier side) to front (operator side):
 
 ---
 
-## 5. Wire Routing — Three Lanes
+## 5. Host UI Mount (Zone E)
+
+Zone E carries the **Pi 5 + 5×7" HDMI touch display** (DR-017) as an
+integrated unit mounted to the front edge of the front extension, rising
+vertically above Zone D. The display faces the operator; the Pi mounts
+behind the display so the whole assembly is a single tilt-back stalk.
+
+### 5.1 Geometry
+
+| Aspect | Value | Notes |
+|--------|-------|-------|
+| Display active area | ~127 × 178 mm (5" × 7") | On hand — generic HDMI panel |
+| Display + bezel (estimated) | ~152 × 203 mm (6" × 8") | Verify on the actual display before final bracket fab (G3) |
+| Pi 5 PCB | 85 × 56 mm | Mounted directly to the back of the display via M2.5 standoffs |
+| Riser base footprint | ~75 × 100 mm | Bolts to the front face of the front extension; small footprint so it doesn't crowd Zone D |
+| Display orientation | Landscape, tilted back ~15–20° | Comfortable operator viewing angle while standing |
+| Pi 5 cooling clearance | ≥20 mm above the active cooler fan intake | Don't enclose the back; let it breathe |
+
+### 5.2 Mount detail
+
+The riser is fabricated from BASE-001 angle-iron offcut or 1"-class steel
+flatbar. Two M5 bolts through the front extension face into a vertical
+stalk; stalk top carries a flat plate to which the display is fastened
+through its existing VESA-style or perimeter mount holes. Pi 5 mounts to
+standoffs on the back of the display plate.
+
+### 5.3 Cable routing
+
+Two cables run from Zone E down into Zone D:
+
+- **micro-HDMI → HDMI** (`UI-005`): video from Pi 5 to display. Both cable
+  ends stay in Zone E; the cable does not cross zones.
+- **USB-A → display USB** (combined power + touch): runs along the back of
+  the riser, ferrite at the Pi end, terminates at the display's USB port.
+
+A third cable runs from Pi 5 USB-A out to the ESP32 in Zone D:
+
+- **USB-A → ESP32** (`UI-006`): drops vertically from the Pi 5 down the
+  back of the riser, ferrite at the Pi end, follows the +X signal lane
+  into Zone D's front face USB pass-through.
+
+All three cables travel along the back of the riser, out of operator sight.
+
+### 5.4 Thermal considerations
+
+Pi 5 is rated 0–50°C ambient. The riser places the Pi ~250 mm forward of
+Zone C (plenum, 150–200°C surface). The existing Zone C/D heat barrier
+(see §2) plus the ~150 mm vertical separation from the deck plane keep Pi
+ambient well under spec under normal operation. Verify in TP-001 with a TC
+taped to the Pi 5 active-cooler intake during a soak run.
+
+Display backlight self-heating is the secondary concern — most 5×7" panels
+run cool, but enclosed mounts can trap heat behind the panel. Leave the
+back of the display open (Pi 5 mounted on standoffs, not flush) for
+convective dissipation.
+
+### 5.5 EMI
+
+The Pi 5 USB rail is the EMI-sensitive path here (the ESP32 USB serial
+link rides it). Ferrites at the Pi end of the USB-to-ESP32 cable
+(`FERR-001` inventory) mitigate TRIAC/motor noise re-injected via the USB
+cable. WiFi (for the WebLCDs iPad bridge) lives on the Pi's internal radio
+— no antenna routing needed.
+
+### 5.6 Power
+
+Pi 5 USB-C PSU (`UI-002`, 27 W) connects to the Pi at the riser. The
+display draws its power from one of Pi 5's USB-A ports (G2 — requires
+`usb_max_current_enable=1` on the Pi). No separate display PSU. The Pi's
+USB-C input cord exits the back of the riser and joins the +X signal lane
+back to the rear edge where it leaves the chassis alongside the mains
+cord (different cord, different strain relief).
+
+### 5.7 Open items
+
+| Item | What unblocks it |
+|------|-----------------|
+| Exact display dimensions + mount-hole pattern | Pull the display, measure perimeter, identify any factory mount holes |
+| Riser stalk height | Set so display centerline is at operator eye level when standing in front of the assembly (~1100–1300 mm above floor); needs the leg height from DR-013 to pin down |
+| Cardboard mockup of Zone E + Zone D fit | Cut a 152 × 203 mm cardboard rectangle, position on the riser stub, verify it doesn't shadow the air-train work area or block the chamber view |
+
+---
+
+## 6. Wire Routing — Three Lanes
 
 All wiring runs along the **+X edge** of the baseplate (the long edge
 opposite the air train), in three physically separated channels. This
@@ -309,7 +402,7 @@ ground. Reaffirms the existing rule from `power-schematic.md`.
 
 ---
 
-## 6. Open Issues / Pending Parts
+## 7. Open Issues / Pending Parts
 
 | Item | Why it's pending | What unblocks it |
 |------|-----------------|------------------|
@@ -323,18 +416,20 @@ ground. Reaffirms the existing rule from `power-schematic.md`.
 | Verification of <40°C inside Zone D | Depends on heat-barrier effectiveness | TP-001 — instrument enclosure interior with a TC during a soak run |
 | ~~L-bracket / ballast plan for stability (M1)~~ | ~~Depends on final mass distribution~~ | **Resolved by DR-013** — threaded-rod tripod legs continuing up to a chamber clamp provide lateral tip resistance. Final rod length and clamp height set once chamber stack is assembled |
 | Tripod foot positions | Depends on final extension geometry | Front pair straddle the plenum on the deck; rear pair straddle the motor on the rear extension. Final coordinates set once the angle iron is cut |
+| Zone E riser geometry (DR-017 G3) | Display perimeter dimensions and mount-hole pattern not yet measured; riser stalk height depends on final leg length | Pull the on-hand 5×7" display, measure perimeter, identify any factory mount holes; cardboard-mock the assembly against the air-train view before drilling |
 
 ---
 
-## 7. Cross-References
+## 8. Cross-References
 
 - Architecture: `docs/system/architecture.md` §3, §3.1, §8
 - Schematics: `docs/electrical/schematics/power-schematic.md`
 - BOM line items used in this doc: HTR-001, HTR-CAN-001, BLW-001,
   BLW-CTRL-001, CT-001, FILT-001, FERR-001, BOND-001, SSR-001, ESP-001,
-  TC-AMP-001 (×3), TC-001/002/003, TC-FIT-001, PSU-001, SW-001, FUSE-001,
-  STRAIN-001, THFUSE-001, THFUSE-002, R-SNB-001, C-SNB-001, Q2-001,
-  R3-001, PLEN-001, PLEN-005, BASE-001
+  TC-AMP-001 (×3), TC-001/002/003, TC-FIT-001, PSU-001, SW-001, SW-002,
+  LED-001, LED-002, FUSE-001, STRAIN-001, THFUSE-001, THFUSE-002,
+  R-SNB-001, C-SNB-001, Q2-001, R3-001, PLEN-001, PLEN-005, BASE-001,
+  UI-001 through UI-007
 - Design decisions referenced: DR-002, DR-005, DR-007, DR-008, DR-009,
-  DR-011; M1, M2, M5, M9; E6, E7, E10, E13; T1
+  DR-011, DR-016, DR-017; M1, M2, M5, M9; E6, E7, E10, E13; T1
 - SCAD model (to be updated when motor is in hand): `docs/mechanical/drawings/roaster-assembly.scad`

@@ -4,6 +4,269 @@ Running record of design decisions, findings, and rationale. Newest entries firs
 
 ---
 
+## 2026-05-12 — DR-017 Host platform: Pi 5 + integrated 7" HDMI display
+
+### Decision
+
+The Artisan host (per DR-016) is a **Raspberry Pi 5 (8 GB)** with the on-hand
+generic 7" HDMI touchscreen, both mounted integrated to the baseplate in a
+new **Zone E**, USB-tethered to the ESP32. iPad is a read-only secondary
+view over WiFi via Artisan's WebLCDs.
+
+Transport between Pi and ESP32 is **USB serial** (Variant A) for v1. The
+firmware command parser is structured transport-agnostically so a WiFi /
+TCP-socket transport (Variant B) can be added in v2 without re-architecting.
+
+### Why Pi 5 over laptop / Pi 4 / iPad-only
+
+| Option | Why not |
+|--------|---------|
+| Laptop tethered | Fragile (USB jiggle, sleep, screensaver), not physically attached, defeats "attached UI" goal |
+| Pi 4 | Sufficient for Artisan alone but no headroom for future image-stream or analysis work; Pi 5 is only ~$25 more |
+| iPad as host | Artisan does not run on iOS — period. Closes off the entire control path |
+| iPad as VNC client | Adds latency, tiny tap targets, locks the iPad to one role while tethered |
+
+iPad survives in the architecture as a **passive remote view** via WebLCDs
+over LAN — free bonus once the Pi is on WiFi, no extra parts.
+
+### Why USB serial, not WiFi/TCP
+
+WiFi/TCP is supported natively by Artisan (Modbus TCP / WebSocket device
+profiles) and the ESP32 has the radio for free. It's tempting for v1. Rejected
+because:
+
+- USB is lower-latency, has no provisioning / network-credential / NTP
+  surface area, and fails into a single well-understood mode (cable yank →
+  serial watchdog → safe state per DR-016).
+- WiFi adds WPA provisioning, captive-portal flow, time-sync, security
+  model, mDNS for service discovery — meaningful firmware burden for no v1
+  control-loop benefit.
+- The firmware structure that supports a clean v2 migration is just: keep
+  command parsing decoupled from the transport layer. Free to design that
+  way from the start.
+
+WiFi remains in the architecture for the WebLCDs bridge (Pi → iPad), which is
+a totally separate path from the ESP32 control link.
+
+### Zone E — new baseplate region
+
+`baseplate-layout.md` currently defines 4 zones:
+
+- Zone A — motor (rear angle-iron extension)
+- Zone B — heater can
+- Zone C — plenum + chamber
+- Zone D — electronics tray (front angle-iron extension)
+
+**Zone E (new)** carries the Pi 5 + display as an integrated unit, mounted
+to the front of the baseplate above or adjacent to Zone D. Exact geometry
+deferred until Pi 5 and display dimensions are confirmed alongside the BOM
+lock; `baseplate-layout.md` will be updated in a follow-up commit.
+
+Thermal separation from Zone B/C is the key constraint — Pi 5 is rated 0–50°C
+ambient operating; passive radiation from the heater can must not raise the
+Pi enclosure ambient above that. A reflective baffle between Zone B/C and
+Zone E is the likely mitigation.
+
+### Software stack
+
+- Raspberry Pi OS 64-bit (Bookworm or current)
+- `/boot/firmware/config.txt`: `usb_max_current_enable=1` to unlock the
+  1.6 A USB rail (required per G2)
+- Artisan latest stable, ARM64 build, auto-launch fullscreen on boot
+- WebLCDs enabled (Artisan Config → Logging → WebLCDs); accessible at
+  `http://<pi-ip>:7000` on the LAN
+- VNC + SSH enabled for headless debug access
+- Serial device: ESP32 enumerates as `/dev/ttyUSB0` or `/dev/ttyACM0`; udev
+  rule pins device path for stability across reboots
+
+### Power architecture
+
+Display draws USB 5 V from the Pi itself. Pi 5's USB rail can supply up to
+1.6 A total when powered from the official 27 W (5 V / 5 A) PSU. Budget:
+
+- 7" display: estimated 0.7–1.0 A (verification gate G1 below)
+- ESP32 via USB: 0.1–0.2 A
+- Headroom for one extra peripheral: ~0.4 A
+
+This is tight but workable. If display + ESP32 exceeds budget, fallback is
+a powered USB hub (cheap, adds one component).
+
+### Verification gates
+
+- **G1 — RESOLVED 2026-05-12.** Display is a generic 5" × 7" HDMI panel
+  (on hand) with both HDMI for video and USB for power + touch (USB HID).
+  Single USB cable from Pi 5 carries both power and touch input. No
+  separate display PSU needed; no `UI-008` BOM line. micro-HDMI → HDMI
+  cable (`UI-005`) handles video; one of Pi 5's USB-A ports carries the
+  combined power + touch path.
+- **G2 — RESOLVED 2026-05-12.** Pi 5 ships with a conservative
+  600 mA total USB current cap by default. With the official 27 W
+  (5 V / 5 A) PSU (`UI-002`) connected AND `usb_max_current_enable=1`
+  set in `/boot/firmware/config.txt`, the cap raises to 1.6 A total.
+  Budget at the elevated cap:
+
+  | Load | Estimated draw |
+  |---|---|
+  | 5×7 display (backlight + touch) | 0.7–1.0 A |
+  | ESP32 via USB serial | 0.1–0.2 A |
+  | **Total worst case** | **1.2 A** |
+  | **Headroom under 1.6 A cap** | **~0.4 A** |
+
+  Workable. If TP-001 commissioning shows brown-outs on the display at peak
+  backlight (e.g. cold-start), fallback is a powered USB hub on the display
+  USB lead (reactive `UI-009`, not built now). The 1.6 A flag goes into the
+  Pi's first-boot setup checklist alongside SSH/VNC enable.
+- **G3 — OPEN (physical mockup required).** Pi 5 + display + existing
+  Zone D electronics tray must fit on the baseplate without violating the
+  heater-can thermal exclusion zone. Now bounded by known dimensions:
+  display ~152 × 203 mm (~6" × 8" bezel estimated), Pi 5 85 × 56 mm
+  mounted directly behind display. Zone E geometry per
+  `baseplate-layout.md` §5. Verify with cardboard mockup before drilling
+  any Zone E mounting holes.
+
+### BOM impact
+
+New `UI-*` family. Display itself is on hand — no BOM line.
+
+| Item | Description |
+|------|-------------|
+| `UI-001` | Raspberry Pi 5, 8 GB |
+| `UI-002` | Official Pi 5 27 W USB-C PSU |
+| `UI-003` | Pi 5 active cooler |
+| `UI-004` | microSD 64 GB A2 V30 (boot drive) |
+| `UI-005` | micro-HDMI → HDMI cable, ~12" |
+| `UI-006` | USB-A → ESP32 short cable with ferrite |
+| `UI-007` | Zone E mounting hardware (standoffs / bracket from BASE-001 offcut) |
+
+Estimated total: ~$115. Display PSU not needed (Pi USB-powered).
+
+### What this opens up
+
+- Local-attached UI without a laptop tether
+- iPad-on-LAN as a passive observation surface (no extra parts)
+- v2 transition to WiFi/TCP control transport, with firmware already
+  structured to drop it in
+- Future on-host image analysis (color tracker, drum-position camera, etc.)
+  has headroom on Pi 5
+
+### What this closes off
+
+- Laptop-tethered operation is now the fallback / debug path, not the
+  primary
+- iPad-as-primary-host is permanently ruled out
+
+### Files touched
+
+- `docs/system/design-log.md` (this entry)
+- `bom/bom-master.csv` (7 new UI-* rows)
+- `docs/mechanical/baseplate-layout.md` — Zone E to be added in follow-up
+  once G1–G3 resolve
+
+---
+
+## 2026-05-12 — DR-016 Operator UI architecture: Artisan-as-UI + minimal safety panel
+
+### Decision
+
+Two coupled decisions about how the operator interacts with the roaster in v1:
+
+**D1 — Hardware Heater Enable switch on the SSR control line.** A front-panel
+SPST toggle is wired in series with the ESP32 → SSR control signal (low-voltage
+~5V / ~10mA path; no mains-side current). The ESP32 also reads the switch
+state as a digital input so firmware refuses to assert heater duty when
+disabled, regardless of upstream commands. This makes the heater authority
+hierarchy explicit and physical:
+
+| Level | Mechanism | Use case |
+|-------|-----------|----------|
+| 1 | Firmware control loop / `COOL` command | Normal operation, graceful cooldown |
+| 2 | Hardware Heater Enable switch | Operator override, commissioning, distrust firmware |
+| 3 | Thermal fuses (`THFUSE-001` / `THFUSE-002`) | SSR-shorted runaway last resort |
+| 4 | DPST main disconnect (`SW-001`) | Total kill |
+
+Each level is independent of the levels below it. Honors the CLAUDE.md safety
+doctrine ("the safety system should always be able to force heater off") and
+extends it to the operator.
+
+**D2 — Artisan is the operator UI; no physical pots, mode switch, or screen
+on v1.** Every v1 roast is a characterization roast and Artisan is going to
+be running for logging anyway, so a tethered host is already a hard
+requirement. Adding panel-mounted setpoint controls (heater% / blower% pots,
+AUTO/MANUAL toggle, OLED + encoder) creates a second source of truth for
+setpoints and a non-trivial firmware burden for no operational gain in v1.
+
+Minimal v1 panel:
+
+| Component | Purpose |
+|-----------|---------|
+| DPST main disconnect (`SW-001`, red toggle + cover) | Last-resort kill |
+| Heater Enable switch (`SW-002`, new) | Defense-in-depth on SSR control |
+| POWER LED (`LED-001`, new) | "Mains is hot" at-a-glance |
+| FAULT LED (`LED-002`, new) | Latched fault from safety layer |
+
+No pots, no encoder, no screen.
+
+### Why not pots / knobs
+
+Considered a "knob = setpoint, Artisan = logger" model where physical pots
+drive heater% and blower% directly. Rejected because:
+
+- Every v1 roast is logged, so Artisan must be running anyway — knobs would
+  duplicate setpoint authority and create knob-vs-Artisan arbitration.
+- Setpoint changes made from knobs would need a separate read-and-log path
+  to land in the roast record with the same provenance as Artisan-issued
+  commands.
+- Closed-loop migration (v2) is now pure software — no physical control
+  surface to repurpose or ignore.
+
+The cost of the foreclosure is low: if v2 needs panel setpoints, two ADC pins
+and a mode-arbitration block of firmware can be added then.
+
+### USB-drop failure mode
+
+The Artisan-only path makes USB serial integrity safety-relevant. Mitigated
+by:
+
+- **Serial watchdog in firmware.** No command received in N seconds → fail
+  to safe state: heater 0%, blower retains last value (preserves cooldown),
+  FAULT LED on, fault latched until reset. N to be tuned in TP-001; start
+  ~5s.
+- **Positive-latching USB connector.** Short cable, USB-B or USB-C with
+  positive retention; no long flimsy A-to-MicroB.
+- **Host discipline.** Laptop/Pi on AC, sleep disabled, screensaver off
+  during roast — already implicit in any logged-roast workflow.
+
+### What this closes off
+
+- No panel-mounted setpoint controls in v1.
+- No on-device screen / OLED / touch UI in v1.
+- No MANUAL/AUTO mode arbitration logic in firmware.
+
+These are explicitly deferred to v2 if and when post-TP-001 data shows they're
+warranted.
+
+### What this opens up
+
+The host running Artisan does NOT have to be a laptop. Pi-based attached UI
+is the natural next step — captured separately, not in this DR.
+
+### BOM impact
+
+| Action | Item |
+|--------|------|
+| Added | `SW-002` — Heater Enable SPST toggle (low-voltage panel switch) |
+| Added | `LED-001` — POWER indicator LED, panel-mount |
+| Added | `LED-002` — FAULT indicator LED, panel-mount |
+
+Current-limiting resistors come from the ELEGOO kit (`R3-001`).
+
+### Files touched
+
+- `docs/system/design-log.md` (this entry)
+- `bom/bom-master.csv` (3 new rows)
+
+---
+
 ## 2026-05-09 — DR-015 BLW-HOUS-001 outlet is axial, not radial — add elbow
 
 ### Decision

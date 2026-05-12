@@ -9,6 +9,8 @@ Cables out to other zones:
     -> HEATER  (C-CT-1..3)  GPIO 22 + 5 V + GND  for SSR drive
     -> BLOWER  (C-BL-1..5)  PWM, ZC, +5 V, GND, CT-out + GND
     <- BLOWER  CT secondary (analog, shielded twisted pair)
+    -> PANEL   (C-PN-1..6)  SW-002, LED-001, LED-002  (DR-016)
+    -> ZONE E  USB-A out -> Pi 5 host (DR-017)
 
 PSU-001 PE pin internally bonds to its own 0 V output (earth tie).
 """
@@ -50,7 +52,7 @@ def build() -> schemdraw.Drawing:
     # ---- ESP-001 (ESP32-DevKitC) ----
     esp_x0, esp_y0, esp_x1, esp_y1 = 4, 7, 13, 16
     module(d, esp_x0, esp_y0, esp_x1, esp_y1, "ESP-001  ESP32-DevKitC")
-    esp_usb = term(d, ((esp_x0 + esp_x1) / 2, esp_y1), "USB-micro\n(power + serial)", "top")
+    esp_usb = term(d, ((esp_x0 + esp_x1) / 2, esp_y1), "USB-A\n(to Pi 5 / Zone E)", "top")
     # Right-side pins (logic outputs / SPI)
     pins = [
         ("GPIO 18  SCK",  15.5),
@@ -58,12 +60,15 @@ def build() -> schemdraw.Drawing:
         ("GPIO  5  CS1",  14.5),
         ("GPIO 16  CS2",  14.0),
         ("GPIO 17  CS3",  13.5),
-        ("GPIO 22  -> SSR (D1)",       12.5),
+        ("GPIO 22  -> SW-002 -> SSR (D1)", 13.0),
+        ("GPIO 35  <- SW-002 state",       12.6),
         ("GPIO 23  -> TRIAC PWM (D2)", 12.0),
         ("GPIO  4  <- TRIAC ZC  (D2)", 11.5),
         ("GPIO 34  <- CT  ADC   (D2)", 11.0),
-        ("3V3 out", 10.0),
-        ("GND",     9.5),
+        ("GPIO 25  -> LED-001 POWER", 10.5),
+        ("GPIO 26  -> LED-002 FAULT", 10.0),
+        ("3V3 out", 9.5),
+        ("GND",     9.0),
     ]
     pin_pts = {}
     for label, y in pins:
@@ -72,11 +77,11 @@ def build() -> schemdraw.Drawing:
     wire(d, psu_5v, (12, 19.5), C_5V)
     wire(d, (12, 19.5), (12, esp_y1 + 0.5), C_5V)
     wire(d, (12, esp_y1 + 0.5), (esp_usb[0], esp_y1 + 0.5), C_5V)
-    wire(d, (esp_usb[0], esp_y1 + 0.5), esp_usb, C_5V, "USB-A -> USB-micro\n(power + serial)",
+    wire(d, (esp_usb[0], esp_y1 + 0.5), esp_usb, C_5V, "USB-A -> USB-A\nto Pi 5 (Zone E)\n+ serial",
          label_at=(11.5, 17.0))
-    # Add USB host PC stub
+    # DR-017: ESP32 USB tether terminates at the Pi 5 host on Zone E.
     d.add(elm.Dot(open=True).at((esp_usb[0], esp_y1 + 1.5)).label(
-        "to host PC\n(Artisan, 115200 bps)", "top", fontsize=7))
+        "to Pi 5 host (Zone E)\nArtisan, 115200 bps", "top", fontsize=7))
     wire(d, (esp_usb[0], esp_y1 + 0.5), (esp_usb[0], esp_y1 + 1.5), C_5V)
 
     # ---- 3x MAX31855 (right of ESP, stacked vertically) ----
@@ -179,7 +184,7 @@ def build() -> schemdraw.Drawing:
     d.add(elm.Dot(open=True).at(out_5v).label("+5 V\n(C-CT-2)", "left", fontsize=7))
     d.add(elm.Dot(open=True).at(out_gnd).label("sig GND\n(C-CT-3)", "left", fontsize=7))
     # ESP GPIO 22 -> out_g22
-    g22 = pin_pts["GPIO 22  -> SSR (D1)"]
+    g22 = pin_pts["GPIO 22  -> SW-002 -> SSR (D1)"]
     wire(d, g22, (g22[0] + 0.5, g22[1]), C_3V3)
     wire(d, (g22[0] + 0.5, g22[1]), (g22[0] + 0.5, 7.5), C_3V3)
     wire(d, (g22[0] + 0.5, 7.5), out_g22, C_3V3, "PUR 22 AWG", label_at=(7.5, 7.7))
@@ -233,11 +238,77 @@ def build() -> schemdraw.Drawing:
     wire(d, (g34[0] + 1.2, in_ct[1]), (g34[0] + 1.2, g34[1]), C_SIG)
     wire(d, (g34[0] + 1.2, g34[1]), g34, C_SIG, "BLU 22 AWG shielded")
 
+    # ---- Outgoing cables to PANEL FACE (DR-016) ----
+    # SW-002 Heater Enable + LED-001 POWER + LED-002 FAULT live on the front
+    # panel. Cables exit the right edge of the control bay zone toward the
+    # panel-face area.
+    panel_xs = Z_X1 - 0.2
+    # Drive side of SW-002 (GPIO 22 -> panel) and state-read side (panel -> GPIO 35)
+    out_sw_drv = (panel_xs, 9.5)
+    out_sw_ret = (panel_xs, 9.0)
+    out_sw_pu = (panel_xs, 8.5)
+    out_led_pwr = (panel_xs, 7.5)
+    out_led_flt = (panel_xs, 7.0)
+    out_led_gnd = (panel_xs, 6.5)
+    d.add(elm.Dot(open=True).at(out_sw_drv).label(
+        "GPIO 22 (pre-SW)\n-> PANEL SW-002 in (C-PN-1)", "right", fontsize=7))
+    d.add(elm.Dot(open=True).at(out_sw_ret).label(
+        "GPIO 22 (post-SW)\n<- PANEL SW-002 out -> Q2 (C-PN-2)", "right", fontsize=7))
+    d.add(elm.Dot(open=True).at(out_sw_pu).label(
+        "GPIO 35 (state)\n<- PANEL SW-002 sense (C-PN-3)", "right", fontsize=7))
+    d.add(elm.Dot(open=True).at(out_led_pwr).label(
+        "GPIO 25\n-> PANEL LED-001 + (C-PN-4)", "right", fontsize=7))
+    d.add(elm.Dot(open=True).at(out_led_flt).label(
+        "GPIO 26\n-> PANEL LED-002 + (C-PN-5)", "right", fontsize=7))
+    d.add(elm.Dot(open=True).at(out_led_gnd).label(
+        "sig GND\n-> PANEL LED-001/002 cathode (C-PN-6)", "right", fontsize=7))
+
+    # SW-002 drive wiring: GPIO 22 splits — one branch heads down to heater
+    # bay (already drawn), other heads to panel SW-002 via a tap dot.
+    g22 = pin_pts["GPIO 22  -> SW-002 -> SSR (D1)"]
+    # Tap dot at the existing GPIO 22 break (just past the pin)
+    sw_tap_x = g22[0] + 1.4
+    wire(d, (g22[0] + 0.5, g22[1]), (sw_tap_x, g22[1]), C_3V3)
+    d.add(elm.Dot().at((sw_tap_x, g22[1])))
+    wire(d, (sw_tap_x, g22[1]), (sw_tap_x, out_sw_drv[1]), C_3V3)
+    wire(d, (sw_tap_x, out_sw_drv[1]), out_sw_drv, C_3V3, "PUR 22 AWG")
+
+    # SW-002 state read: GPIO 35 <- panel
+    g35 = pin_pts["GPIO 35  <- SW-002 state"]
+    wire(d, g35, (sw_tap_x - 0.2, g35[1]), C_3V3)
+    wire(d, (sw_tap_x - 0.2, g35[1]), (sw_tap_x - 0.2, out_sw_pu[1]), C_3V3)
+    wire(d, (sw_tap_x - 0.2, out_sw_pu[1]), out_sw_pu, C_3V3, "PUR 22 AWG")
+
+    # LED-001 drive from GPIO 25
+    g25 = pin_pts["GPIO 25  -> LED-001 POWER"]
+    wire(d, g25, (sw_tap_x - 0.4, g25[1]), C_3V3)
+    wire(d, (sw_tap_x - 0.4, g25[1]), (sw_tap_x - 0.4, out_led_pwr[1]), C_3V3)
+    wire(d, (sw_tap_x - 0.4, out_led_pwr[1]), out_led_pwr, C_3V3, "GRN 22 AWG\n+ 330R inline")
+
+    # LED-002 drive from GPIO 26
+    g26 = pin_pts["GPIO 26  -> LED-002 FAULT"]
+    wire(d, g26, (sw_tap_x - 0.6, g26[1]), C_3V3)
+    wire(d, (sw_tap_x - 0.6, g26[1]), (sw_tap_x - 0.6, out_led_flt[1]), C_3V3)
+    wire(d, (sw_tap_x - 0.6, out_led_flt[1]), out_led_flt, C_3V3, "RED 22 AWG\n+ 330R inline")
+
+    # Shared LED GND return
+    wire(d, esp_gnd, (esp_gnd[0] + 1.1, esp_gnd[1]), C_GND)
+    wire(d, (esp_gnd[0] + 1.1, esp_gnd[1]), (esp_gnd[0] + 1.1, out_led_gnd[1]), C_GND)
+    wire(d, (esp_gnd[0] + 1.1, out_led_gnd[1]), out_led_gnd, C_GND, "BLK 22 AWG")
+
+    # Return-side of SW-002 (post-switch wiring rejoins the heater drive
+    # cable). Drawn as a tap into the existing C-CT-1 path.
+    wire(d, (sw_tap_x + 0.2, g22[1]), (sw_tap_x + 0.2, out_sw_ret[1]), C_3V3)
+    d.add(elm.Dot().at((sw_tap_x + 0.2, g22[1])))
+    wire(d, (sw_tap_x + 0.2, out_sw_ret[1]), out_sw_ret, C_3V3, "PUR 22 AWG")
+
     # ---- Title and cable schedule (below zone) ----
     d.add(elm.Label().at((16, -1.0)).label(
         "Panel Wiring  -  Zone 4 of 4: CONTROL BAY  (low-voltage side)\n"
         "PSU-001 internal earth bond is the SINGLE PE <-> signal-GND tie - do not add another.\n"
-        "All TC cables shielded, drained at the panel end only. SCK / MISO are shared SPI; CS individual.",
+        "All TC cables shielded, drained at the panel end only. SCK / MISO are shared SPI; CS individual.\n"
+        "DR-016: PANEL FACE carries SW-002 (Heater Enable, in series with SSR drive) + LED-001/002 (POWER/FAULT).\n"
+        "DR-017: ESP USB tethered to Pi 5 (Zone E); Pi 5 runs Artisan natively + serves WebLCDs to iPad over WiFi.",
         fontsize=10))
 
     cable_schedule(d, 2, -5.0, [
@@ -247,6 +318,7 @@ def build() -> schemdraw.Drawing:
         ("C-MN-7", "MAINS N bus 4",         "PSU-001 N",                   "1",    "WHT 14 AWG"),
         ("C-PE-3", "MAINS chassis stud",    "Bay PE bus + PSU-001 PE",     "1",    "GRN 14 AWG"),
         ("(int)",  "PSU-001 USB-A out",     "ESP-001 USB-micro",           "n/a",  "USB-A to USB-uB"),
+        ("(int)",  "ESP-001 USB",           "Pi 5 (Zone E) USB-A in",      "n/a",  "USB-A latching, short, ferrite (DR-017)"),
         ("(int)",  "ESP-001 SCK / MISO",    "MAX31855 #1/#2/#3 SCK / DO",  "2",    "PUR 22 AWG"),
         ("(int)",  "ESP-001 CS1 / 2 / 3",   "MAX31855 #1 / #2 / #3 CS",    "1 ea", "PUR 22 AWG"),
         ("(int)",  "ESP-001 3V3 / GND",     "MAX31855 #1/#2/#3 VCC / GND", "2",    "RED + BLK 22 AWG"),
@@ -261,6 +333,12 @@ def build() -> schemdraw.Drawing:
         ("C-BL-3", "PSU-001 +5 V tap",      "BLOWER BLW-CTRL VCC",         "1",    "RED 22 AWG"),
         ("C-BL-4", "ESP GND",               "BLOWER BLW-CTRL GND",         "1",    "BLK 22 AWG"),
         ("C-BL-5", "BLOWER BN-001 out",     "ESP GPIO 34 + GND",           "2+S",  "BLU+BLK 22 AWG shielded"),
+        ("C-PN-1", "ESP GPIO 22 (pre)",     "PANEL SW-002 input pole",     "1",    "PUR 22 AWG (DR-016)"),
+        ("C-PN-2", "PANEL SW-002 output",   "Q2 base / SSR drive return",  "1",    "PUR 22 AWG (DR-016)"),
+        ("C-PN-3", "PANEL SW-002 sense",    "ESP GPIO 35 (state read)",    "1",    "PUR 22 AWG (DR-016)"),
+        ("C-PN-4", "ESP GPIO 25",           "PANEL LED-001 anode + 330R",  "1",    "GRN 22 AWG (DR-016)"),
+        ("C-PN-5", "ESP GPIO 26",           "PANEL LED-002 anode + 330R",  "1",    "RED 22 AWG (DR-016)"),
+        ("C-PN-6", "ESP GND",               "PANEL LED cathode common",    "1",    "BLK 22 AWG (DR-016)"),
     ], col_widths=(2.5, 6.5, 6.5, 1.2, 6.0))
 
     return d

@@ -40,6 +40,7 @@ show_heater_can      = true;
 show_blower          = true;
 show_electronics_box = true;
 show_heat_barrier    = true;
+show_zone_e          = true;       // DR-017 Pi 5 + display riser
 
 // --- Origin convention --------------------------------------
 // (0, 0, 0) is the rear-left corner of the steel deck, at the deck top
@@ -149,6 +150,38 @@ ebox_w           = 280;
 ebox_d           = 100;
 ebox_h           = 90;
 ebox_y           = deck_length + 12;   // on front extension, ~12 mm past barrier
+
+// --- Zone E: Pi 5 host + 5x7" HDMI display riser (DR-017) ---
+
+// Display: on-hand 5x7" HDMI touch panel (HDMI in + USB power/touch in).
+// Exact perimeter unmeasured (G3) — placeholder dimensions match the
+// active area (5" x 7") plus an estimated 0.5" bezel each side.
+display_w        = 178;     // 7" wide (X)
+display_h        = 152;     // 5" tall (Z, when standing)
+display_thick    = 12;      // ~12 mm panel + bezel depth
+display_bezel    = 13;      // 0.5" bezel allowance on every edge (already included in w/h)
+
+// Pi 5 PCB mounts on standoffs behind the display. M2.5 standoff stack
+// raises the Pi ~12 mm clear of the back of the display for cooling
+// clearance over the active cooler intake.
+pi5_w            = 85;
+pi5_d            = 56;
+pi5_h            = 18;      // Pi 5 board + active cooler stack
+pi5_standoff     = 12;
+
+// Riser geometry: vertical stalk from the front extension. Display
+// centerline targets ~1100 mm above floor (operator eye-level when
+// standing), which with the DR-013 leg height puts the display centerline
+// roughly leg_above - 20 mm above the deck top.
+zone_e_stalk_w   = 20;      // 3/4" angle-iron / flat-bar stalk visualization
+zone_e_stalk_t   = 6;       // stalk thickness
+zone_e_stalk_h   = 320;     // height above deck top to display bottom edge
+zone_e_tilt      = 18;      // backward tilt of display, degrees
+
+// Position: stalk roots at the front edge of the front extension,
+// centered across X.
+zone_e_y         = deck_length + front_ext_length - 15;   // 15 mm back from front extension edge
+zone_e_x_center  = deck_cx;
 
 // --- Deflector ramp baffle (DR-009) -------------------------
 
@@ -386,6 +419,65 @@ module electronics_box() {
         cube([ebox_w, ebox_d, ebox_h]);
 }
 
+module zone_e() {
+    // Zone E: Pi 5 + 5x7" HDMI display on a tilt-back vertical stalk.
+    //
+    // Construction:
+    //   1. Vertical stalk (flat-bar visualization) rising from front
+    //      extension at the front edge.
+    //   2. Tilt mount at the top of the stalk.
+    //   3. Display panel rotated ~zone_e_tilt deg backward from vertical.
+    //   4. Pi 5 PCB (with active cooler) on standoffs behind the display.
+    //
+    // Cables (visualized as a thin bundle from Pi back down the stalk):
+    //   - USB-C power in (Pi -> mains-side PSU)
+    //   - USB-A out to ESP32 (Pi -> Zone D)
+    //   - micro-HDMI -> HDMI (Pi -> display, lives entirely in Zone E)
+
+    // Stalk: vertical flat-bar
+    color("DimGray")
+    translate([zone_e_x_center - zone_e_stalk_w/2,
+               zone_e_y - zone_e_stalk_t/2,
+               0])
+        cube([zone_e_stalk_w, zone_e_stalk_t, zone_e_stalk_h]);
+
+    // Tilt-mount + display + Pi 5 form a rigid assembly that rotates
+    // backward (toward -Y) by zone_e_tilt degrees around the X axis.
+    translate([zone_e_x_center, zone_e_y, zone_e_stalk_h])
+    rotate([-zone_e_tilt, 0, 0]) {
+        // Display panel (facing operator = facing +Y face of the rotated block)
+        color("MidnightBlue", 0.9)
+        translate([-display_w/2, -display_thick, 0])
+            cube([display_w, display_thick, display_h]);
+
+        // Active touch surface (slight inset, brighter)
+        color("DeepSkyBlue", 0.6)
+        translate([-display_w/2 + display_bezel,
+                   -display_thick - 0.4,
+                   display_bezel])
+            cube([display_w - 2*display_bezel, 0.4, display_h - 2*display_bezel]);
+
+        // Pi 5 PCB on standoffs behind the display
+        color("DarkGreen", 0.85)
+        translate([-pi5_w/2,
+                   pi5_standoff,
+                   (display_h - pi5_d)/2])
+            cube([pi5_w, pi5_d, pi5_h]);
+
+        // Active cooler nub on top of Pi 5
+        color("Silver", 0.7)
+        translate([-30, pi5_standoff + 10, (display_h - pi5_d)/2 + pi5_h])
+            cube([60, 36, 8]);
+    }
+
+    // Cable bundle running back down the stalk (visualization)
+    color("Black", 0.5)
+    translate([zone_e_x_center - 4,
+               zone_e_y + zone_e_stalk_t/2,
+               20])
+        cube([8, 4, zone_e_stalk_h - 40]);
+}
+
 module baffle() {
     color("Orange", 0.8)
     translate([deck_cx, plenum_y + plenum_dia/2 - 30, plenum_bot_z + 10])
@@ -416,6 +508,7 @@ if (show_cone_reducer)    cone_reducer();
 if (show_chaff_collector) chaff_collector();
 if (show_heat_barrier)    heat_barrier();
 if (show_electronics_box) electronics_box();
+if (show_zone_e)          zone_e();
 
 // =============================================================
 // Annotations (console output)
@@ -437,3 +530,6 @@ echo(str("Heater can: Y=", heater_y_rear, " to Y=", heater_y_front,
          " (", heater_can_len, " mm long)"));
 echo(str("Blower: dia ", blower_dia, " x ", blower_height,
          " mm; CL at Y=", blower_y, " (", -blower_y, " mm rear of deck rear edge)"));
+echo(str("Zone E (DR-017): display ", display_w, "x", display_h,
+         " mm, Pi 5 ", pi5_w, "x", pi5_d, "x", pi5_h,
+         " mm, stalk Y=", zone_e_y, " Z to ", zone_e_stalk_h, " mm"));
